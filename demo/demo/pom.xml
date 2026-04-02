@@ -52,7 +52,7 @@
 	</build>
 	<repositories>
 		<repository>
-			<id>spring-snapshots</id>
+			<id_equipamento>spring-snapshots</id_equipamento>
 			<name>Spring Snapshots</name>
 			<url>https://repo.spring.io/snapshot</url>
 			<releases>
@@ -62,7 +62,7 @@
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
-			<id>spring-snapshots</id>
+			<id_equipamento>spring-snapshots</id_equipamento>
 			<name>Spring Snapshots</name>
 			<url>https://repo.spring.io/snapshot</url>
 			<releases>

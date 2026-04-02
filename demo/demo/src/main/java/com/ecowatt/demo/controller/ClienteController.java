@@ -1,6 +1,6 @@
 package com.ecowatt.demo.controller;
 
-import com.ecowatt.demo.Service.ClienteService;
+import com.ecowatt.demo.service.ClienteService;
 import com.ecowatt.demo.model.Cliente;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

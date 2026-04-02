@@ -3,14 +3,14 @@ package com.ecowatt.demo.model;
 import java.time.LocalDateTime;
 
 public class Cliente {
-    private Long cliente_id;
+    private Long id_cliente;
     private String nome;
     private String senha;
     private String email;
     private LocalDateTime data_registro;
 
     public Cliente(Long cliente, String nome, String senha, String email, LocalDateTime data_registro) {
-        this.cliente_id = cliente;
+        this.id_cliente = cliente;
         this.nome = nome;
         this.senha = senha;
         this.email = email;
@@ -18,12 +18,12 @@ public class Cliente {
 
     }
 
-    public Long getCliente_id() {
-        return cliente_id;
+    public Long getId_cliente() {
+        return id_cliente;
     }
 
-    public void setCliente_id(Long cliente_id) {
-        this.cliente_id = cliente_id;
+    public void setId_cliente(Long id_cliente) {
+        this.id_cliente = id_cliente;
     }
 
     public String getEmail() {

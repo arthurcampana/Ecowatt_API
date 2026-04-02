@@ -1,4 +1,4 @@
-package com.ecowatt.demo.Service;
+package com.ecowatt.demo.service;
 
 import com.ecowatt.demo.model.Cliente;
 
@@ -22,13 +22,13 @@ public class ClienteService {
 
     public Optional<Cliente> buscarCliente(Long cliente_id){
         return clientes.stream()
-                .filter(p -> p.getCliente_id().equals(cliente_id))
+                .filter(p -> p.getId_cliente().equals(cliente_id))
                 .findFirst();
     }
 
     public Optional<Cliente> alterarCliente(Long codigo, Cliente clienteAtualizado){
         for (Cliente cliente : clientes) {
-            if (cliente.getCliente_id().equals(codigo)) {
+            if (cliente.getId_cliente().equals(codigo)) {
                 cliente.setNome(clienteAtualizado.getNome());
                 cliente.setSenha(clienteAtualizado.getSenha());
                 cliente.setEmail(clienteAtualizado.getEmail());
@@ -40,7 +40,7 @@ public class ClienteService {
     }
 
     public boolean excluirCliente(Long cliente_id){
-        return clientes.removeIf(c -> c.getCliente_id().equals(cliente_id));
+        return clientes.removeIf(c -> c.getId_cliente().equals(cliente_id));
 
     }
 }
