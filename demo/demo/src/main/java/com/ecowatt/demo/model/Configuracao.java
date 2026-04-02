@@ -1,6 +1,5 @@
 package com.ecowatt.demo.model;
 
-import com.ecowatt.demo.model.Cliente;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
@@ -13,8 +12,8 @@ public class Configuracao {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "cliente_id")
-    private Cliente cliente;
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
 
     private Double valorTarifa;
     private Double meta;
@@ -26,10 +25,10 @@ public class Configuracao {
 
     public Configuracao() {}
 
-    public Configuracao(Long id, Cliente cliente, Double valorTarifa,
+    public Configuracao(Long id, Usuario usuario, Double valorTarifa,
                         Double meta, LocalDate dataFechamento, String unidadeMedida) {
         this.id = id;
-        this.cliente = cliente;
+        this.usuario = usuario;
         this.valorTarifa = valorTarifa;
         this.meta = meta;
         this.dataFechamento = dataFechamento;
@@ -39,8 +38,8 @@ public class Configuracao {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public Cliente getCliente() { return cliente; }
-    public void setCliente(Cliente cliente) { this.cliente = cliente; }
+    public Usuario getCliente() { return usuario; }
+    public void setCliente(Usuario usuario) { this.usuario = usuario; }
 
     public Double getValorTarifa() { return valorTarifa; }
     public void setValorTarifa(Double valorTarifa) { this.valorTarifa = valorTarifa; }

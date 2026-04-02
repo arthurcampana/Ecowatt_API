@@ -1,7 +1,7 @@
 package com.ecowatt.demo.model;
 
-import com.ecowatt.demo.model.Cliente;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "consumo")
@@ -12,42 +12,33 @@ public class Consumo {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "id_cliente")
-    private Cliente cliente;
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
 
-    private String periodo;
+    @Column(name = "data_registro")
+    private LocalDateTime dataRegistro;
 
-    private Double consumoRealKwh;
-    private Double consumoEstimadoKwh;
-    private Double diferenca;
+    @Column(nullable = false)
+    private Double consumoKwh;
 
     public Consumo() {}
 
-    public Consumo(Long id, Cliente cliente, String periodo,
-                   Double consumoRealKwh, Double consumoEstimadoKwh, Double diferenca) {
+    public Consumo(Long id, Usuario usuario, LocalDateTime dataRegistro, Double consumoKwh) {
         this.id = id;
-        this.cliente = cliente;
-        this.periodo = periodo;
-        this.consumoRealKwh = consumoRealKwh;
-        this.consumoEstimadoKwh = consumoEstimadoKwh;
-        this.diferenca = diferenca;
+        this.usuario = usuario;
+        this.dataRegistro = dataRegistro;
+        this.consumoKwh = consumoKwh;
     }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public Cliente getCliente() { return cliente; }
-    public void setCliente(Cliente cliente) { this.cliente = cliente; }
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
 
-    public String getPeriodo() { return periodo; }
-    public void setPeriodo(String periodo) { this.periodo = periodo; }
+    public LocalDateTime getDataRegistro() { return dataRegistro; }
+    public void setDataRegistro(LocalDateTime dataRegistro) { this.dataRegistro = dataRegistro; }
 
-    public Double getConsumoRealKwh() { return consumoRealKwh; }
-    public void setConsumoRealKwh(Double consumoRealKwh) { this.consumoRealKwh = consumoRealKwh; }
-
-    public Double getConsumoEstimadoKwh() { return consumoEstimadoKwh; }
-    public void setConsumoEstimadoKwh(Double consumoEstimadoKwh) { this.consumoEstimadoKwh = consumoEstimadoKwh; }
-
-    public Double getDiferenca() { return diferenca; }
-    public void setDiferenca(Double diferenca) { this.diferenca = diferenca; }
+    public Double getConsumoKwh() { return consumoKwh; }
+    public void setConsumoKwh(Double consumoKwh) { this.consumoKwh = consumoKwh; }
 }

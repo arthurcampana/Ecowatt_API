@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/equipamentos")
@@ -44,13 +45,13 @@ public class EquipamentoController {
     @GetMapping("/buscar/{id}")
     public ResponseEntity<?> buscar(@PathVariable Long id) {
         try {
-            Equipamento eq = service.buscar(id);
+            Optional<Equipamento> eqOpt = service.buscar(id);
 
-            if (eq == null) {
-                return ResponseEntity.status(404).body("Equipamento não encontrado");
+            if (eqOpt.isPresent()) {
+                return ResponseEntity.ok(eqOpt.get());
             }
 
-            return ResponseEntity.ok(eq);
+            return ResponseEntity.status(404).body("Equipamento não encontrado");
 
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Erro ao buscar equipamento");
