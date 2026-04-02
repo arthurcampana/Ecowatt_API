@@ -12,8 +12,8 @@ public class EquipamentoService {
     private Long sequence = 1L;
 
     public Equipamento criar(Equipamento e) {
-        e.setId_equipamento(sequence++);
-        banco.put(e.getId_equipamento(), e);
+        e.setId(sequence++);
+        banco.put(e.getId(), e);
         return e;
     }
 

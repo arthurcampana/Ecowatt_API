@@ -22,13 +22,13 @@ public class ClienteService {
 
     public Optional<Cliente> buscarCliente(Long cliente_id){
         return clientes.stream()
-                .filter(p -> p.getId_cliente().equals(cliente_id))
+                .filter(p -> p.getId().equals(cliente_id))
                 .findFirst();
     }
 
     public Optional<Cliente> alterarCliente(Long codigo, Cliente clienteAtualizado){
         for (Cliente cliente : clientes) {
-            if (cliente.getId_cliente().equals(codigo)) {
+            if (cliente.getId().equals(codigo)) {
                 cliente.setNome(clienteAtualizado.getNome());
                 cliente.setSenha(clienteAtualizado.getSenha());
                 cliente.setEmail(clienteAtualizado.getEmail());
@@ -40,7 +40,7 @@ public class ClienteService {
     }
 
     public boolean excluirCliente(Long cliente_id){
-        return clientes.removeIf(c -> c.getId_cliente().equals(cliente_id));
+        return clientes.removeIf(c -> c.getId().equals(cliente_id));
 
     }
 }
