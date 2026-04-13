@@ -19,7 +19,7 @@ public class EquipamentoController {
         this.service = service;
     }
 
-    @PostMapping("/criar")
+    @PostMapping("/add")
     public ResponseEntity<?> criar(@RequestBody Equipamento e) {
         try {
             if (e.getNome() == null || e.getConsumoPorHora() == null) {
