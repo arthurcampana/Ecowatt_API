@@ -9,5 +9,5 @@ import java.util.Optional;
 public interface EquipamentoUsuarioRepository extends JpaRepository<EquipamentoUsuario, Long> {
 
     Optional<EquipamentoUsuario> findByusuario_id(Long EquipamentousuarioId);
-    List<EquipamentoUsuario> findAllByusuario_id(Long UsuarioId);
+    List<EquipamentoUsuario> findAllByUsuarioId(Long UsuarioId);
 }

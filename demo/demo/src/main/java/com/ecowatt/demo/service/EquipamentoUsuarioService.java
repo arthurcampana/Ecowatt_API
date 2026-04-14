@@ -1,14 +1,11 @@
 package com.ecowatt.demo.service;
 
-import com.ecowatt.demo.model.Consumo;
-import com.ecowatt.demo.model.Equipamento;
 import com.ecowatt.demo.model.EquipamentoUsuario;
 import com.ecowatt.demo.repository.EquipamentoRepository;
 import com.ecowatt.demo.repository.EquipamentoUsuarioRepository;
 import com.ecowatt.demo.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -68,7 +65,7 @@ public class EquipamentoUsuarioService {
     }
 
     public List<EquipamentoUsuario> listar(Long id) {
-        return equipamentoUsuarioRepository.findAllByusuario_id(id);
+        return equipamentoUsuarioRepository.findAllByUsuarioId(id);
     }
 
     public Optional<EquipamentoUsuario> buscarPorId(Long id) {

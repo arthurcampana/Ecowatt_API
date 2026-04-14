@@ -19,7 +19,7 @@ public class EquipamentoUsuario {
     @JoinColumn(name = "equipamento_id")
     private Equipamento equipamento;
 
-    private String NomeIdentificacao;
+    private String nomeIdentificacao;
     private double HorasPorDia;
     private double ConsumoEsperado;
 
@@ -40,11 +40,11 @@ public class EquipamentoUsuario {
     }
 
     public String getNomeIdentificacao() {
-        return NomeIdentificacao;
+        return nomeIdentificacao;
     }
 
     public void setNomeIdentificacao(String nomeIdentificacao) {
-        NomeIdentificacao = nomeIdentificacao;
+        this.nomeIdentificacao = nomeIdentificacao;
     }
 
     public Equipamento getEquipamento() {

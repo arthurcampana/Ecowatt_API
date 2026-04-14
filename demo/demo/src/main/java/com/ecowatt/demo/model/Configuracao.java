@@ -1,6 +1,8 @@
 package com.ecowatt.demo.model;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -15,7 +17,7 @@ public class Configuracao {
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
-    private Double valorTarifa;
+    private BigDecimal valorTarifa;
     private Double meta;
 
     private LocalDate dataFechamento;
@@ -25,7 +27,7 @@ public class Configuracao {
 
     public Configuracao() {}
 
-    public Configuracao(Long id, Usuario usuario, Double valorTarifa,
+    public Configuracao(Long id, Usuario usuario, BigDecimal valorTarifa,
                         Double meta, LocalDate dataFechamento, String unidadeMedida) {
         this.id = id;
         this.usuario = usuario;
@@ -41,8 +43,8 @@ public class Configuracao {
     public Usuario getCliente() { return usuario; }
     public void setCliente(Usuario usuario) { this.usuario = usuario; }
 
-    public Double getValorTarifa() { return valorTarifa; }
-    public void setValorTarifa(Double valorTarifa) { this.valorTarifa = valorTarifa; }
+    public BigDecimal getValorTarifa() { return valorTarifa; }
+    public void setValorTarifa(BigDecimal valorTarifa) { this.valorTarifa = valorTarifa; }
 
     public Double getMeta() { return meta; }
     public void setMeta(Double meta) { this.meta = meta; }
