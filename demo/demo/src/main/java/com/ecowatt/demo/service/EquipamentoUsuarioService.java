@@ -45,7 +45,8 @@ public class EquipamentoUsuarioService {
 
         equipuser.setUsuario(usuario);
         equipuser.setEquipamento(equip);
-
+        double esperado = equipuser.getHorasPorDia() * equip.getConsumoPorHora();
+        equipuser.setConsumoEsperado(esperado);
         return equipamentoUsuarioRepository.save(equipuser);
     }
 
