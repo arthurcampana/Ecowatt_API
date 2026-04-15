@@ -1,12 +1,13 @@
 package com.ecowatt.demo.controller;
 
-import com.ecowatt.demo.model.Usuario;
+import com.ecowatt.demo.dto.*;
 import com.ecowatt.demo.service.UsuarioService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import jakarta.validation.Valid;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.dao.DataIntegrityViolationException;
 
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -16,79 +17,67 @@ public class UsuarioController {
 
     private final UsuarioService usuarioService;
 
-    // 🔥 injeção correta
     public UsuarioController(UsuarioService usuarioService){
         this.usuarioService = usuarioService;
     }
-
     @PostMapping("/add")
-    public ResponseEntity<?> cadastrar(@RequestBody Usuario usuario){
-        try{
-            usuario = usuarioService.cadastrarUsuario(usuario);
-            return ResponseEntity.status(HttpStatus.CREATED).body(usuario);
+    public ResponseEntity<?> cadastrar(@Valid @RequestBody UsuarioRequestDTO dto){
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(usuarioService.cadastrarUsuario(dto));
+    
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("Email já cadastrado");
+    
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao cadastrar usuario: " + e.getMessage());
+                    .body("Erro interno");
         }
     }
 
     @GetMapping("/buscar/{id}")
-    public ResponseEntity<?> buscarUsuario(@PathVariable Long id){
-        try {
-            Optional<Usuario> usuario = usuarioService.buscarUsuario(id);
-            return usuario.<ResponseEntity<?>>map(ResponseEntity::ok)
-                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                            .body("Usuario não encontrado"));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao buscar usuario: " + e.getMessage());
-        }
+    public ResponseEntity<?> buscar(@PathVariable Long id){
+        Optional<UsuarioResponseDTO> usuario = usuarioService.buscarUsuario(id);
+
+        return usuario.<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Usuario não encontrado"));
     }
 
     @GetMapping("/buscar")
-    public ResponseEntity<?> listarUsuarios(){
-        try {
-            List<Usuario> usuarios = usuarioService.listarUsuarios();
-            return ResponseEntity.ok(usuarios);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao listar usuarios: " + e.getMessage());
-        }
+    public ResponseEntity<List<UsuarioResponseDTO>> listar(){
+        return ResponseEntity.ok(usuarioService.listarUsuarios());
     }
 
-    // 🔥 PUT é mais correto para update
     @PutMapping("/alterar/{id}")
-    public ResponseEntity<?> alterarUsuario(@PathVariable Long id, @RequestBody Usuario usuarioAtualizado){
-        try {
-            Optional<Usuario> usuario = usuarioService.alterarUsuario(id, usuarioAtualizado);
+    public ResponseEntity<?> alterar(
+            @PathVariable Long id,
+            @RequestBody UsuarioUpdateDTO dto){
 
-            if(usuario.isPresent())
-                return ResponseEntity.ok(usuario.get());
+        Optional<UsuarioResponseDTO> usuario = usuarioService.alterarUsuario(id, dto);
 
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Usuario não encontrado");
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao atualizar usuario: " + e.getMessage());
-        }
+        return usuario.<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Usuario não encontrado"));
     }
 
     @DeleteMapping("/excluir/{id}")
-    public ResponseEntity<?> excluir(@PathVariable Long id) {
-        try {
-            boolean removido = usuarioService.excluirUsuario(id);
+    public ResponseEntity<?> excluir(@PathVariable Long id){
+        if(usuarioService.excluirUsuario(id)){
+            return ResponseEntity.ok("Removido");
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Usuario não encontrado");
+    }
 
-            if (removido) {
-                return ResponseEntity.ok("Usuario removido com sucesso!");
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Usuario não encontrado");
-            }
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao excluir usuario: " + e.getMessage());
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginDTO dto){
+        try{
+            return ResponseEntity.ok(usuarioService.login(dto));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Email ou senha inválidos");
         }
     }
 }
