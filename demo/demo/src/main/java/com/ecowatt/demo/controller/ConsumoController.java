@@ -69,4 +69,15 @@ public class ConsumoController {
                     .body("Erro ao deletar consumo");
         }
     }
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<?> listarPorUsuario(@PathVariable Long usuarioId) {
+        try {
+            List<Consumo> lista = service.listarPorUsuario(usuarioId);
+            return ResponseEntity.ok(lista);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
+    }
 }

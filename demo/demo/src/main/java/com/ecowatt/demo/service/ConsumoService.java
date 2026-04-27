@@ -55,6 +55,18 @@ public class ConsumoService {
         return consumoRepository.findById(id);
     }
 
+    public List<Consumo> listarPorUsuario(Long usuarioId) {
+
+        if (usuarioId == null)
+            throw new RuntimeException("ID do usuário inválido");
+
+        // opcional, mas correto: validar existência do usuário
+        if (!usuarioRepository.existsById(usuarioId))
+            throw new RuntimeException("Usuário não encontrado");
+
+        return consumoRepository.findByUsuarioId(usuarioId);
+    }
+
     public boolean deletar(Long id) {
         if (!consumoRepository.existsById(id))
             return false;
