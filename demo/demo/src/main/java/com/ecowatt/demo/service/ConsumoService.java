@@ -60,7 +60,6 @@ public class ConsumoService {
         if (usuarioId == null)
             throw new RuntimeException("ID do usuário inválido");
 
-        // opcional, mas correto: validar existência do usuário
         if (!usuarioRepository.existsById(usuarioId))
             throw new RuntimeException("Usuário não encontrado");
 

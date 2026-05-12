@@ -1,6 +1,8 @@
 package com.ecowatt.demo.model;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -20,11 +22,11 @@ public class Usuario {
     private String email;
 
     @Column(name = "data_registro")
-    private LocalDateTime dataRegistro;
+    private LocalDate dataRegistro;
 
     public Usuario() {}
 
-    public Usuario(Long id, String nome, String senha, String email, LocalDateTime dataRegistro) {
+    public Usuario(Long id, String nome, String senha, String email, LocalDate dataRegistro) {
         this.id = id;
         this.nome = nome;
         this.senha = senha;
@@ -64,11 +66,11 @@ public class Usuario {
         this.email = email;
     }
 
-    public LocalDateTime getDataRegistro() {
+    public LocalDate getDataRegistro() {
         return dataRegistro;
     }
 
-    public void setDataRegistro(LocalDateTime dataRegistro) {
+    public void setDataRegistro(LocalDate dataRegistro) {
         this.dataRegistro = dataRegistro;
     }
 }

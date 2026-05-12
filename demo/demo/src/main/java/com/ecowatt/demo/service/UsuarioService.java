@@ -10,6 +10,7 @@ import com.ecowatt.demo.repository.UsuarioRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +34,7 @@ public class UsuarioService {
         usuario.setNome(dto.getNome());
         usuario.setEmail(dto.getEmail());
         usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
-        usuario.setDataRegistro(LocalDateTime.now());
+        usuario.setDataRegistro(LocalDate.now());
 
         usuario = usuarioRepository.save(usuario);
 

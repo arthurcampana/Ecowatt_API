@@ -30,7 +30,7 @@ public class EquipamentoUsuarioService {
         if (equipuser.getUsuario() == null || equipuser.getUsuario().getId() == null)
             throw new RuntimeException("Usuário obrigatório");
 
-        //🔥
+
         if (equipuser.getEquipamento() == null || equipuser.getEquipamento().getId() == null)
             equipRepository.save(equipuser.getEquipamento());
 
