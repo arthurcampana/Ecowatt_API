@@ -77,6 +77,27 @@ public class EquipamentoUsuarioController {
                     .body("Erro ao deletar equipamento DO usuario");
         }
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> atualizar(
+            @PathVariable Long id,
+            @RequestBody EquipamentoUsuario atualizado) {
+
+        try {
+
+            return service.atualizar(id, atualizado)
+                    .<ResponseEntity<?>>map(ResponseEntity::ok)
+                    .orElseGet(() ->
+                            ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                    .body("Equipamento do usuário não encontrado"));
+
+        } catch (Exception e) {
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao atualizar equipamento do usuário");
+
+        }
+    }
 }
 
 

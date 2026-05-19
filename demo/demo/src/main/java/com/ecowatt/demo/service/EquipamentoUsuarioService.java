@@ -1,5 +1,6 @@
 package com.ecowatt.demo.service;
 
+import com.ecowatt.demo.model.Equipamento;
 import com.ecowatt.demo.model.EquipamentoUsuario;
 import com.ecowatt.demo.repository.EquipamentoRepository;
 import com.ecowatt.demo.repository.EquipamentoUsuarioRepository;
@@ -52,14 +53,50 @@ public class EquipamentoUsuarioService {
 
 
     public Optional<EquipamentoUsuario> atualizar(Long id, EquipamentoUsuario atualizado){
-        Optional<EquipamentoUsuario> opt = equipamentoUsuarioRepository.findById(id);
+
+        Optional<EquipamentoUsuario> opt =
+                equipamentoUsuarioRepository.findById(id);
 
         if(opt.isPresent()){
+
             EquipamentoUsuario e = opt.get();
-            e.setNomeIdentificacao(atualizado.getNomeIdentificacao());
-            e.setConsumoEsperado(atualizado.getConsumoEsperado());
-            e.setHorasPorDia(atualizado.getHorasPorDia());
-            return Optional.of(equipamentoUsuarioRepository.save(e));
+
+            // =========================
+            // BUSCA EQUIPAMENTO REAL
+            // =========================
+            Long equipamentoId =
+                    atualizado.getEquipamento().getId();
+
+            Equipamento equipamento =
+                    equipRepository.findById(equipamentoId)
+                            .orElseThrow(() ->
+                                    new RuntimeException("Equipamento não encontrado"));
+
+            // =========================
+            // ATUALIZA CAMPOS
+            // =========================
+            e.setEquipamento(equipamento);
+
+            e.setNomeIdentificacao(
+                    atualizado.getNomeIdentificacao()
+            );
+
+            e.setHorasPorDia(
+                    atualizado.getHorasPorDia()
+            );
+
+            // =========================
+            // RECALCULA CONSUMO
+            // =========================
+            double esperado =
+                    atualizado.getHorasPorDia()
+                            * equipamento.getConsumoPorHora();
+
+            e.setConsumoEsperado(esperado);
+
+            return Optional.of(
+                    equipamentoUsuarioRepository.save(e)
+            );
         }
 
         return Optional.empty();
