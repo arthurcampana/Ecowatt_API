@@ -1,8 +1,13 @@
 package com.ecowatt.demo.service;
 
+import com.ecowatt.demo.dto.ConsumoRequestDTO;
+import com.ecowatt.demo.dto.ConsumoResponseDTO;
+import com.ecowatt.demo.dto.ConsumoUpdateDTO;
 import com.ecowatt.demo.model.Consumo;
+import com.ecowatt.demo.model.Usuario;
 import com.ecowatt.demo.repository.ConsumoRepository;
 import com.ecowatt.demo.repository.UsuarioRepository;
+
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,62 +20,106 @@ public class ConsumoService {
     private final ConsumoRepository consumoRepository;
     private final UsuarioRepository usuarioRepository;
 
-    public ConsumoService(ConsumoRepository consumoRepository, UsuarioRepository usuarioRepository) {
+    public ConsumoService(
+            ConsumoRepository consumoRepository,
+            UsuarioRepository usuarioRepository
+    ) {
         this.consumoRepository = consumoRepository;
         this.usuarioRepository = usuarioRepository;
     }
 
-    public Consumo salvar(Consumo consumo) {
+    // CREATE
+    public ConsumoResponseDTO salvar(ConsumoRequestDTO dto) {
 
-        if (consumo == null)
-            throw new RuntimeException("Consumo não pode ser nulo");
+        Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
+                .orElseThrow(() ->
+                        new RuntimeException("Usuário não encontrado"));
 
-        if (consumo.getUsuario() == null || consumo.getUsuario().getId() == null)
-            throw new RuntimeException("Usuário obrigatório");
-
-        if (consumo.getConsumoKwh() == null || consumo.getConsumoKwh() < 0)
-            throw new RuntimeException("Consumo inválido");
-
-        if (consumo.getDataRegistro() == null)
-            consumo.setDataRegistro(LocalDateTime.now());
-
-        Long usuarioId = consumo.getUsuario().getId();
-
-        var usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        Consumo consumo = new Consumo();
 
         consumo.setUsuario(usuario);
+        consumo.setConsumoKwh(dto.getConsumoKwh());
 
-        return consumoRepository.save(consumo);
+        if (dto.getDataRegistro() != null) {
+            consumo.setDataRegistro(dto.getDataRegistro());
+        } else {
+            consumo.setDataRegistro(LocalDateTime.now());
+        }
+
+        consumo = consumoRepository.save(consumo);
+
+        return new ConsumoResponseDTO(consumo);
     }
 
-    public List<Consumo> listar() {
-        return consumoRepository.findAll();
+    // READ ALL
+    public List<ConsumoResponseDTO> listar() {
+
+        return consumoRepository.findAll()
+                .stream()
+                .map(ConsumoResponseDTO::new)
+                .toList();
     }
 
-    public Optional<Consumo> buscarPorId(Long id) {
-        if (id == null)
+    // READ ONE
+    public Optional<ConsumoResponseDTO> buscarPorId(Long id) {
+
+        if (id == null) {
             throw new RuntimeException("ID inválido");
+        }
 
-        return consumoRepository.findById(id);
+        return consumoRepository.findById(id)
+                .map(ConsumoResponseDTO::new);
     }
 
-    public List<Consumo> listarPorUsuario(Long usuarioId) {
+    // READ BY USER
+    public List<ConsumoResponseDTO> listarPorUsuario(Long usuarioId) {
 
-        if (usuarioId == null)
+        if (usuarioId == null) {
             throw new RuntimeException("ID do usuário inválido");
+        }
 
-        if (!usuarioRepository.existsById(usuarioId))
+        if (!usuarioRepository.existsById(usuarioId)) {
             throw new RuntimeException("Usuário não encontrado");
+        }
 
-        return consumoRepository.findByUsuarioId(usuarioId);
+        return consumoRepository.findByUsuarioId(usuarioId)
+                .stream()
+                .map(ConsumoResponseDTO::new)
+                .toList();
     }
 
+    // DELETE
     public boolean deletar(Long id) {
-        if (!consumoRepository.existsById(id))
+
+        if (!consumoRepository.existsById(id)) {
             return false;
+        }
 
         consumoRepository.deleteById(id);
+
         return true;
+    }
+
+    // UPDATE
+    public Optional<ConsumoResponseDTO> alterar(
+            Long id,
+            ConsumoUpdateDTO dto
+    ) {
+
+        return consumoRepository.findById(id)
+                .map(consumo -> {
+
+                    if (dto.getConsumoKwh() != null) {
+                        consumo.setConsumoKwh(dto.getConsumoKwh());
+                    }
+
+                    if (dto.getDataRegistro() != null) {
+                        consumo.setDataRegistro(dto.getDataRegistro());
+                    }
+
+                    consumoRepository.save(consumo);
+
+                    return new ConsumoResponseDTO(consumo);
+                });
     }
 }
