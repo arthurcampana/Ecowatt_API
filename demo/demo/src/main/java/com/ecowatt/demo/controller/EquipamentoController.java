@@ -1,5 +1,6 @@
 package com.ecowatt.demo.controller;
 
+import com.ecowatt.demo.dto.EquipamentoRequestDTO;
 import com.ecowatt.demo.model.Equipamento;
 import com.ecowatt.demo.service.EquipamentoService;
 
@@ -20,7 +21,7 @@ public class EquipamentoController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> criar(@RequestBody Equipamento e) {
+    public ResponseEntity<?> criar(@RequestBody EquipamentoRequestDTO e) {
         try {
             if (e.getNome() == null || e.getConsumoPorHora() == null) {
                 return ResponseEntity.badRequest().body("Nome e consumo são obrigatórios");

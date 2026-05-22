@@ -1,5 +1,7 @@
 package com.ecowatt.demo.service;
 
+import com.ecowatt.demo.dto.EquipamentoRequestDTO;
+import com.ecowatt.demo.dto.EquipamentoResponseDTO;
 import com.ecowatt.demo.model.Equipamento;
 import com.ecowatt.demo.repository.EquipamentoRepository;
 import org.springframework.stereotype.Service;
@@ -16,8 +18,15 @@ public class EquipamentoService {
         this.equipamentoRepository = equipamentoRepository;
     }
 
-    public Equipamento criar(Equipamento e) {
-        return equipamentoRepository.save(e);
+    public EquipamentoResponseDTO criar(EquipamentoRequestDTO dto) {
+        Equipamento equip = new Equipamento();
+
+        equip.setModelo(dto.getModelo());
+        equip.setNome(dto.getNome());
+        equip.setConsumoPorHora(dto.getConsumoPorHora());
+
+        equip =  equipamentoRepository.save(equip);
+        return new EquipamentoResponseDTO(equip);
     }
 
     public List<Equipamento> listar() {

@@ -1,7 +1,9 @@
 package com.ecowatt.demo.service;
 
+import com.ecowatt.demo.dto.EquipamentoUsuarioRequestDTO;
 import com.ecowatt.demo.model.Equipamento;
 import com.ecowatt.demo.model.EquipamentoUsuario;
+import com.ecowatt.demo.model.Usuario;
 import com.ecowatt.demo.repository.EquipamentoRepository;
 import com.ecowatt.demo.repository.EquipamentoUsuarioRepository;
 import com.ecowatt.demo.repository.UsuarioRepository;
@@ -23,30 +25,28 @@ public class EquipamentoUsuarioService {
         this.userRepository = userRepository;
     }
 
-    public EquipamentoUsuario cadastrarEquipamentoUsuario(EquipamentoUsuario equipuser) {
+    public EquipamentoUsuario cadastrarEquipamentoUsuario(EquipamentoUsuarioRequestDTO equipuser) {
+
+        EquipamentoUsuario equipamentoUsuario = new EquipamentoUsuario();
 
         if (equipuser == null)
             throw new RuntimeException("não pode ser nulo");
 
-        if (equipuser.getUsuario() == null || equipuser.getUsuario().getId() == null)
-            throw new RuntimeException("Usuário obrigatório");
+        Usuario usuario = userRepository.findById(equipuser.getUsuarioId())
+                .orElseThrow(() ->
+                        new RuntimeException("Usuário não encontrado"));
+
+        Equipamento equipamento = equipRepository.findById(equipuser.getEquipamentoId())
+                .orElseThrow(() ->
+                        new RuntimeException("Equipamento não encontrado"));
+
+        Long usuarioId = usuario.getId();
+        Long equipamentoId = equipamento.getId();
 
 
-        if (equipuser.getEquipamento() == null || equipuser.getEquipamento().getId() == null)
-            equipRepository.save(equipuser.getEquipamento());
-
-        Long usuarioId = equipuser.getUsuario().getId();
-        Long equipamentoId = equipuser.getEquipamento().getId();
-
-        var usuario = userRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-
-        var equip = equipRepository.findById(equipamentoId)
-                .orElseThrow(() -> new RuntimeException("Equipamento não encontrado"));
-
-        equipuser.setUsuario(usuario);
-        equipuser.setEquipamento(equip);
-        double esperado = equipuser.getHorasPorDia() * equip.getConsumoPorHora();
+        equipamentoUsuario.setUsuario(usuario);
+        equipamento.setEquipamento(equipamento);
+        double esperado = equipuser.getHorasPorDia() * equipamento.getConsumoPorHora();
         equipuser.setConsumoEsperado(esperado);
         return equipamentoUsuarioRepository.save(equipuser);
     }
