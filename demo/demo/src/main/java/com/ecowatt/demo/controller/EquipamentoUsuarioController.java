@@ -1,20 +1,15 @@
 package com.ecowatt.demo.controller;
 
-import com.ecowatt.demo.model.Consumo;
-import com.ecowatt.demo.model.Equipamento;
-import com.ecowatt.demo.model.EquipamentoUsuario;
+import com.ecowatt.demo.dto.EquipamentoUsuarioRequestDTO;
+import com.ecowatt.demo.dto.EquipamentoUsuarioResponseDTO;
+import com.ecowatt.demo.dto.EquipamentoUsuarioUpdateDTO;
 import com.ecowatt.demo.service.EquipamentoUsuarioService;
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+
+import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
 
 @RestController
 @RequestMapping("/equipamentousuario")
@@ -22,82 +17,138 @@ public class EquipamentoUsuarioController {
 
     private final EquipamentoUsuarioService service;
 
-    public EquipamentoUsuarioController(EquipamentoUsuarioService service) {
+    public EquipamentoUsuarioController(
+            EquipamentoUsuarioService service
+    ) {
         this.service = service;
     }
 
+    // CREATE
     @PostMapping("/add")
-    public ResponseEntity<?> salvar(@RequestBody EquipamentoUsuario equipuser) {
+    public ResponseEntity<?> salvar(
+            @Valid @RequestBody
+            EquipamentoUsuarioRequestDTO dto
+    ) {
+
         try {
-            EquipamentoUsuario novo = service.cadastrarEquipamentoUsuario(equipuser);
-            return ResponseEntity.status(HttpStatus.CREATED).body(novo);
+
+            EquipamentoUsuarioResponseDTO novo =
+                    service.cadastrarEquipamentoUsuario(dto);
+
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(novo);
+
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Erro ao salvar consumo: " + e.getMessage());
+
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Erro ao salvar equipamento: "
+                            + e.getMessage());
         }
     }
 
+    // LISTAR POR USUÁRIO
     @GetMapping("/listar/{id}")
-    public ResponseEntity<?> listar(@PathVariable Long id) {
+    public ResponseEntity<?> listar(
+            @PathVariable Long id
+    ) {
+
         try {
-            List<EquipamentoUsuario> lista = service.listar(id);
-            return ResponseEntity.ok(lista);
+
+            return ResponseEntity.ok(
+                    service.listar(id)
+            );
+
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao listar equipamento DO usuario");
+
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao listar equipamentos");
         }
     }
 
+    // BUSCAR POR ID
     @GetMapping("/{id}")
-    public ResponseEntity<?> buscar(@PathVariable Long id) {
+    public ResponseEntity<?> buscar(
+            @PathVariable Long id
+    ) {
+
         try {
+
             return service.buscarPorId(id)
                     .<ResponseEntity<?>>map(ResponseEntity::ok)
-                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                            .body("Equipamento DO usuario não encontrado"));
+                    .orElseGet(() ->
+                            ResponseEntity
+                                    .status(HttpStatus.NOT_FOUND)
+                                    .body("Equipamento não encontrado"));
+
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao buscar equipamento DO usuario ");
+
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao buscar equipamento");
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletar(@PathVariable Long id) {
-        try {
-            boolean removido = service.deletar(id);
-
-            if (removido)
-                return ResponseEntity.ok("Removido com sucesso");
-
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Equipamento DO usuario não encontrado");
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao deletar equipamento DO usuario");
-        }
-    }
-
+    // UPDATE
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizar(
+
             @PathVariable Long id,
-            @RequestBody EquipamentoUsuario atualizado) {
+
+            @Valid @RequestBody
+            EquipamentoUsuarioUpdateDTO dto
+
+    ) {
 
         try {
 
-            return service.atualizar(id, atualizado)
+            return service.atualizar(id, dto)
                     .<ResponseEntity<?>>map(ResponseEntity::ok)
                     .orElseGet(() ->
-                            ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                    .body("Equipamento do usuário não encontrado"));
+
+                            ResponseEntity
+                                    .status(HttpStatus.NOT_FOUND)
+                                    .body("Equipamento não encontrado")
+                    );
 
         } catch (Exception e) {
 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao atualizar equipamento do usuário");
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Erro ao atualizar equipamento: "
+                            + e.getMessage());
+        }
+    }
 
+    // DELETE
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletar(
+            @PathVariable Long id
+    ) {
+
+        try {
+
+            boolean removido =
+                    service.deletar(id);
+
+            if (removido) {
+
+                return ResponseEntity.ok(
+                        "Removido com sucesso"
+                );
+            }
+
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Equipamento não encontrado");
+
+        } catch (Exception e) {
+
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao deletar equipamento");
         }
     }
 }
-
-

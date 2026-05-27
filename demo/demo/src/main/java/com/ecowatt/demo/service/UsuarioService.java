@@ -31,9 +31,9 @@ public class UsuarioService {
     public UsuarioResponseDTO cadastrarUsuario(UsuarioRequestDTO dto){
         Usuario usuario = new Usuario();
 
-        usuario.setNome(dto.getNome());
-        usuario.setEmail(dto.getEmail());
-        usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
+        usuario.setNome(dto.nome());
+        usuario.setEmail(dto.email());
+        usuario.setSenha(passwordEncoder.encode(dto.senha()));
         usuario.setDataRegistro(LocalDate.now());
 
         usuario = usuarioRepository.save(usuario);
@@ -59,12 +59,12 @@ public class UsuarioService {
     public Optional<UsuarioResponseDTO> alterarUsuario(Long id, UsuarioUpdateDTO dto){
         return usuarioRepository.findById(id).map(usuario -> {
 
-            if(dto.getNome() != null){
-                usuario.setNome(dto.getNome());
+            if(dto.nome() != null){
+                usuario.setNome(dto.nome());
             }
 
-            if(dto.getSenha() != null){
-                usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
+            if(dto.nome() != null){
+                usuario.setSenha(passwordEncoder.encode(dto.nome()));
             }
 
             usuarioRepository.save(usuario);
@@ -84,18 +84,19 @@ public class UsuarioService {
 
     public UsuarioResponseDTO login(LoginDTO dto){
 
-        Usuario usuario = usuarioRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new RuntimeException("Credenciais inválidas"));
-    
+        Usuario usuario = usuarioRepository.findByEmail(dto.email())
+                .orElseThrow(() ->
+                        new RuntimeException("Credenciais inválidas"));
+
         boolean senhaValida = passwordEncoder.matches(
-                dto.getSenha(),
+                dto.senha(),
                 usuario.getSenha()
         );
-    
+
         if(!senhaValida){
             throw new RuntimeException("Credenciais inválidas");
         }
-    
+
         return new UsuarioResponseDTO(usuario);
     }
 }

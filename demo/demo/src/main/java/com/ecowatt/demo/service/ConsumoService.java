@@ -31,17 +31,17 @@ public class ConsumoService {
     // CREATE
     public ConsumoResponseDTO salvar(ConsumoRequestDTO dto) {
 
-        Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
+        Usuario usuario = usuarioRepository.findById(dto.usuarioId())
                 .orElseThrow(() ->
                         new RuntimeException("Usuário não encontrado"));
 
         Consumo consumo = new Consumo();
 
         consumo.setUsuario(usuario);
-        consumo.setConsumoKwh(dto.getConsumoKwh());
+        consumo.setConsumoKwh(dto.consumoKwh());
 
-        if (dto.getDataRegistro() != null) {
-            consumo.setDataRegistro(dto.getDataRegistro());
+        if (dto.dataRegistro() != null) {
+            consumo.setDataRegistro(dto.dataRegistro());
         } else {
             consumo.setDataRegistro(LocalDateTime.now());
         }
@@ -109,12 +109,12 @@ public class ConsumoService {
         return consumoRepository.findById(id)
                 .map(consumo -> {
 
-                    if (dto.getConsumoKwh() != null) {
-                        consumo.setConsumoKwh(dto.getConsumoKwh());
+                    if (dto.consumoKwh() != null) {
+                        consumo.setConsumoKwh(dto.consumoKwh());
                     }
 
-                    if (dto.getDataRegistro() != null) {
-                        consumo.setDataRegistro(dto.getDataRegistro());
+                    if (dto.dataRegistro() != null) {
+                        consumo.setDataRegistro(dto.dataRegistro());
                     }
 
                     consumoRepository.save(consumo);

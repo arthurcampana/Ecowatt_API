@@ -1,12 +1,15 @@
 package com.ecowatt.demo.service;
 
 import com.ecowatt.demo.dto.EquipamentoUsuarioRequestDTO;
+import com.ecowatt.demo.dto.EquipamentoUsuarioResponseDTO;
+import com.ecowatt.demo.dto.EquipamentoUsuarioUpdateDTO;
 import com.ecowatt.demo.model.Equipamento;
 import com.ecowatt.demo.model.EquipamentoUsuario;
 import com.ecowatt.demo.model.Usuario;
 import com.ecowatt.demo.repository.EquipamentoRepository;
 import com.ecowatt.demo.repository.EquipamentoUsuarioRepository;
 import com.ecowatt.demo.repository.UsuarioRepository;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,106 +22,170 @@ public class EquipamentoUsuarioService {
     private final EquipamentoRepository equipRepository;
     private final UsuarioRepository userRepository;
 
-    public EquipamentoUsuarioService(EquipamentoUsuarioRepository equipamentoUsuarioRepository, EquipamentoRepository equipRepository, UsuarioRepository userRepository) {
-        this.equipamentoUsuarioRepository = equipamentoUsuarioRepository;
-        this.equipRepository = equipRepository;
-        this.userRepository = userRepository;
+    public EquipamentoUsuarioService(
+            EquipamentoUsuarioRepository equipamentoUsuarioRepository,
+            EquipamentoRepository equipRepository,
+            UsuarioRepository userRepository
+    ) {
+
+        this.equipamentoUsuarioRepository =
+                equipamentoUsuarioRepository;
+
+        this.equipRepository =
+                equipRepository;
+
+        this.userRepository =
+                userRepository;
     }
 
-    public EquipamentoUsuario cadastrarEquipamentoUsuario(EquipamentoUsuarioRequestDTO equipuser) {
+    // CREATE
+    public EquipamentoUsuarioResponseDTO cadastrarEquipamentoUsuario(
+            EquipamentoUsuarioRequestDTO dto
+    ) {
 
-        EquipamentoUsuario equipamentoUsuario = new EquipamentoUsuario();
-
-        if (equipuser == null)
-            throw new RuntimeException("não pode ser nulo");
-
-        Usuario usuario = userRepository.findById(equipuser.getUsuarioId())
-                .orElseThrow(() ->
-                        new RuntimeException("Usuário não encontrado"));
-
-        Equipamento equipamento = equipRepository.findById(equipuser.getEquipamentoId())
-                .orElseThrow(() ->
-                        new RuntimeException("Equipamento não encontrado"));
-
-        Long usuarioId = usuario.getId();
-        Long equipamentoId = equipamento.getId();
-
-
-        equipamentoUsuario.setUsuario(usuario);
-        equipamento.setEquipamento(equipamento);
-        double esperado = equipuser.getHorasPorDia() * equipamento.getConsumoPorHora();
-        equipuser.setConsumoEsperado(esperado);
-        return equipamentoUsuarioRepository.save(equipuser);
-    }
-
-
-    public Optional<EquipamentoUsuario> atualizar(Long id, EquipamentoUsuario atualizado){
-
-        Optional<EquipamentoUsuario> opt =
-                equipamentoUsuarioRepository.findById(id);
-
-        if(opt.isPresent()){
-
-            EquipamentoUsuario e = opt.get();
-
-            // =========================
-            // BUSCA EQUIPAMENTO REAL
-            // =========================
-            Long equipamentoId =
-                    atualizado.getEquipamento().getId();
-
-            Equipamento equipamento =
-                    equipRepository.findById(equipamentoId)
-                            .orElseThrow(() ->
-                                    new RuntimeException("Equipamento não encontrado"));
-
-            // =========================
-            // ATUALIZA CAMPOS
-            // =========================
-            e.setEquipamento(equipamento);
-
-            e.setNomeIdentificacao(
-                    atualizado.getNomeIdentificacao()
-            );
-
-            e.setHorasPorDia(
-                    atualizado.getHorasPorDia()
-            );
-
-            // =========================
-            // RECALCULA CONSUMO
-            // =========================
-            double esperado =
-                    atualizado.getHorasPorDia()
-                            * equipamento.getConsumoPorHora();
-
-            e.setConsumoEsperado(esperado);
-
-            return Optional.of(
-                    equipamentoUsuarioRepository.save(e)
-            );
+        if (dto == null) {
+            throw new RuntimeException("Dados inválidos");
         }
 
-        return Optional.empty();
+        Usuario usuario =
+                userRepository.findById(dto.usuarioId())
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Usuário não encontrado"
+                                ));
+
+        Equipamento equipamento =
+                equipRepository.findById(dto.equipamentoId())
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Equipamento não encontrado"
+                                ));
+
+        EquipamentoUsuario equipamentoUsuario =
+                new EquipamentoUsuario();
+
+        equipamentoUsuario.setUsuario(usuario);
+
+        equipamentoUsuario.setEquipamento(equipamento);
+
+        equipamentoUsuario.setNomeIdentificacao(
+                dto.nomeIdentificacao()
+        );
+
+        equipamentoUsuario.setHorasPorDia(
+                dto.horasPorDia()
+        );
+
+        double esperado =
+                dto.horasPorDia()
+                        * equipamento.getConsumoPorHora();
+
+        equipamentoUsuario.setConsumoEsperado(
+                esperado
+        );
+
+        equipamentoUsuario =
+                equipamentoUsuarioRepository
+                        .save(equipamentoUsuario);
+
+        return new EquipamentoUsuarioResponseDTO(
+                equipamentoUsuario
+        );
     }
 
-    public List<EquipamentoUsuario> listar(Long id) {
-        return equipamentoUsuarioRepository.findAllByUsuarioId(id);
+    // UPDATE
+    public Optional<EquipamentoUsuarioResponseDTO> atualizar(
+            Long id,
+            EquipamentoUsuarioUpdateDTO dto
+    ) {
+
+        return equipamentoUsuarioRepository
+                .findById(id)
+                .map(equipamentoUsuario -> {
+
+                    if (dto.nomeIdentificacao() != null) {
+
+                        equipamentoUsuario.setNomeIdentificacao(
+                                dto.nomeIdentificacao()
+                        );
+                    }
+
+                    if (dto.horasPorDia() != null) {
+
+                        equipamentoUsuario.setHorasPorDia(
+                                dto.horasPorDia()
+                        );
+                    }
+
+                    if (dto.equipamentoId() != null) {
+
+                        Equipamento equipamento =
+                                equipRepository
+                                        .findById(dto.equipamentoId())
+                                        .orElseThrow(() ->
+                                                new RuntimeException(
+                                                        "Equipamento não encontrado"
+                                                ));
+
+                        equipamentoUsuario.setEquipamento(
+                                equipamento
+                        );
+
+                        double esperado =
+                                equipamentoUsuario.getHorasPorDia()
+                                        * equipamento.getConsumoPorHora();
+
+                        equipamentoUsuario.setConsumoEsperado(
+                                esperado
+                        );
+                    }
+
+                    equipamentoUsuario =
+                            equipamentoUsuarioRepository.save(
+                                    equipamentoUsuario
+                            );
+
+                    return new EquipamentoUsuarioResponseDTO(
+                            equipamentoUsuario
+                    );
+                });
     }
 
-    public Optional<EquipamentoUsuario> buscarPorId(Long id) {
-        if (id == null)
+    // LISTAR POR USUÁRIO
+    public List<EquipamentoUsuarioResponseDTO> listar(
+            Long usuarioId
+    ) {
+
+        return equipamentoUsuarioRepository
+                .findAllByUsuarioId(usuarioId)
+                .stream()
+                .map(EquipamentoUsuarioResponseDTO::new)
+                .toList();
+    }
+
+    // BUSCAR POR ID
+    public Optional<EquipamentoUsuarioResponseDTO> buscarPorId(
+            Long id
+    ) {
+
+        if (id == null) {
             throw new RuntimeException("ID inválido");
+        }
 
-        return equipamentoUsuarioRepository.findById(id);
+        return equipamentoUsuarioRepository
+                .findById(id)
+                .map(EquipamentoUsuarioResponseDTO::new);
     }
 
+    // DELETE
     public boolean deletar(Long id) {
-        if (!equipamentoUsuarioRepository.existsById(id))
+
+        if (!equipamentoUsuarioRepository.existsById(id)) {
             return false;
+        }
 
         equipamentoUsuarioRepository.deleteById(id);
+
         return true;
     }
 }
-

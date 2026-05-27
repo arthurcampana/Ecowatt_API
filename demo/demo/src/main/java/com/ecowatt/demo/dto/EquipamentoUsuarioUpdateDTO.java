@@ -2,27 +2,16 @@ package com.ecowatt.demo.dto;
 
 import jakarta.validation.constraints.PositiveOrZero;
 
-public class EquipamentoUsuarioUpdateDTO {
+public record EquipamentoUsuarioUpdateDTO(
 
-    private String nomeIdentificacao;
+        String nomeIdentificacao,
 
-    @PositiveOrZero(message = "Horas não podem ser negativas")
-    private double HorasPorDia;
+        @PositiveOrZero(message = "Horas não podem ser negativas")
+        Double horasPorDia,
 
-    @PositiveOrZero(message = "Consumo não pode ser negativo")
-    private double ConsumoEsperado;
+        @PositiveOrZero(message = "Consumo não pode ser negativo")
+        Double consumoEsperado,
 
-    public EquipamentoUsuarioUpdateDTO () {}
+        Long equipamentoId
 
-    public String getNomeIdentificacao() {
-        return nomeIdentificacao;
-    }
-
-    public double getHorasPorDia() {
-        return HorasPorDia;
-    }
-
-    public double getConsumoEsperado() {
-        return ConsumoEsperado;
-    }
-}
+) {}

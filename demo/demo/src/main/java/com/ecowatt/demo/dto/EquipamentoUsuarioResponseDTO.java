@@ -2,44 +2,42 @@ package com.ecowatt.demo.dto;
 
 import com.ecowatt.demo.model.EquipamentoUsuario;
 
-public class EquipamentoUsuarioResponseDTO {
-    private Long id;
-    private String nomeIdentificacao;
-    private double HorasPorDia;
-    private double ConsumoEsperado;
-    private Long usuarioId;
-    private Long equipamentoId;
+public record EquipamentoUsuarioResponseDTO(
 
-    public EquipamentoUsuarioResponseDTO(EquipamentoUsuario equipUser) {
-        HorasPorDia = equipUser.getHorasPorDia();
-        this.id = equipUser.getId();
-        this.nomeIdentificacao = equipUser.getNomeIdentificacao();
-        ConsumoEsperado = equipUser.getConsumoEsperado();
-        this.usuarioId = equipUser.getUsuario().getId();
-        this.equipamentoId = equipUser.getEquipamento().getId();
-    }
+        Long id,
+        String nomeIdentificacao,
 
-    public Long getId() {
-        return id;
-    }
+        Double horasPorDia,
+        Double consumoEsperado,
 
-    public String getNomeIdentificacao() {
-        return nomeIdentificacao;
-    }
+        Long usuarioId,
+        String nomeUsuario,
 
-    public double getHorasPorDia() {
-        return HorasPorDia;
-    }
+        Long equipamentoId,
+        String nomeEquipamento
 
-    public double getConsumoEsperado() {
-        return ConsumoEsperado;
-    }
+) {
 
-    public Long getEquipamentoId() {
-        return equipamentoId;
-    }
+    public EquipamentoUsuarioResponseDTO(
+            EquipamentoUsuario equipUser
+    ) {
 
-    public Long getUsuarioId() {
-        return usuarioId;
+        this(
+                equipUser.getId(),
+
+                equipUser.getNomeIdentificacao(),
+
+                equipUser.getHorasPorDia(),
+
+                equipUser.getConsumoEsperado(),
+
+                equipUser.getUsuario().getId(),
+
+                equipUser.getUsuario().getNome(),
+
+                equipUser.getEquipamento().getId(),
+
+                equipUser.getEquipamento().getNome()
+        );
     }
 }

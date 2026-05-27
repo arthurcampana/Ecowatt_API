@@ -2,34 +2,21 @@ package com.ecowatt.demo.dto;
 
 import com.ecowatt.demo.model.Equipamento;
 
-public class EquipamentoResponseDTO {
+public record EquipamentoResponseDTO(
 
-    private Long id;
-    private String nome;
-    private String modelo;
-    private Double consumoPorHora;
+        Long id,
+        String nome,
+        String modelo,
+        Double consumoPorHora
 
+) {
 
-    public EquipamentoResponseDTO(Equipamento equip) {
-        this.id = equip.getId();
-        this.nome = equip.getNome();
-        this.modelo = equip.getModelo();
-        this.consumoPorHora = equip.getConsumoPorHora();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public String getModelo() {
-        return modelo;
-    }
-
-    public Double getConsumoPorHora() {
-        return consumoPorHora;
+    public EquipamentoResponseDTO(Equipamento equipamento) {
+        this(
+                equipamento.getId(),
+                equipamento.getNome(),
+                equipamento.getModelo(),
+                equipamento.getConsumoPorHora()
+        );
     }
 }

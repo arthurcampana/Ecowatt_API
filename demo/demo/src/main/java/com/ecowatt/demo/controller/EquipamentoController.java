@@ -1,9 +1,12 @@
 package com.ecowatt.demo.controller;
 
 import com.ecowatt.demo.dto.EquipamentoRequestDTO;
+import com.ecowatt.demo.dto.EquipamentoResponseDTO;
+import com.ecowatt.demo.dto.EquipamentoUpdateDTO;
 import com.ecowatt.demo.model.Equipamento;
 import com.ecowatt.demo.service.EquipamentoService;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,9 +24,9 @@ public class EquipamentoController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> criar(@RequestBody EquipamentoRequestDTO e) {
+    public ResponseEntity<?> criar(@Valid @RequestBody EquipamentoRequestDTO e) {
         try {
-            if (e.getNome() == null || e.getConsumoPorHora() == null) {
+            if (e.nome() == null || e.consumoPorHora() == null) {
                 return ResponseEntity.badRequest().body("Nome e consumo são obrigatórios");
             }
 
@@ -46,7 +49,7 @@ public class EquipamentoController {
     @GetMapping("/buscar/{id}")
     public ResponseEntity<?> buscar(@PathVariable Long id) {
         try {
-            Optional<Equipamento> eqOpt = service.buscar(id);
+            Optional<EquipamentoResponseDTO> eqOpt = service.buscar(id);
 
             if (eqOpt.isPresent()) {
                 return ResponseEntity.ok(eqOpt.get());
@@ -56,6 +59,47 @@ public class EquipamentoController {
 
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Erro ao buscar equipamento");
+        }
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<?> atualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody EquipamentoUpdateDTO dto
+    ) {
+
+        try {
+
+            Optional<EquipamentoResponseDTO> equipamento =
+                    service.atualizar(id, dto);
+
+            return equipamento.<ResponseEntity<?>>map(ResponseEntity::ok)
+                    .orElseGet(() -> ResponseEntity.status(404)
+                            .body("Equipamento não encontrado"));
+
+        } catch (Exception e) {
+
+            return ResponseEntity.internalServerError()
+                    .body("Erro ao atualizar equipamento");
+        }
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletar(@PathVariable Long id) {
+
+        try {
+
+            boolean removido = service.deletar(id);
+
+            if (removido) {
+                return ResponseEntity.ok("Equipamento removido com sucesso");
+            }
+
+            return ResponseEntity.status(404)
+                    .body("Equipamento não encontrado");
+
+        } catch (Exception e) {
+
+            return ResponseEntity.internalServerError()
+                    .body("Erro ao remover equipamento");
         }
     }
 }

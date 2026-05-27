@@ -1,37 +1,24 @@
 package com.ecowatt.demo.dto;
 
-public class EquipamentoUsuarioRequestDTO {
-    private String nomeIdentificacao;
-    private double HorasPorDia;
-    private double ConsumoEsperado;
-    private Long usuarioId;
-    private Long equipamentoId;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
-    public EquipamentoUsuarioRequestDTO(String nomeIdentificacao, double consumoEsperado, double horasPorDia, Long equipamentoId, Long usuarioId) {
-        this.nomeIdentificacao = nomeIdentificacao;
-        ConsumoEsperado = consumoEsperado;
-        HorasPorDia = horasPorDia;
-        this.equipamentoId = equipamentoId;
-        this.usuarioId = usuarioId;
-    }
+public record EquipamentoUsuarioRequestDTO(
 
-    public String getNomeIdentificacao() {
-        return nomeIdentificacao;
-    }
+        @NotBlank(message = "Nome obrigatório")
+        String nomeIdentificacao,
 
-    public Long getEquipamentoId() {
-        return equipamentoId;
-    }
+        @PositiveOrZero(message = "Horas não podem ser negativas")
+        Double horasPorDia,
 
-    public Long getUsuarioId() {
-        return usuarioId;
-    }
+        @PositiveOrZero(message = "Consumo não pode ser negativo")
+        Double consumoEsperado,
 
-    public double getConsumoEsperado() {
-        return ConsumoEsperado;
-    }
+        @NotNull(message = "Usuário obrigatório")
+        Long usuarioId,
 
-    public double getHorasPorDia() {
-        return HorasPorDia;
-    }
-}
+        @NotNull(message = "Equipamento obrigatório")
+        Long equipamentoId
+
+) {}

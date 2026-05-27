@@ -2,27 +2,19 @@ package com.ecowatt.demo.dto;
 
 import com.ecowatt.demo.model.Usuario;
 
-public class UsuarioResponseDTO {
+public record UsuarioResponseDTO(
 
-    private Long id;
-    private String nome;
-    private String email;
+        Long id,
+        String nome,
+        String email
 
-    public UsuarioResponseDTO(Usuario usuario){
-        this.id = usuario.getId();
-        this.nome = usuario.getNome();
-        this.email = usuario.getEmail();
-    }
+) {
 
-    public Long getId() {
-        return id;
-    }
-    
-    public String getNome() {
-        return nome;
-    }
-    
-    public String getEmail() {
-        return email;
+    public UsuarioResponseDTO(Usuario usuario) {
+        this(
+                usuario.getId(),
+                usuario.getNome(),
+                usuario.getEmail()
+        );
     }
 }

@@ -1,12 +1,15 @@
 package com.ecowatt.demo.dto;
 
-public class LoginDTO {
-    private String email;
-    private String senha;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
-    public String getEmail() { return email; }
-    public String getSenha() { return senha; }
+public record LoginDTO(
 
-    public void setEmail(String email) { this.email = email; }
-    public void setSenha(String senha) { this.senha = senha; }
-}
+        @Email(message = "Email inválido")
+        @NotBlank(message = "Email obrigatório")
+        String email,
+
+        @NotBlank(message = "Senha obrigatória")
+        String senha
+
+) {}

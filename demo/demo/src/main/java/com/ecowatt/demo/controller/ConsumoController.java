@@ -24,7 +24,7 @@ public class ConsumoController {
     // CREATE
     @PostMapping("/add")
     public ResponseEntity<?> salvar(
-            @RequestBody ConsumoRequestDTO dto
+           @Valid @RequestBody ConsumoRequestDTO dto
     ) {
 
         try {

@@ -1,36 +1,20 @@
 package com.ecowatt.demo.dto;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
-public class UsuarioRequestDTO {
+public record UsuarioRequestDTO(
 
-    @NotBlank
-    private final String nome;
+        @NotBlank(message = "Nome obrigatório")
+        String nome,
 
-    @Email
-    @NotBlank
-    private final String email;
+        @Email(message = "Email inválido")
+        @NotBlank(message = "Email obrigatório")
+        String email,
 
-    @NotBlank
-    @Size(min = 6)
-    private final String senha;
+        @NotBlank(message = "Senha obrigatória")
+        @Size(min = 6, message = "Senha deve ter no mínimo 6 caracteres")
+        String senha
 
-    public UsuarioRequestDTO(String nome, String email, String senha) {
-        this.nome = nome;
-        this.email = email;
-        this.senha = senha;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-    
-    public String getEmail() {
-        return email;
-    }
-    
-    public String getSenha() {
-        return senha;
-    }
-    
-}
+) {}

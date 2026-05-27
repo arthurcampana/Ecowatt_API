@@ -2,6 +2,7 @@ package com.ecowatt.demo.service;
 
 import com.ecowatt.demo.dto.EquipamentoRequestDTO;
 import com.ecowatt.demo.dto.EquipamentoResponseDTO;
+import com.ecowatt.demo.dto.EquipamentoUpdateDTO;
 import com.ecowatt.demo.model.Equipamento;
 import com.ecowatt.demo.repository.EquipamentoRepository;
 import org.springframework.stereotype.Service;
@@ -21,42 +22,69 @@ public class EquipamentoService {
     public EquipamentoResponseDTO criar(EquipamentoRequestDTO dto) {
         Equipamento equip = new Equipamento();
 
-        equip.setModelo(dto.getModelo());
-        equip.setNome(dto.getNome());
-        equip.setConsumoPorHora(dto.getConsumoPorHora());
+        equip.setModelo(dto.modelo());
+        equip.setNome(dto.nome());
+        equip.setConsumoPorHora(dto.consumoPorHora());
 
         equip =  equipamentoRepository.save(equip);
         return new EquipamentoResponseDTO(equip);
     }
 
-    public List<Equipamento> listar() {
-        return equipamentoRepository.findAll();
+    public List<EquipamentoResponseDTO> listar() {
+
+        return equipamentoRepository.findAll()
+                .stream()
+                .map(EquipamentoResponseDTO::new)
+                .toList();
     }
 
-    public Optional<Equipamento> buscar(Long id) {
-        return equipamentoRepository.findById(id);
+    public Optional<EquipamentoResponseDTO> buscar(Long id) {
+
+        return equipamentoRepository.findById(id)
+                .map(EquipamentoResponseDTO::new);
     }
 
-    public Optional<Equipamento> atualizar(Long id, Equipamento atualizado){
+    public Optional<EquipamentoResponseDTO> atualizar(
+            Long id,
+            EquipamentoUpdateDTO dto
+    ) {
+
         Optional<Equipamento> opt = equipamentoRepository.findById(id);
 
-        if(opt.isPresent()){
-            Equipamento e = opt.get();
-            e.setNome(atualizado.getNome());
-            e.setModelo(atualizado.getModelo());
-            e.setConsumoPorHora(atualizado.getConsumoPorHora());
+        if (opt.isPresent()) {
 
-            return Optional.of(equipamentoRepository.save(e));
+            Equipamento e = opt.get();
+
+            if (dto.nome() != null) {
+                e.setNome(dto.nome());
+            }
+
+            if (dto.modelo() != null) {
+                e.setModelo(dto.modelo());
+            }
+
+            if (dto.consumoPorHora() != null) {
+                e.setConsumoPorHora(dto.consumoPorHora());
+            }
+
+            Equipamento atualizado = equipamentoRepository.save(e);
+
+            return Optional.of(
+                    new EquipamentoResponseDTO(atualizado)
+            );
         }
 
         return Optional.empty();
     }
+    public boolean deletar(Long id) {
 
-    public boolean deletar(Long id){
-        if(equipamentoRepository.existsById(id)){
+        if (equipamentoRepository.existsById(id)) {
+
             equipamentoRepository.deleteById(id);
+
             return true;
         }
+
         return false;
     }
 }

@@ -1,15 +1,12 @@
 package com.ecowatt.demo.dto;
 
-public class UsuarioUpdateDTO {
+import jakarta.validation.constraints.Size;
 
-    private String nome;
-    private String senha;
+public record UsuarioUpdateDTO(
 
-    public String getNome() {
-        return nome;
-    }
-    
-    public String getSenha() {
-        return senha;
-    }
-}
+        String nome,
+
+        @Size(min = 6, message = "Senha deve ter no mínimo 6 caracteres")
+        String senha
+
+) {}

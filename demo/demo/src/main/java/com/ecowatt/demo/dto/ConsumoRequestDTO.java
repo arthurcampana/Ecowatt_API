@@ -1,31 +1,19 @@
 package com.ecowatt.demo.dto;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
+
 import java.time.LocalDateTime;
 
-public class ConsumoRequestDTO {
+public record ConsumoRequestDTO(
 
-    private Long usuarioId;
-    private Double consumoKwh;
-    private LocalDateTime dataRegistro;
+        @NotNull(message = "Usuário obrigatório")
+        Long usuarioId,
 
-    public ConsumoRequestDTO(Long usuarioId,
-                             Double consumoKwh,
-                             LocalDateTime dataRegistro) {
+        @NotNull(message = "Consumo obrigatório")
+        @PositiveOrZero(message = "Consumo não pode ser negativo")
+        Double consumoKwh,
 
-        this.usuarioId = usuarioId;
-        this.consumoKwh = consumoKwh;
-        this.dataRegistro = dataRegistro;
-    }
+        LocalDateTime dataRegistro
 
-    public Long getUsuarioId() {
-        return usuarioId;
-    }
-
-    public Double getConsumoKwh() {
-        return consumoKwh;
-    }
-
-    public LocalDateTime getDataRegistro() {
-        return dataRegistro;
-    }
-}
+) {}
