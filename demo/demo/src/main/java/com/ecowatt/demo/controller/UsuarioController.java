@@ -73,11 +73,19 @@ public class UsuarioController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO dto){
+
         try{
-            return ResponseEntity.ok(usuarioService.login(dto));
-        } catch (Exception e){
+
+            return ResponseEntity.ok(
+                    usuarioService.login(dto)
+            );
+
+        }catch (Exception e){
+
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Email ou senha inválidos");
         }
     }
+
+
 }

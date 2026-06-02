@@ -1,9 +1,6 @@
 package com.ecowatt.demo.service;
 
-import com.ecowatt.demo.dto.UsuarioRequestDTO;
-import com.ecowatt.demo.dto.UsuarioResponseDTO;
-import com.ecowatt.demo.dto.UsuarioUpdateDTO;
-import com.ecowatt.demo.dto.LoginDTO;
+import com.ecowatt.demo.dto.*;
 import com.ecowatt.demo.model.Usuario;
 import com.ecowatt.demo.repository.UsuarioRepository;
 
@@ -11,7 +8,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,10 +17,12 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder){
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, JwtService jwtService){
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     // CREATE
@@ -82,21 +80,27 @@ public class UsuarioService {
         return false;
     }
 
-    public UsuarioResponseDTO login(LoginDTO dto){
+    public LoginResponseDTO login(LoginDTO dto){
 
-        Usuario usuario = usuarioRepository.findByEmail(dto.email())
-                .orElseThrow(() ->
-                        new RuntimeException("Credenciais inválidas"));
+        Usuario usuario =
+                usuarioRepository.findByEmail(dto.email())
+                        .orElseThrow(
+                                () -> new RuntimeException("Credenciais inválidas")
+                        );
 
-        boolean senhaValida = passwordEncoder.matches(
-                dto.senha(),
-                usuario.getSenha()
-        );
+        boolean senhaValida =
+                passwordEncoder.matches(
+                        dto.senha(),
+                        usuario.getSenha()
+                );
 
         if(!senhaValida){
             throw new RuntimeException("Credenciais inválidas");
         }
 
-        return new UsuarioResponseDTO(usuario);
+        String token =
+                jwtService.gerarToken(usuario);
+
+        return new LoginResponseDTO("Bearer " + token);
     }
 }

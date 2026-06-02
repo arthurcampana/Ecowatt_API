@@ -1,73 +1,105 @@
 package com.ecowatt.demo.config;
 
+import com.ecowatt.demo.service.JwtService;
+import io.jsonwebtoken.io.IOException;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.Customizer;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Component;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.util.List;
 
 @Configuration
 public class SecurityConfig {
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                // 🔥 habilita CORS dentro do Spring Security
-                .cors(Customizer.withDefaults())
+    private final JwtFilter jwtFilter;
 
-                // 🔥 desativa CSRF (necessário para APIs REST simples)
-                .csrf(csrf -> csrf.disable())
-
-                // 🔥 libera tudo (por enquanto)
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
-                )
-
-                // opcional (não impacta no CORS)
-                .httpBasic(Customizer.withDefaults());
-
-        return http.build();
+    public SecurityConfig(JwtFilter jwtFilter){
+        this.jwtFilter = jwtFilter;
     }
 
-    // 🔥 CONFIGURAÇÃO REAL DE CORS
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public SecurityFilterChain filterChain(
+            HttpSecurity http
+    ) throws Exception {
 
-        CorsConfiguration config = new CorsConfiguration();
+        http
+                .cors(Customizer.withDefaults())
 
-        config.setAllowCredentials(true);
+                .csrf(csrf -> csrf.disable())
 
-        config.setAllowedOrigins(List.of(
-                "http://127.0.0.1:5500",
-                "http://localhost:5500"
-        ));
+                .authorizeHttpRequests(auth -> auth
 
-        config.setAllowedHeaders(List.of("*"));
+                        .requestMatchers(
+                                "/usuario/add",
+                                "/usuario/login"
+                        ).permitAll()
 
-        config.setAllowedMethods(List.of(
-                "GET", "POST", "PUT", "DELETE", "OPTIONS"
-        ));
+                        .anyRequest()
+                        .authenticated()
+                )
 
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
+                .addFilterBefore(
+                        jwtFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                );
 
-        source.registerCorsConfiguration("/**", config);
-
-        return source;
+        return http.build();
     }
 
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource(){
+
+        CorsConfiguration config =
+                new CorsConfiguration();
+
+        config.setAllowCredentials(true);
+
+        config.setAllowedOrigins(List.of(
+                "http://localhost:5500",
+                "http://127.0.0.1:5500"
+        ));
+
+        config.setAllowedHeaders(List.of("*"));
+
+        config.setAllowedMethods(List.of(
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+        ));
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration(
+                "/**",
+                config
+        );
+
+        return source;
     }
 }
