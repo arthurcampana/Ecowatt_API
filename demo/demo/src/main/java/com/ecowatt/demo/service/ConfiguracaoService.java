@@ -1,5 +1,6 @@
 package com.ecowatt.demo.service;
 
+import com.ecowatt.demo.dto.*;
 import com.ecowatt.demo.model.Configuracao;
 import com.ecowatt.demo.model.Usuario;
 import com.ecowatt.demo.repository.ConfiguracaoRepository;
@@ -13,46 +14,87 @@ import java.util.Optional;
 public class ConfiguracaoService {
 
     private final ConfiguracaoRepository configuracaoRepository;
+    private final UsuarioRepository usuarioRepository;
 
-    public ConfiguracaoService(ConfiguracaoRepository configuracaoRepository) {
+    public ConfiguracaoService(ConfiguracaoRepository configuracaoRepository, UsuarioRepository usuarioRepository) {
         this.configuracaoRepository = configuracaoRepository;
+        this.usuarioRepository = usuarioRepository;
     }
 
 
-    public Configuracao cadastrarConfig(Configuracao config){
-        return configuracaoRepository.save(config);
+    public ConfiguracaoResponseDTO salvar(ConfiguracaoRequestDTO dto){
+        Usuario usuario = usuarioRepository.findById(dto.usuarioId())
+                .orElseThrow(() ->
+                        new RuntimeException("Usuário não encontrado"));
+
+        Configuracao config = new Configuracao();
+
+        config.setCliente(usuario);
+        config.setMeta(dto.meta());
+        config.setValorTarifa(dto.valorTarifa());
+        config.setUnidadeMedida(dto.unidadeMedida());
+
+        config = configuracaoRepository.save(config);
+
+        return new ConfiguracaoResponseDTO(config);
     }
 
-    public List<Configuracao> listarConfig(){
-        return configuracaoRepository.findAll();
+    public List<ConfiguracaoResponseDTO> listarConfig(){
+
+        return configuracaoRepository.findAll()
+                .stream()
+                .map(ConfiguracaoResponseDTO::new)
+                .toList();
     }
 
-    public Optional<Configuracao> buscarConfig(Long id){
-        return configuracaoRepository.findByUsuarioId(id);
-    }
+    public Optional<ConfiguracaoResponseDTO> buscarConfig(Long id){
 
-    public Optional<Configuracao> alterarConfig(Long id, Configuracao configAtualizado){
-        Optional<Configuracao> configOpt = configuracaoRepository.findById(id);
-
-        if(configOpt.isPresent()){
-            Configuracao configuracao = configOpt.get();
-            configuracao.setValorTarifa(configAtualizado.getValorTarifa());
-            configuracao.setMeta(configAtualizado.getMeta());
-            configuracao.setUnidadeMedida(configAtualizado.getUnidadeMedida());
-            configuracao.setDataFechamento(configAtualizado.getDataFechamento());
-
-            return Optional.of(configuracaoRepository.save(configAtualizado));
+        if (id == null) {
+            throw new RuntimeException("ID inválido");
         }
 
-        return Optional.empty();
+        return configuracaoRepository.findById(id)
+                .map(ConfiguracaoResponseDTO::new);
     }
+
+    public Optional<ConfiguracaoResponseDTO> alterarConfig(
+        Long id,
+        ConfiguracaoUpdateDTO dto
+    ) {
+
+            return configuracaoRepository.findById(id)
+                    .map(config -> {
+
+                        if (dto.unidadeMedida() != null) {
+                            config.setUnidadeMedida(dto.unidadeMedida());
+                        }
+
+                        if (dto.valorTarifa() != null) {
+                            config.setValorTarifa(dto.valorTarifa());
+                        }
+
+                        if (dto.meta() != null) {
+                            config.setMeta(dto.meta());
+                        }
+
+
+
+                        configuracaoRepository.save(config);
+
+                        return new ConfiguracaoResponseDTO(config);
+                    });
+        }
+
 
     public boolean excluirConfig(Long id){
-        if(configuracaoRepository.existsById(id)){
-            configuracaoRepository.deleteById(id);
-            return true;
+
+        if (!configuracaoRepository.existsById(id)) {
+            return false;
         }
-        return false;
+
+        configuracaoRepository.deleteById(id);
+
+        return true;
     }
 }
 

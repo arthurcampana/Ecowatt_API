@@ -1,10 +1,12 @@
 package com.ecowatt.demo.controller;
 
+import com.ecowatt.demo.dto.*;
 import com.ecowatt.demo.model.Configuracao;
 import com.ecowatt.demo.model.Consumo;
 import com.ecowatt.demo.model.Usuario;
 import com.ecowatt.demo.service.ConfiguracaoService;
 import com.ecowatt.demo.service.UsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,26 +20,34 @@ public class ConfiguracaoController {
 
     private final ConfiguracaoService service;
 
-    //🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+    //🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
     public ConfiguracaoController(ConfiguracaoService configuracaoService){
         this.service = configuracaoService; }
-    //🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+    //🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
 
     @PostMapping("/add")
-    public ResponseEntity<?> cadastrar(@RequestBody Configuracao config){
-        try{
-            config = service.cadastrarConfig(config);
-            return ResponseEntity.status(HttpStatus.CREATED).body(config);
+    public ResponseEntity<?> salvar(
+            @Valid @RequestBody ConfiguracaoRequestDTO dto
+    ) {
+
+        try {
+
+            ConfiguracaoResponseDTO novo = service.salvar(dto);
+
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(novo);
+
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao cadastrar usuario: " + e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Erro ao salvar consumo: " + e.getMessage());
         }
     }
 
     @GetMapping("/listar")
     public ResponseEntity<?> listar() {
         try {
-            List<Configuracao> lista = service.listarConfig();
+            List<ConfiguracaoResponseDTO> lista = service.listarConfig();
             return ResponseEntity.ok(lista);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -59,9 +69,9 @@ public class ConfiguracaoController {
     }
 
     @PutMapping("/alterar/{id}")
-    public ResponseEntity<?> alterarConfig(@PathVariable Long id, @RequestBody Configuracao configAtualizado){
+    public ResponseEntity<?> alterarConfig(@PathVariable Long id, @RequestBody ConfiguracaoUpdateDTO configAtualizado){
         try {
-            Optional<Configuracao> config = service.alterarConfig(id, configAtualizado);
+            Optional<ConfiguracaoResponseDTO> config = service.alterarConfig(id, configAtualizado);
 
             if(config.isPresent())
                 return ResponseEntity.ok(config.get());
