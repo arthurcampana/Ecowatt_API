@@ -23,7 +23,7 @@ public class ConsumoController {
 
     // CREATE
     @PostMapping("/add")
-    public ResponseEntity<?> salvar(
+    public ResponseEntity<ConsumoResponseDTO> salvar(
            @Valid @RequestBody ConsumoRequestDTO dto
     ) {
 
@@ -37,7 +37,7 @@ public class ConsumoController {
         } catch (Exception e) {
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Erro ao salvar consumo: " + e.getMessage());
+                    .build();
         }
     }
 
@@ -116,7 +116,7 @@ public class ConsumoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> alterar(
+    public ResponseEntity<ConsumoResponseDTO> alterar(
             @PathVariable Long id,
             @Valid @RequestBody ConsumoUpdateDTO dto
     ) {
@@ -124,14 +124,12 @@ public class ConsumoController {
         try {
 
             return service.alterar(id, dto)
-                    .<ResponseEntity<?>>map(ResponseEntity::ok)
-                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                            .body("Consumo não encontrado"));
+                    .map(ResponseEntity::ok)
+                    .orElseGet(() -> ResponseEntity.notFound().build());
 
         } catch (Exception e) {
 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Erro ao alterar consumo");
+            return ResponseEntity.badRequest().build();
         }
     }
 }

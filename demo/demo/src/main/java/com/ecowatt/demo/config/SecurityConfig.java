@@ -50,7 +50,10 @@ public class SecurityConfig {
 
                         .requestMatchers(
                                 "/usuario/add",
-                                "/usuario/login"
+                                "/usuario/login",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**"
                         ).permitAll()
 
                         .anyRequest()

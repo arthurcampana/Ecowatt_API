@@ -20,13 +20,13 @@ public class ConfiguracaoController {
 
     private final ConfiguracaoService service;
 
-    //🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+
     public ConfiguracaoController(ConfiguracaoService configuracaoService){
         this.service = configuracaoService; }
-    //🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+
 
     @PostMapping("/add")
-    public ResponseEntity<?> salvar(
+    public ResponseEntity<ConfiguracaoResponseDTO> salvar(
             @Valid @RequestBody ConfiguracaoRequestDTO dto
     ) {
 
@@ -40,7 +40,7 @@ public class ConfiguracaoController {
         } catch (Exception e) {
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Erro ao salvar consumo: " + e.getMessage());
+                    .build();
         }
     }
 
