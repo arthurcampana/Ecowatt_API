@@ -101,6 +101,11 @@ public class UsuarioService {
         String token =
                 jwtService.gerarToken(usuario);
 
-        return new LoginResponseDTO("Bearer " + token);
+        return new LoginResponseDTO(
+                usuario.getId(),
+                usuario.getNome(),
+                usuario.getEmail(),
+                "Bearer " + token
+        );
     }
 }

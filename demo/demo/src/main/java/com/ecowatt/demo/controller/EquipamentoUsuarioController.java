@@ -29,7 +29,6 @@ public class EquipamentoUsuarioController {
             @Valid @RequestBody
             EquipamentoUsuarioRequestDTO dto
     ) {
-
         try {
 
             EquipamentoUsuarioResponseDTO novo =

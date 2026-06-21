@@ -101,6 +101,26 @@ public class ConfiguracaoController {
                     .body("Erro ao deletar consumo");
         }
     }
+    @GetMapping("/usuario/{id}")
+    public ResponseEntity<?> buscarPorUsuario(
+            @PathVariable Long id
+    ){
+
+        try{
+
+            return service.buscarPorUsuario(id)
+                    .map(ResponseEntity::ok)
+                    .orElse(
+                            ResponseEntity.notFound().build()
+                    );
+
+        }catch(Exception e){
+
+            return ResponseEntity
+                    .status(500)
+                    .body("Erro ao buscar configuração");
+        }
+    }
 }
 
 

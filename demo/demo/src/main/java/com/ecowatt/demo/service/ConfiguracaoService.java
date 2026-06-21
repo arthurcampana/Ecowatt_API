@@ -96,5 +96,13 @@ public class ConfiguracaoService {
 
         return true;
     }
+
+    public Optional<ConfiguracaoResponseDTO> buscarPorUsuario(Long id){
+
+        return configuracaoRepository
+                .findByUsuarioId(id)
+                .map(ConfiguracaoResponseDTO::new);
+
+    }
 }
 
