@@ -25,7 +25,7 @@ O EcoWatt foi desenvolvido com o objetivo de auxiliar usuários no acompanhament
 
 ## Banco de Dados
 
-- MySQL
+- Postgres
 
 ## Frontend
 
