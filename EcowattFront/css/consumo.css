@@ -1,0 +1,335 @@
+:root{
+    --bg-page:#f5f7fb;
+    --bg-card:#ffffff;
+    --text-main:#1f2937;
+    --text-muted:#6b7280;
+    --primary:#198754;
+    --primary-dark:#157347;
+    --border-soft:#e5e7eb;
+}
+
+body{
+    background:linear-gradient(
+        180deg,
+        #f8fafc 0%,
+        #eef2f7 100%
+    );
+
+    min-height:100vh;
+
+    color:var(--text-main);
+}
+html{
+    overflow-y:scroll;
+}
+
+/* NAVBAR */
+
+.bg-header{
+    background:#fff;
+    border-bottom:1px solid var(--border-soft);
+    box-shadow:0 2px 10px rgba(0,0,0,.03);
+}
+
+.navbar{
+    padding-top:.85rem;
+    padding-bottom:.85rem;
+}
+
+.logo{
+    height:75px;
+    width:auto;
+    object-fit:contain;
+}
+
+.navbar-nav .nav-link{
+    font-weight:500;
+    color:#374151;
+    padding:.5rem .9rem;
+    border-radius:10px;
+    transition:.2s;
+}
+
+.navbar-nav .nav-link:hover{
+    background:rgba(25,135,84,.08);
+    color:var(--primary);
+}
+
+.navbar-nav .nav-link.active{
+    background:rgba(25,135,84,.12);
+    color:var(--primary);
+    font-weight:600;
+}
+
+/* MAIN */
+
+main{
+    padding-top:3rem;
+    padding-bottom:4rem;
+}
+
+/* HEADER */
+
+.page-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:1rem;
+    margin-bottom:2rem;
+    flex-wrap:wrap;
+}
+
+.page-header h3{
+    font-size:2rem;
+    font-weight:700;
+    margin-bottom:.4rem;
+}
+
+.page-header p{
+    margin:0;
+    color:var(--text-muted);
+}
+
+/* BOTÃO */
+
+.btn-add{
+    height:52px;
+    border:none;
+    border-radius:14px;
+    padding:0 1.5rem;
+    font-weight:600;
+    color:#fff;
+
+    background:linear-gradient(
+        180deg,
+        var(--primary) 0%,
+        var(--primary-dark) 100%
+    );
+
+    transition:.2s;
+}
+
+.btn-add:hover{
+    transform:translateY(-1px);
+}
+
+/* FORM */
+
+.form-card{
+    display:none;
+
+    background:#fff;
+
+    border:1px solid var(--border-soft);
+
+    border-radius:22px;
+
+    overflow:hidden;
+
+    box-shadow:0 10px 25px rgba(15,23,42,.05);
+
+    margin-bottom:2rem;
+}
+
+.form-card.active{
+    display:block;
+}
+
+.form-card-header{
+    padding:1.25rem 1.5rem;
+    border-bottom:1px solid var(--border-soft);
+    background:#f9fafb;
+}
+
+.form-card-header h5{
+    margin:0;
+    font-weight:700;
+}
+
+.form-card-body{
+    padding:2rem;
+}
+
+.form-label{
+    font-weight:600;
+    margin-bottom:.5rem;
+}
+
+.form-control{
+    border-radius:12px;
+    border:1px solid #d1d5db;
+    padding:.85rem 1rem;
+}
+
+.helper-text{
+    font-size:.92rem;
+    color:var(--text-muted);
+    margin-top:.35rem;
+}
+
+/* BOTÃO SALVAR */
+
+.btn-save{
+    width:100%;
+    height:52px;
+
+    border:none;
+
+    border-radius:14px;
+
+    font-weight:600;
+
+    color:#fff;
+
+    background:linear-gradient(
+        180deg,
+        var(--primary) 0%,
+        var(--primary-dark) 100%
+    );
+
+    transition:.2s;
+}
+
+.btn-save:hover{
+    transform:translateY(-1px);
+}
+
+/* FECHAR */
+
+.btn-close-custom{
+    border:none;
+    background:none;
+    font-size:2rem;
+    line-height:1;
+    color:#6b7280;
+    cursor:pointer;
+}
+
+/* HISTÓRICO */
+
+.historico-title{
+    margin-bottom:1rem;
+}
+
+.historico-title h4{
+    font-weight:700;
+}
+
+.lista-consumos{
+    display:flex;
+    flex-direction:column;
+    gap:1rem;
+}
+
+/* CARD */
+
+.consumo-card{
+    background:#fff;
+
+    border:1px solid var(--border-soft);
+
+    border-radius:20px;
+
+    padding:1.4rem;
+
+    box-shadow:0 10px 25px rgba(15,23,42,.05);
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:1rem;
+
+    transition:.2s;
+}
+
+.consumo-card:hover{
+    transform:translateY(-2px);
+}
+
+.consumo-info h5{
+    margin-bottom:.4rem;
+    font-weight:700;
+}
+
+.consumo-info p{
+    margin:0;
+    color:#6b7280;
+}
+
+.badge-consumo{
+    margin-top:.7rem;
+
+    display:inline-block;
+
+    padding:.5rem .85rem;
+
+    border-radius:10px;
+
+    background:rgba(25,135,84,.1);
+
+    color:#198754;
+
+    font-weight:600;
+}
+
+/* ACTIONS */
+
+.consumo-actions{
+    display:flex;
+    gap:.7rem;
+}
+
+.btn-action{
+    border:none;
+
+    padding:.7rem 1rem;
+
+    border-radius:10px;
+
+    font-weight:600;
+
+    transition:.2s;
+}
+
+.btn-action:hover{
+    transform:translateY(-1px);
+}
+
+.btn-edit{
+    background:#eef2ff;
+    color:#3730a3;
+}
+
+.btn-delete{
+    background:#fee2e2;
+    color:#991b1b;
+}
+
+/* RESPONSIVO */
+
+@media(max-width:768px){
+
+    .consumo-card{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .consumo-actions{
+        width:100%;
+    }
+
+    .btn-action{
+        flex:1;
+    }
+
+    .form-card-body{
+        padding:1.4rem;
+    }
+
+    .page-header h3{
+        font-size:1.7rem;
+    }
+}

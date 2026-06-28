@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Cadastro de Equipamentos</title>
+
+<link rel="stylesheet" href="css/bootstrap.min.css">
+
+<style>
+
+body{
+    background:#f4f7fb;
+}
+
+.container-box{
+    max-width:700px;
+    margin:auto;
+    margin-top:60px;
+}
+
+.card-custom{
+    border:none;
+    border-radius:18px;
+    padding:30px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+    background:white;
+}
+
+.title{
+    font-weight:700;
+    margin-bottom:5px;
+}
+
+.subtitle{
+    color:#6b7280;
+    margin-bottom:30px;
+}
+
+.btn-save{
+    width:100%;
+    height:48px;
+    border-radius:12px;
+    font-weight:600;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container-box">
+
+    <div class="card-custom">
+
+        <h2 class="title">Cadastrar Equipamento</h2>
+        <p class="subtitle">
+            Tela de teste para inserir equipamentos manualmente.
+        </p>
+
+        <form id="formEquipamento">
+
+            <div class="mb-3">
+                <label class="form-label">Nome</label>
+                <input
+                    type="text"
+                    class="form-control"
+                    id="nome"
+                    required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Modelo</label>
+                <input
+                    type="text"
+                    class="form-control"
+                    id="modelo">
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">
+                    Consumo por hora (kWh)
+                </label>
+
+                <input
+                    type="number"
+                    step="0.01"
+                    class="form-control"
+                    id="consumo"
+                    required>
+            </div>
+
+            <button
+                type="submit"
+                class="btn btn-success btn-save">
+
+                Salvar Equipamento
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+
+const form = document.getElementById("formEquipamento");
+
+form.addEventListener("submit", async (e) => {
+
+    e.preventDefault();
+
+    const payload = {
+
+        nome: document.getElementById("nome").value,
+
+        modelo: document.getElementById("modelo").value,
+
+        consumoPorHora: parseFloat(
+            document.getElementById("consumo").value
+        )
+    };
+
+    try{
+
+        const response = await fetch(
+            "http://localhost:8080/equipamentos/add",
+            {
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body: JSON.stringify(payload)
+            }
+        );
+
+        if(response.ok){
+
+            alert("Equipamento cadastrado");
+
+            form.reset();
+
+        }else{
+
+            const erro = await response.text();
+
+            alert("Erro: " + erro);
+        }
+
+    }catch(err){
+
+        console.error(err);
+
+        alert("Erro ao conectar");
+    }
+
+});
+
+</script>
+
+</body>
+</html>

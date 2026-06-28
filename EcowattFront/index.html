@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard</title>
+
+    <link
+        rel="stylesheet"
+        href="css/bootstrap.min.css">
+
+    <link
+        rel="stylesheet"
+        href="css/index.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg bg-header">
+
+    <div class="container">
+
+
+        <a class="navbar-brand" href="index.html">
+
+            <img 
+                src="img/logo.png" 
+                class="logo"
+                alt="Logo">
+
+        </a>
+
+
+
+        <button 
+            class="navbar-toggler" 
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#menuNavbar">
+
+
+            <span class="navbar-toggler-icon"></span>
+
+
+        </button>
+
+
+
+
+        <div 
+            class="collapse navbar-collapse"
+            id="menuNavbar">
+
+
+            <ul class="navbar-nav ms-auto align-items-lg-center">
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link active" href="index.html">
+                        Início
+                    </a>
+
+                </li>
+
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link" href="consumo.html">
+
+                        Registrar Consumo
+
+                    </a>
+
+                </li>
+
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link" href="equipamento-usuario.html">
+
+                        Equipamentos
+
+                    </a>
+
+                </li>
+
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link" href="relatorios.html">
+
+                        Relatórios
+
+                    </a>
+
+                </li>
+
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link" href="configuracoes.html">
+
+                        Configurações
+
+                    </a>
+
+                </li>
+
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link" href="perfil.html">
+
+                        Perfil
+
+                    </a>
+
+                </li>
+
+
+            </ul>
+
+
+        </div>
+
+
+    </div>
+
+
+</nav>
+
+    <!-- CONTEÚDO -->
+    <main class="container">
+
+        <!-- HEADER -->
+        <div class="page-header">
+
+            <h2>Dashboard</h2>
+
+            <p>
+                Visualize seu consumo energético e acompanhe sua evolução mensal.
+            </p>
+
+        </div>
+
+        <!-- CARDS -->
+        <div class="row g-4">
+
+            <div class="col-md-4">
+
+                <div class="dashboard-card">
+
+                    <h6>Consumo Atual (Mês)</h6>
+
+                    <h2 id="consumoMes">--</h2>
+
+                    <small>Total acumulado no mês atual</small>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="dashboard-card">
+
+                    <h6>Média Mensal</h6>
+
+                    <h2 id="mediaMensal">--</h2>
+
+                    <small>Média de consumo no ano</small>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="dashboard-card">
+
+                    <h6>Total no Ano</h6>
+
+                    <h2 id="consumoAno">--</h2>
+
+                    <small>Soma total registrada</small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- GRAFICO CONSUMO -->
+        <div class="chart-card">
+
+            <h5>Consumo por mês</h5>
+
+            <div class="chart-container">
+
+                <canvas id="graficoConsumo"></canvas>
+
+            </div>
+
+        </div>
+
+        <!-- GRAFICO EQUIPAMENTOS -->
+        <div class="chart-card">
+
+            <h5>
+                Consumo esperado por equipamento
+            </h5>
+
+            <div class="chart-container">
+
+                <canvas id="graficoEquipamentos"></canvas>
+
+            </div>
+
+            <!-- LEGENDA -->
+            <div
+                id="legendaEquipamentos"
+                class="legenda-wrapper">
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <script src="js/index.js"></script>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

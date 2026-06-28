@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Relatórios</title>
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/relatorios.css">
+
+</head>
+
+
+
+<body>
+
+<nav class="navbar navbar-expand-lg bg-header">
+
+    <div class="container">
+
+
+        <a class="navbar-brand" href="index.html">
+
+            <img 
+                src="img/logo.png" 
+                class="logo"
+                alt="Logo">
+
+        </a>
+
+
+
+        <button 
+            class="navbar-toggler" 
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#menuNavbar">
+
+
+            <span class="navbar-toggler-icon"></span>
+
+
+        </button>
+
+
+
+
+        <div 
+            class="collapse navbar-collapse"
+            id="menuNavbar">
+
+
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link" href="index.html">
+                        Início
+                    </a>
+
+                </li>
+
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link " href="consumo.html">
+
+                        Registrar Consumo
+
+                    </a>
+
+                </li>
+
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link" href="equipamento-usuario.html">
+
+                        Equipamentos
+
+                    </a>
+
+                </li>
+
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link active" href="relatorios.html">
+
+                        Relatórios
+
+                    </a>
+
+                </li>
+
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link" href="configuracoes.html">
+
+                        Configurações
+
+                    </a>
+
+                </li>
+
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link" href="perfil.html">
+
+                        Perfil
+
+                    </a>
+
+                </li>
+
+
+            </ul>
+
+
+        </div>
+
+
+    </div>
+
+
+</nav>
+
+<div class="container mt-4">
+
+    <div class="card shadow-sm p-4 mb-4">
+
+        <h4 class="mb-4">
+
+            Relatório de Consumo
+
+        </h4>
+
+        <div class="row">
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+
+                    Data Inicial
+
+                </label>
+
+                <input
+                        type="date"
+                        id="dataInicial"
+                        class="form-control">
+
+            </div>
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+
+                    Data Final
+
+                </label>
+
+                <input
+                        type="date"
+                        id="dataFinal"
+                        class="form-control">
+
+            </div>
+
+
+        </div>
+
+        <div class="row mt-4">
+
+            <div class="col-md-6">
+
+                <button
+                        id="btnGerar"
+                        class="btn btn-primary w-100">
+
+                    Gerar Relatório
+
+                </button>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <button
+                        id="btnExportar"
+                        class="btn btn-success w-100">
+
+                    Exportar PDF
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="painelRelatorio" style="display:none;">
+
+        <div class="row">
+
+            <div class="col-md-3">
+
+                <div class="card indicador">
+
+                    <h6>Consumo Total</h6>
+
+                    <h3 id="consumoTotal">0</h3>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="card indicador">
+
+                    <h6>Consumo Médio</h6>
+
+                    <h3 id="consumoMedio">0</h3>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="card indicador">
+
+                    <h6>Maior Consumo</h6>
+
+                    <h3 id="maiorConsumo">0</h3>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="card indicador">
+
+                    <h6>Menor Consumo</h6>
+
+                    <h3 id="menorConsumo">0</h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row mt-3">
+
+            <div class="col-md-4">
+
+                <div class="card indicador">
+
+                    <h6>Custo Estimado</h6>
+
+                    <h3 id="custoTotal">
+
+                        R$ 0,00
+
+                    </h3>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="card indicador">
+
+                    <h6>Meta</h6>
+
+                    <h3 id="metaAtual">
+
+                        -
+
+                    </h3>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="card indicador">
+
+                    <h6>Status</h6>
+
+                    <h3 id="statusMeta">
+
+                        -
+
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card shadow-sm mt-4 p-3">
+
+            <div class="d-flex justify-content-between">
+
+                <h5>
+
+                    Evolução do Consumo
+
+                </h5>
+
+                <button
+                        id="btnTrocarGrafico"
+                        class="btn btn-outline-primary">
+
+                    Alterar gráfico
+
+                </button>
+
+            </div>
+
+            <canvas
+                    id="graficoConsumo"
+                    >
+
+            </canvas>
+
+        </div>
+
+        <div class="card shadow-sm mt-4 p-3">
+
+            <h5>
+
+                Histórico
+
+            </h5>
+
+            <div class="table-responsive tabela-relatorio">
+
+                <table class="table table-striped">
+
+                    <thead>
+
+                    <tr>
+
+                        <th>Data</th>
+
+                        
+
+                        <th>Consumo (kWh)</th>
+
+                    </tr>
+
+                    </thead>
+
+                    <tbody id="tabelaConsumos">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+        <div class="card shadow-sm mt-4 p-3">
+
+    <h5>Consumo por Equipamentos</h5>
+
+    <div style="height:350px">
+
+        <canvas id="graficoEquipamentos"></canvas>
+
+    </div>
+
+    <div
+        id="legendaEquipamentos"
+        class="legenda-wrapper">
+
+    </div>
+
+    </div>
+
+    <div class="card shadow-sm mt-4 p-3">
+
+    <h5>
+        Estimativa de custo por equipamento
+    </h5>
+
+    <div style="height:350px;">
+        <canvas id="graficoCustoEquipamentos"></canvas>
+    </div>
+
+</div>
+
+
+    </div>
+
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script src="js/bootstrap.bundle.min.js"></script>
+
+<script src="js/relatorios.js"></script>
+
+</body>
+
+</html>

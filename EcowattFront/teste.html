@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>
+        Teste de Consumo
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="css/bootstrap.min.css">
+
+</head>
+
+<body class="container mt-4">
+
+    <h2 class="mb-4">
+        Teste de Consumo
+    </h2>
+
+    <!-- INPUT USER -->
+    <div class="mb-3">
+
+        <label class="form-label">
+            ID do Usuário
+        </label>
+
+        <input
+            type="number"
+            id="usuarioId"
+            class="form-control"
+            placeholder="Ex: 1">
+
+    </div>
+
+    <!-- BOTÕES -->
+    <div class="mb-4 d-flex gap-2">
+
+        <button
+            class="btn btn-warning"
+            onclick="gerarDados()">
+
+            Gerar Dados Fake
+
+        </button>
+
+        <button
+            class="btn btn-primary"
+            onclick="listarDados()">
+
+            Listar Consumos
+
+        </button>
+
+    </div>
+
+    <!-- TABELA -->
+    <table class="table table-bordered table-striped">
+
+        <thead>
+
+            <tr>
+
+                <th>ID</th>
+                <th>Usuário</th>
+                <th>Consumo (kWh)</th>
+                <th>Data</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody id="tabela">
+
+        </tbody>
+
+    </table>
+
+<script>
+
+const API =
+"http://localhost:8080/consumo";
+
+// ==========================
+// GERAR DADOS
+// ==========================
+async function gerarDados(){
+
+    const usuarioId =
+    document.getElementById(
+        "usuarioId"
+    ).value;
+
+    if(!usuarioId){
+
+        alert(
+            "Informe o ID do usuário"
+        );
+
+        return;
+    }
+
+    try{
+
+        for(let i = 0; i < 6; i++){
+
+            const data =
+            new Date();
+
+            data.setMonth(
+                data.getMonth() - i
+            );
+
+            const consumo =
+            (
+                100 +
+                Math.random() * 250
+            ).toFixed(2);
+
+            const payload = {
+
+                usuarioId:
+                Number(usuarioId),
+
+                consumoKwh:
+                Number(consumo),
+
+                dataRegistro:
+                data.toISOString()
+            };
+
+            const response =
+            await fetch(
+                API + "/add",
+                {
+
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                        "application/json"
+                    },
+
+                    body:JSON.stringify(payload)
+                }
+            );
+
+            if(!response.ok){
+
+                const erro =
+                await response.text();
+
+                throw new Error(erro);
+            }
+        }
+
+        alert(
+            "Dados gerados com sucesso!"
+        );
+
+        listarDados();
+
+    } catch(error){
+
+        console.error(error);
+
+        alert(
+            "Erro ao gerar dados"
+        );
+    }
+}
+
+// ==========================
+// LISTAR
+// ==========================
+async function listarDados(){
+
+    const usuarioId =
+    document.getElementById(
+        "usuarioId"
+    ).value;
+
+    if(!usuarioId){
+
+        alert(
+            "Informe o ID do usuário"
+        );
+
+        return;
+    }
+
+    try{
+
+        const response =
+        await fetch(
+            `${API}/usuario/${usuarioId}`
+        );
+
+        if(!response.ok){
+
+            throw new Error(
+                "Erro ao buscar consumos"
+            );
+        }
+
+        const data =
+        await response.json();
+
+        const tabela =
+        document.getElementById(
+            "tabela"
+        );
+
+        tabela.innerHTML = "";
+
+        if(data.length === 0){
+
+            tabela.innerHTML = `
+
+                <tr>
+
+                    <td colspan="4"
+                        class="text-center">
+
+                        Nenhum consumo encontrado
+
+                    </td>
+
+                </tr>
+
+            `;
+
+            return;
+        }
+
+        data.forEach(c => {
+
+            tabela.innerHTML += `
+
+                <tr>
+
+                    <td>
+                        ${c.id}
+                    </td>
+
+                    <td>
+                        ${c.usuarioId}
+                    </td>
+
+                    <td>
+                        ${Number(
+                            c.consumoKwh
+                        ).toFixed(2)}
+                    </td>
+
+                    <td>
+                        ${new Date(
+                            c.dataRegistro
+                        ).toLocaleString("pt-BR")}
+                    </td>
+
+                </tr>
+
+            `;
+        });
+
+    } catch(error){
+
+        console.error(error);
+
+        alert(
+            "Erro ao listar consumos"
+        );
+    }
+}
+
+</script>
+
+</body>
+
+</html>

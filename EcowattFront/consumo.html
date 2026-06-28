@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Registrar Consumo</title>
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/consumo.css">
+
+</head>
+
+
+<body>
+
+
+<nav class="navbar navbar-expand-lg bg-header">
+
+    <div class="container">
+
+
+        <a class="navbar-brand" href="index.html">
+
+            <img 
+                src="img/logo.png" 
+                class="logo"
+                alt="Logo">
+
+        </a>
+
+
+
+        <button 
+            class="navbar-toggler" 
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#menuNavbar">
+
+
+            <span class="navbar-toggler-icon"></span>
+
+
+        </button>
+
+
+
+
+        <div 
+            class="collapse navbar-collapse"
+            id="menuNavbar">
+
+
+            <ul class="navbar-nav ms-auto align-items-lg-center">
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link" href="index.html">
+                        Início
+                    </a>
+
+                </li>
+
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link active" href="consumo.html">
+
+                        Registrar Consumo
+
+                    </a>
+
+                </li>
+
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link" href="equipamento-usuario.html">
+
+                        Equipamentos
+
+                    </a>
+
+                </li>
+
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link" href="relatorios.html">
+
+                        Relatórios
+
+                    </a>
+
+                </li>
+
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link" href="configuracoes.html">
+
+                        Configurações
+
+                    </a>
+
+                </li>
+
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link" href="perfil.html">
+
+                        Perfil
+
+                    </a>
+
+                </li>
+
+
+            </ul>
+
+
+        </div>
+
+
+    </div>
+
+
+</nav>
+
+
+
+
+
+<main class="container content-wrap">
+
+
+
+    <!-- CABEÇALHO -->
+
+    <div class="page-header">
+
+
+        <div>
+
+
+            <h3>
+                Registrar Consumo
+            </h3>
+
+
+            <p>
+                Gerencie e acompanhe os registros de consumo energético.
+            </p>
+
+
+        </div>
+
+
+
+        <button 
+            class="btn-add"
+            id="btnAbrirFormulario">
+
+
+            Adicionar Consumo
+
+
+        </button>
+
+
+    </div>
+
+
+
+
+
+
+    <!-- FILTRO -->
+
+    <div class="card p-3 mb-4">
+
+
+        <h5>
+            Filtrar Consumos
+        </h5>
+
+
+
+        <div class="row g-3">
+
+
+
+            <div class="col-md-4">
+
+
+                <label class="form-label">
+
+                    Mês
+
+                </label>
+
+
+                <select 
+                    id="filtroMes"
+                    class="form-select">
+
+
+                    <option value="">
+                        Todos
+                    </option>
+
+
+                    <option value="0">
+                        Janeiro
+                    </option>
+
+
+                    <option value="1">
+                        Fevereiro
+                    </option>
+
+
+                    <option value="2">
+                        Março
+                    </option>
+
+
+                    <option value="3">
+                        Abril
+                    </option>
+
+
+                    <option value="4">
+                        Maio
+                    </option>
+
+
+                    <option value="5">
+                        Junho
+                    </option>
+
+
+                    <option value="6">
+                        Julho
+                    </option>
+
+
+                    <option value="7">
+                        Agosto
+                    </option>
+
+
+                    <option value="8">
+                        Setembro
+                    </option>
+
+
+                    <option value="9">
+                        Outubro
+                    </option>
+
+
+                    <option value="10">
+                        Novembro
+                    </option>
+
+
+                    <option value="11">
+                        Dezembro
+                    </option>
+
+
+                </select>
+
+
+            </div>
+
+
+
+
+
+            <div class="col-md-4">
+
+
+                <label class="form-label">
+
+                    Ano
+
+                </label>
+
+
+
+                <input 
+                    type="number"
+                    id="filtroAno"
+                    class="form-control"
+                    placeholder="Ex: 2026">
+
+
+            </div>
+
+
+
+
+
+            <div class="col-md-4 d-flex align-items-end">
+
+
+                <button
+                    class="btn btn-success w-100"
+                    id="btnFiltrar">
+
+
+                    Filtrar
+
+
+                </button>
+
+
+            </div>
+
+
+
+        </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <!-- FORM -->
+
+    <div 
+        class="form-card"
+        id="cardFormulario">
+
+
+
+        <div class="form-card-header">
+
+
+
+            <div class="d-flex justify-content-between align-items-center">
+
+
+                <h5 id="tituloFormulario">
+
+                    Novo Consumo
+
+                </h5>
+
+
+
+                <button 
+                    type="button"
+                    class="btn-close-custom"
+                    id="btnFecharFormulario">
+
+
+                    ×
+
+
+                </button>
+
+
+
+            </div>
+
+
+        </div>
+
+
+
+
+
+
+
+        <div class="form-card-body">
+
+
+            <form id="formConsumo">
+
+
+
+                <input 
+                    type="hidden"
+                    id="consumoId">
+
+
+
+
+
+                <div class="mb-4">
+
+
+                    <label 
+                        for="consumoKwh"
+                        class="form-label">
+
+
+                        Consumo (kWh)
+
+
+                    </label>
+
+
+
+
+                    <input 
+                        type="number"
+                        step="0.01"
+                        id="consumoKwh"
+                        class="form-control"
+                        placeholder="Ex.: 42.50"
+                        required>
+
+
+
+                    <div class="helper-text">
+
+                        Informe o valor consumido.
+
+                    </div>
+
+
+
+                </div>
+
+
+
+
+
+
+                <div class="mb-4">
+
+
+                    <label 
+                        for="dataRegistro"
+                        class="form-label">
+
+
+                        Data
+
+
+                    </label>
+
+
+
+                    <input 
+                        type="datetime-local"
+                        id="dataRegistro"
+                        class="form-control">
+
+
+
+                </div>
+
+
+
+
+
+                <button 
+                    type="submit"
+                    class="btn-save">
+
+
+                    Salvar Consumo
+
+
+                </button>
+
+
+
+
+            </form>
+
+
+
+        </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <!-- LISTAGEM -->
+
+    <div class="historico-title">
+
+
+        <h4>
+
+            Histórico de Consumos
+
+        </h4>
+
+
+    </div>
+
+
+
+
+
+    <div 
+        class="lista-consumos"
+        id="listaConsumos">
+
+
+
+    </div>
+
+
+
+
+
+</main>
+
+
+
+
+
+<script src="js/consumo.js"></script>
+
+<script src="js/bootstrap.bundle.min.js"></script>
+
+
+</body>
+
+</html>
