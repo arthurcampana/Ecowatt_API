@@ -116,9 +116,12 @@ public class ConfiguracaoController {
 
         }catch(Exception e){
 
+
+            e.printStackTrace();
+
             return ResponseEntity
                     .status(500)
-                    .body("Erro ao buscar configuração");
+                    .body(e.getMessage());
         }
     }
 }
