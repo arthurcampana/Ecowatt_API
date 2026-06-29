@@ -432,12 +432,6 @@ ou
 
 ---
 
-# Autores
-
-Projeto desenvolvido para a disciplina de Desenvolvimento Web utilizando Java Spring Boot, HTML, CSS e JavaScript.
-
----
-
 # Licença
 
 Projeto desenvolvido exclusivamente para fins acadêmicos.
