@@ -375,7 +375,7 @@ Geração do PDF.
 
 ## Backend
 
-1. Configurar o MySQL.
+1. Configurar o Postgres.
 
 2. Atualizar o arquivo:
 
