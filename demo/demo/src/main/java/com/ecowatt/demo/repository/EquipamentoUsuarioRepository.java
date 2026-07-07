@@ -10,4 +10,8 @@ public interface EquipamentoUsuarioRepository extends JpaRepository<EquipamentoU
 
     Optional<EquipamentoUsuario> findByusuario_id(Long EquipamentousuarioId);
     List<EquipamentoUsuario> findAllByUsuarioId(Long UsuarioId);
+    Optional<EquipamentoUsuario> findByUsuarioIdAndEquipamentoId(
+            Long usuarioId,
+            Long equipamentoId
+    );
 }

@@ -382,6 +382,44 @@ function gerarLegendaEquipamentos(
 
 }
 
+document.addEventListener("keydown", async (e) => {
+
+    if (!(e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "d")) {
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            `http://localhost:8080/demo/popular/${usuarioId}`,
+            {
+                method: "POST",
+                headers: {
+                    Authorization: token
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Erro ao popular dados");
+        }
+
+        // Aguarda a resposta do backend
+        await response.text();
+
+        // Recarrega a página
+        window.location.reload();
+
+    } catch (erro) {
+
+        console.error(erro);
+
+        alert("Erro ao popular dados.");
+
+    }
+
+});
+
 
 // ==========================
 carregarConsumos();

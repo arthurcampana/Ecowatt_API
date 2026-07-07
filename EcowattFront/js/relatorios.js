@@ -263,7 +263,7 @@ const menor =
             "statusMeta"
         );
 
-    if(total <= configuracao.meta){
+    if(media <= configuracao.meta){
 
         status.innerHTML =
             "Dentro da Meta";
@@ -711,10 +711,9 @@ function gerarGraficoCustoEquipamentos(equipamentos){
         return;
 
     const consumoTotal =
-        consumosFiltrados.reduce(
-            (soma,c)=>soma + Number(c.consumoKwh),
-            0
-        );
+    consumosFiltrados.length > 0
+        ? Number(consumosFiltrados[consumosFiltrados.length - 1].consumoKwh)
+        : 0;
 
     const tarifa =
         Number(configuracao.valorTarifa);
