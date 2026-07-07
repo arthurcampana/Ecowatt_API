@@ -2,6 +2,7 @@ package com.ecowatt.demo.controller;
 
 import com.ecowatt.demo.dto.*;
 import com.ecowatt.demo.service.UsuarioService;
+import com.ecowatt.demo.service.AuthenticationService;
 import jakarta.validation.Valid;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -16,10 +17,14 @@ import java.util.Optional;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final AuthenticationService authenticationService;
 
-    public UsuarioController(UsuarioService usuarioService){
+    public UsuarioController(UsuarioService usuarioService, AuthenticationService authenticationService) {
         this.usuarioService = usuarioService;
+        this.authenticationService = authenticationService;
     }
+
+
     @PostMapping("/add")
     public ResponseEntity<?> cadastrar(@Valid @RequestBody UsuarioRequestDTO dto){
         try {
@@ -72,12 +77,12 @@ public class UsuarioController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginDTO dto){
+    public ResponseEntity<?> login(@Valid @RequestBody LoginDTO dto){
 
         try{
 
             return ResponseEntity.ok(
-                    usuarioService.login(dto)
+                    authenticationService.autenticar(dto)
             );
 
         }catch (Exception e){
