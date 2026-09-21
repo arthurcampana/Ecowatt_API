@@ -130,10 +130,12 @@ public class EquipamentoUsuarioService {
                         equipamentoUsuario.setEquipamento(
                                 equipamento
                         );
+                    }
 
+                    if (dto.horasPorDia() != null || dto.equipamentoId() != null) {
                         double esperado =
                                 equipamentoUsuario.getHorasPorDia()
-                                        * equipamento.getConsumoPorHora();
+                                        * equipamentoUsuario.getEquipamento().getConsumoPorHora();
 
                         equipamentoUsuario.setConsumoEsperado(
                                 esperado

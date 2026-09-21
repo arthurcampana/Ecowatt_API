@@ -61,8 +61,8 @@ public class UsuarioService {
                 usuario.setNome(dto.nome());
             }
 
-            if(dto.nome() != null){
-                usuario.setSenha(passwordEncoder.encode(dto.nome()));
+            if(dto.senha() != null){
+                usuario.setSenha(passwordEncoder.encode(dto.senha()));
             }
 
             usuarioRepository.save(usuario);
