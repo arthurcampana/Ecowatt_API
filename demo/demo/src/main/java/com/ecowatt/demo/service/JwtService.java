@@ -2,6 +2,7 @@ package com.ecowatt.demo.service;
 
 import com.ecowatt.demo.model.Usuario;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,13 +37,21 @@ public class JwtService {
 
     public String validarToken(String token) {
 
-        Claims claims =
-                Jwts.parser()
-                        .verifyWith(getKey())
-                        .build()
-                        .parseSignedClaims(token)
-                        .getPayload();
+        try {
 
-        return claims.getSubject();
+            Claims claims =
+                    Jwts.parser()
+                            .verifyWith(getKey())
+                            .build()
+                            .parseSignedClaims(token)
+                            .getPayload();
+
+            return claims.getSubject();
+
+        } catch (ExpiredJwtException ex) {
+            throw new RuntimeException("Token expirado", ex);
+        } catch (RuntimeException ex) {
+            throw new RuntimeException("Token inválido", ex);
+        }
     }
 }

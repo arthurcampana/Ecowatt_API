@@ -5,6 +5,7 @@ import com.ecowatt.demo.dto.LoginResponseDTO;
 import com.ecowatt.demo.dto.UsuarioRequestDTO;
 import com.ecowatt.demo.dto.UsuarioResponseDTO;
 import com.ecowatt.demo.repository.UsuarioRepository;
+import com.ecowatt.demo.service.AuthenticationService;
 import com.ecowatt.demo.service.UsuarioService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,9 @@ class UsuarioServiceIntegrationTest {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private AuthenticationService authenticationService;
+
     @Test
     @DisplayName("INTEGRACAO: cadastrar e autenticar usuario usando banco H2")
     void cadastrarELogin_quandoDadosValidos_devePersistirEAutenticar() {
@@ -33,7 +37,7 @@ class UsuarioServiceIntegrationTest {
                 "Usuario Integracao", "integracao.usuario@exemplo.test", "senha123");
 
         UsuarioResponseDTO criado = usuarioService.cadastrarUsuario(cadastro);
-        LoginResponseDTO login = usuarioService.login(
+        LoginResponseDTO login = authenticationService.autenticar(
                 new LoginDTO("integracao.usuario@exemplo.test", "senha123"));
 
         assertThat(criado.id()).isNotNull();

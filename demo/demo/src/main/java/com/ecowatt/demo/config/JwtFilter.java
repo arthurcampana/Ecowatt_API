@@ -37,9 +37,6 @@ public class JwtFilter
         String auth =
                 request.getHeader("Authorization");
 
-        System.out.println("TOKEN RECEBIDO:");
-
-
         if(auth != null &&
                 auth.startsWith("Bearer ")){
 
@@ -48,17 +45,8 @@ public class JwtFilter
 
             try{
 
-                System.out.println("ENTROU NO TRY");
-
-
                 String email =
                         jwtService.validarToken(token);
-
-
-                System.out.println("PASSOU DO VALIDAR TOKEN");
-
-
-                System.out.println(email);
 
 
                 UsernamePasswordAuthenticationToken authentication =
@@ -69,21 +57,12 @@ public class JwtFilter
                         );
 
 
-                System.out.println("CRIOU AUTH");
-
-
                 SecurityContextHolder
                         .getContext()
                         .setAuthentication(authentication);
 
 
-                System.out.println("SET AUTH OK");
-
-
             }catch(Exception e){
-
-                System.out.println("ERRO JWT:");
-                e.printStackTrace();
 
                 response.setStatus(401);
                 return;

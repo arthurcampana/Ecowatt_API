@@ -17,12 +17,10 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, JwtService jwtService){
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder){
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
     }
 
     // CREATE
@@ -78,34 +76,5 @@ public class UsuarioService {
             return true;
         }
         return false;
-    }
-
-    public LoginResponseDTO login(LoginDTO dto){
-
-        Usuario usuario =
-                usuarioRepository.findByEmail(dto.email())
-                        .orElseThrow(
-                                () -> new RuntimeException("Credenciais inválidas")
-                        );
-
-        boolean senhaValida =
-                passwordEncoder.matches(
-                        dto.senha(),
-                        usuario.getSenha()
-                );
-
-        if(!senhaValida){
-            throw new RuntimeException("Credenciais inválidas");
-        }
-
-        String token =
-                jwtService.gerarToken(usuario);
-
-        return new LoginResponseDTO(
-                usuario.getId(),
-                usuario.getNome(),
-                usuario.getEmail(),
-                "Bearer " + token
-        );
     }
 }
