@@ -89,6 +89,9 @@ export default function Dashboard() {
     };
   }, [consumoMes]);
 
+  const nomeMesAtual = MESES[new Date().getMonth()];
+  const primeiroNome = (usuario?.nome || "").split(" ")[0];
+
   const labelsEquip = equipamentos.map((e) => e.nomeIdentificacao);
   const valoresEquip = equipamentos.map((e) => Number(e.consumoEsperado));
 
@@ -136,63 +139,85 @@ export default function Dashboard() {
   };
 
   return (
-    <div>
-      <div className="page-header">
-        <h2>Dashboard</h2>
-        <p>
-          Bem-vindo, <strong>{usuario?.nome}</strong>. Visualize seu consumo
-          energético e acompanhe sua evolução mensal.
-        </p>
+    <div className="dash">
+      <div className="dash-head">
+        <h1>Olá{primeiroNome ? `, ${primeiroNome}` : ""} 👋</h1>
+        <p>Resumo do seu consumo de energia — {nomeMesAtual}</p>
       </div>
 
       {mensagem && <div className={mensagem.tipo}>{mensagem.texto}</div>}
 
-      <div className="dashboard-cards">
-        <div className="dashboard-card">
-          <h6>Consumo Atual (Mês)</h6>
-          <h2>{totalMesAtual.toFixed(2)} kWh</h2>
-          <small>Total acumulado no mês atual</small>
-        </div>
+      {/* Cards de metrica pastel */}
+      <section className="dash-metrics">
+        <article className="dash-metric verde">
+          <div className="dash-metric-ico">📅</div>
+          <div className="dash-metric-valor">
+            {totalMesAtual.toFixed(2)} <em>kWh</em>
+          </div>
+          <div className="dash-metric-label">Consumo em {nomeMesAtual}</div>
+        </article>
 
-        <div className="dashboard-card">
-          <h6>Média Mensal</h6>
-          <h2>{mediaMensal.toFixed(2)} kWh</h2>
-          <small>Média de consumo no ano</small>
-        </div>
+        <article className="dash-metric azul">
+          <div className="dash-metric-ico">📊</div>
+          <div className="dash-metric-valor">
+            {mediaMensal.toFixed(2)} <em>kWh</em>
+          </div>
+          <div className="dash-metric-label">Média mensal no ano</div>
+        </article>
 
-        <div className="dashboard-card">
-          <h6>Total no Ano</h6>
-          <h2>{totalAno.toFixed(2)} kWh</h2>
-          <small>Soma total registrada</small>
-        </div>
-      </div>
+        <article className="dash-metric ambar">
+          <div className="dash-metric-ico">🔋</div>
+          <div className="dash-metric-valor">
+            {totalAno.toFixed(2)} <em>kWh</em>
+          </div>
+          <div className="dash-metric-label">Total no ano</div>
+        </article>
+      </section>
 
-      <div className="chart-card">
-        <h5>Consumo por mês (kWh)</h5>
-        <div className="chart-container">
-          <Bar data={dadosConsumo} options={opcoesConsumo} />
-        </div>
-      </div>
-
-      <div className="chart-card">
-        <h5>Consumo esperado por equipamento</h5>
-        {equipamentos.length === 0 ? (
-          <p className="aviso">Nenhum equipamento cadastrado.</p>
-        ) : (
-          <>
-            <div className="chart-container">
-              <Doughnut
-                data={dadosEquipamentos}
-                options={opcoesEquipamentos}
-              />
+      {/* Grid de graficos: lado a lado quando a sidebar esta retraida
+          (mais espaco), empilhados quando expandida. Ver dashboard.css. */}
+      <div className="dash-graficos">
+        {/* Grafico de consumo por mes */}
+        <section className="dash-panel">
+          <div className="dash-panel-head">
+            <div>
+              <h3>Consumo por mês</h3>
+              <p>Evolução do consumo registrado ao longo do ano</p>
             </div>
-            <LegendaEquipamentos
-              labels={labelsEquip}
-              valores={valoresEquip}
-              cores={CORES}
-            />
-          </>
-        )}
+            <span className="dash-tag">kWh / mês</span>
+          </div>
+          <div className="dash-chart">
+            <Bar data={dadosConsumo} options={opcoesConsumo} />
+          </div>
+        </section>
+
+        {/* Grafico de equipamentos */}
+        <section className="dash-panel">
+          <div className="dash-panel-head">
+            <div>
+              <h3>Consumo esperado por equipamento</h3>
+              <p>Distribuição estimada entre os seus equipamentos</p>
+            </div>
+            <span className="dash-tag">kWh / dia</span>
+          </div>
+          {equipamentos.length === 0 ? (
+            <p className="dash-aviso">Nenhum equipamento cadastrado.</p>
+          ) : (
+            <>
+              <div className="dash-chart">
+                <Doughnut
+                  data={dadosEquipamentos}
+                  options={opcoesEquipamentos}
+                />
+              </div>
+              <LegendaEquipamentos
+                labels={labelsEquip}
+                valores={valoresEquip}
+                cores={CORES}
+              />
+            </>
+          )}
+        </section>
       </div>
     </div>
   );

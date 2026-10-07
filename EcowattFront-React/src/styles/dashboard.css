@@ -1,0 +1,742 @@
+/* ============================================================
+   Layout "Opção C" (sidebar lateral) + Dashboard redesenhado
+   + suporte a tema claro/escuro via [data-theme] no <html>.
+
+   Tudo aqui e isolado em classes novas (sidebar, app-shell-v2,
+   dash-*) para nao afetar o restante do app. As variaveis de
+   tema vivem no :root e sao sobrescritas em [data-theme="dark"].
+   ============================================================ */
+
+:root {
+  --c-bg: #f1f5f4;
+  --c-surface: #ffffff;
+  --c-surface-2: #f8fafc;
+  --c-border: #e2e8f0;
+  --c-text: #0f172a;
+  --c-text-suave: #64748b;
+  --c-brand: #15803d;
+  --c-brand-soft: #dcfce7;
+
+  --pastel-verde: #dcfce7;
+  --pastel-verde-ico: #86efac;
+  --pastel-verde-txt: #166534;
+  --pastel-azul: #dbeafe;
+  --pastel-azul-ico: #93c5fd;
+  --pastel-azul-txt: #1e3a8a;
+  --pastel-ambar: #fef3c7;
+  --pastel-ambar-ico: #fcd34d;
+  --pastel-ambar-txt: #92400e;
+}
+
+html[data-theme="dark"] {
+  --c-bg: #0b1120;
+  --c-surface: #111827;
+  --c-surface-2: #0f172a;
+  --c-border: #1f2937;
+  --c-text: #f1f5f9;
+  --c-text-suave: #94a3b8;
+  --c-brand: #4ade80;
+  --c-brand-soft: rgba(74, 222, 128, 0.14);
+
+  --pastel-verde: rgba(74, 222, 128, 0.12);
+  --pastel-verde-ico: rgba(74, 222, 128, 0.25);
+  --pastel-verde-txt: #4ade80;
+  --pastel-azul: rgba(56, 189, 248, 0.12);
+  --pastel-azul-ico: rgba(56, 189, 248, 0.25);
+  --pastel-azul-txt: #38bdf8;
+  --pastel-ambar: rgba(251, 191, 36, 0.12);
+  --pastel-ambar-ico: rgba(251, 191, 36, 0.25);
+  --pastel-ambar-txt: #fbbf24;
+}
+
+/* ---------- Shell com sidebar ---------- */
+.app-shell-v2 {
+  display: flex;
+  min-height: 100vh;
+  background: var(--c-bg);
+  color: var(--c-text);
+}
+
+.app-content-v2 {
+  flex: 1;
+  min-width: 0;
+  padding: 2rem 2.5rem;
+}
+
+/* Centraliza o conteudo e limita a largura util, de modo que o espaco extra
+   (sobretudo quando a sidebar esta retraida) fique distribuido dos dois lados
+   em vez de sobrar tudo a direita. */
+.app-content-v2 > * {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100vh;
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--c-surface);
+  border-right: 1px solid var(--c-border);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1rem;
+  gap: 0.4rem;
+  transition: width 0.2s ease;
+}
+
+.sidebar.is-colapsada {
+  width: 76px;
+  padding: 1.5rem 0.6rem;
+}
+
+.sidebar-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0 0.3rem 1.3rem;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--c-brand);
+  text-decoration: none;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sidebar-toggle {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--c-border);
+  border-radius: 9px;
+  background: var(--c-surface-2);
+  color: var(--c-text-suave);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.sidebar-toggle:hover {
+  border-color: var(--c-brand);
+  color: var(--c-brand);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--c-text-suave);
+  font-size: 0.95rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-link:hover {
+  background: var(--c-surface-2);
+  color: var(--c-text);
+}
+
+.sidebar-link.active {
+  background: var(--c-brand-soft);
+  color: var(--c-brand);
+  font-weight: 600;
+}
+
+.sidebar-link-icon {
+  font-size: 1.1rem;
+  width: 1.3rem;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.sidebar-rodape {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--c-border);
+}
+
+.sidebar-tema {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  background: var(--c-surface-2);
+  color: var(--c-text);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.sidebar-tema:hover {
+  border-color: var(--c-brand);
+  color: var(--c-brand);
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0 0.3rem;
+}
+
+.sidebar-avatar {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--c-brand);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.sidebar-user-nome {
+  font-size: 0.88rem;
+  color: var(--c-text-suave);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-sair {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.6rem;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--c-text-suave);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.sidebar-sair-ico {
+  width: 1.3rem;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.sidebar-sair:hover {
+  background: rgba(220, 38, 38, 0.1);
+  color: #dc2626;
+}
+
+/* ----- Estado colapsado: esconde textos, centraliza icones ----- */
+.sidebar.is-colapsada .sidebar-brand-txt,
+.sidebar.is-colapsada .sidebar-link-txt,
+.sidebar.is-colapsada .sidebar-tema-txt,
+.sidebar.is-colapsada .sidebar-sair-txt,
+.sidebar.is-colapsada .sidebar-user-nome {
+  display: none;
+}
+
+.sidebar.is-colapsada .sidebar-topo {
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0 0 1.3rem;
+}
+
+.sidebar.is-colapsada .sidebar-link,
+.sidebar.is-colapsada .sidebar-tema,
+.sidebar.is-colapsada .sidebar-sair,
+.sidebar.is-colapsada .sidebar-user {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+  gap: 0;
+}
+
+/* ---------- Dashboard ---------- */
+.dash {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.dash-head h1 {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--c-text);
+}
+
+.dash-head p {
+  margin: 0.35rem 0 0 0;
+  color: var(--c-text-suave);
+  font-size: 0.95rem;
+}
+
+/* cards pastel */
+.dash-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.dash-metric {
+  border-radius: 20px;
+  padding: 1.4rem 1.5rem;
+  transition: transform 0.2s ease;
+}
+
+.dash-metric:hover {
+  transform: translateY(-3px);
+}
+
+.dash-metric.verde {
+  background: var(--pastel-verde);
+}
+.dash-metric.azul {
+  background: var(--pastel-azul);
+}
+.dash-metric.ambar {
+  background: var(--pastel-ambar);
+}
+
+.dash-metric-ico {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.dash-metric.verde .dash-metric-ico {
+  background: var(--pastel-verde-ico);
+}
+.dash-metric.azul .dash-metric-ico {
+  background: var(--pastel-azul-ico);
+}
+.dash-metric.ambar .dash-metric-ico {
+  background: var(--pastel-ambar-ico);
+}
+
+.dash-metric-valor {
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.dash-metric-valor em {
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-style: normal;
+  opacity: 0.7;
+  margin-left: 0.25rem;
+}
+
+.dash-metric-label {
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.dash-metric.verde .dash-metric-valor,
+.dash-metric.verde .dash-metric-label {
+  color: var(--pastel-verde-txt);
+}
+.dash-metric.azul .dash-metric-valor,
+.dash-metric.azul .dash-metric-label {
+  color: var(--pastel-azul-txt);
+}
+.dash-metric.ambar .dash-metric-valor,
+.dash-metric.ambar .dash-metric-label {
+  color: var(--pastel-ambar-txt);
+}
+
+/* graficos sempre empilhados (um embaixo do outro) */
+.dash-graficos {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* paineis de grafico */
+.dash-panel {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 24px;
+  padding: 1.6rem;
+}
+
+.dash-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.3rem;
+  flex-wrap: wrap;
+}
+
+.dash-panel-head h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.dash-panel-head p {
+  margin: 0.2rem 0 0 0;
+  font-size: 0.85rem;
+  color: var(--c-text-suave);
+}
+
+.dash-tag {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--c-brand);
+  background: var(--c-brand-soft);
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+}
+
+.dash-chart {
+  position: relative;
+  height: 340px;
+  width: 100%;
+}
+
+.dash-aviso {
+  color: var(--c-text-suave);
+  text-align: center;
+  padding: 2rem 0;
+}
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 900px) {
+  .app-shell-v2 {
+    flex-direction: column;
+  }
+  .sidebar {
+    position: static;
+    height: auto;
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .sidebar-brand {
+    padding: 0.5rem;
+  }
+  .sidebar-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    flex: 1;
+  }
+  .sidebar-rodape {
+    margin-top: 0;
+    border-top: none;
+    padding-top: 0;
+    flex-direction: row;
+    align-items: center;
+  }
+  .sidebar-user {
+    display: none;
+  }
+  .app-content-v2 {
+    padding: 1.5rem;
+  }
+  .dash-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================
+   Overrides tematicos das paginas internas (Consumo, Equipamentos,
+   Relatorios, Configuracoes, Perfil).
+
+   Essas telas usam as classes definidas em global.css com cores
+   fixas (branco/cinza). Aqui reaproveitamos as mesmas variaveis de
+   tema do dashboard para que todas sigam o estilo "Opcao C" e
+   respondam ao modo claro/escuro. Tudo escopado em .app-content-v2
+   para nao afetar Login/Cadastro (que nao passam pelo Layout).
+   ============================================================ */
+
+/* ----- Cabecalho das paginas ----- */
+.app-content-v2 .page-header h2 {
+  color: var(--c-text);
+}
+
+.app-content-v2 .page-header p,
+.app-content-v2 .aviso,
+.app-content-v2 .helper-text {
+  color: var(--c-text-suave);
+}
+
+/* ----- Superficies de card (consumo, equipamento, config, filtro) ----- */
+.app-content-v2 .config-card,
+.app-content-v2 .consumo-card,
+.app-content-v2 .equip-card,
+.app-content-v2 .chart-card,
+.app-content-v2 .form-card,
+.app-content-v2 .indicador,
+.app-content-v2 .perfil-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 20px;
+  box-shadow: none;
+  color: var(--c-text);
+}
+
+.app-content-v2 .config-card h5,
+.app-content-v2 .config-card h2,
+.app-content-v2 .filtro-card h5,
+.app-content-v2 .historico-title h4,
+.app-content-v2 .chart-card h5,
+.app-content-v2 .consumo-info h5,
+.app-content-v2 .equip-info h5,
+.app-content-v2 .perfil-topo h3,
+.app-content-v2 .indicador h3 {
+  color: var(--c-text);
+}
+
+.app-content-v2 .config-card h6,
+.app-content-v2 .consumo-info p,
+.app-content-v2 .equip-info p,
+.app-content-v2 .indicador h6,
+.app-content-v2 .preview-label {
+  color: var(--c-text-suave);
+}
+
+/* ----- Campos de formulario ----- */
+.app-content-v2 .form-control,
+.app-content-v2 .form-select {
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+  color: var(--c-text);
+}
+
+.app-content-v2 .form-control::placeholder {
+  color: var(--c-text-suave);
+}
+
+.app-content-v2 .form-control:focus,
+.app-content-v2 .form-select:focus {
+  border-color: var(--c-brand);
+  box-shadow: 0 0 0 3px var(--c-brand-soft);
+}
+
+.app-content-v2 .form-label {
+  color: var(--c-text);
+}
+
+/* ----- Cabecalhos de formulario (card expansivel) ----- */
+.app-content-v2 .form-card-header,
+.app-content-v2 .form-card .form-header {
+  background: var(--c-surface-2);
+  border-bottom: 1px solid var(--c-border);
+}
+
+.app-content-v2 .form-card-header h5,
+.app-content-v2 .form-card .form-header h5 {
+  color: var(--c-text);
+}
+
+.app-content-v2 .btn-close-custom,
+.app-content-v2 .btn-fechar-form {
+  background: var(--c-surface);
+  color: var(--c-text-suave);
+}
+
+/* ----- Previa de consumo (equipamentos) ----- */
+.app-content-v2 .preview {
+  background: var(--c-brand-soft);
+}
+
+.app-content-v2 .preview-value {
+  color: var(--c-text-suave);
+}
+
+.app-content-v2 .preview-value span {
+  color: var(--c-brand);
+}
+
+/* ----- Badges / destaques ----- */
+.app-content-v2 .badge-consumo {
+  background: var(--c-brand-soft);
+  color: var(--c-brand);
+}
+
+/* ----- Botoes principais ----- */
+.app-content-v2 .btn-add,
+.app-content-v2 .btn-save {
+  background: var(--c-brand);
+  color: #fff;
+}
+
+/* ----- Tabela de relatorios ----- */
+.app-content-v2 .tabela-relatorio {
+  border: 1px solid var(--c-border);
+}
+
+.app-content-v2 .table td,
+.app-content-v2 .table th {
+  border-bottom: 1px solid var(--c-border);
+  color: var(--c-text);
+}
+
+.app-content-v2 .table thead,
+.app-content-v2 .table thead th,
+.app-content-v2 .tabela-relatorio thead th {
+  background: var(--c-brand);
+  color: #fff;
+}
+
+.app-content-v2 .table tbody tr:nth-child(odd) {
+  background: var(--c-surface-2);
+}
+
+.app-content-v2 .table tbody tr:nth-child(even) {
+  background: var(--c-surface);
+}
+
+/* ----- Botao de trocar grafico (relatorios) ----- */
+.app-content-v2 .btn-trocar-grafico {
+  background: var(--c-surface);
+  color: var(--c-brand);
+  border: 1px solid var(--c-brand);
+}
+
+.app-content-v2 .btn-trocar-grafico:hover {
+  background: var(--c-brand);
+  color: #fff;
+}
+
+/* ----- Perfil ----- */
+.app-content-v2 .info-box {
+  background: var(--c-surface-2);
+}
+
+.app-content-v2 .info-box strong {
+  color: var(--c-text-suave);
+}
+
+.app-content-v2 .info-box p {
+  color: var(--c-text);
+}
+
+/* ----- Modal (novo equipamento base) ----- */
+.app-content-v2 .modal-content,
+.modal-content {
+  background: var(--c-surface);
+  color: var(--c-text);
+}
+
+.modal-header {
+  background: var(--c-surface-2);
+  border-bottom: 1px solid var(--c-border);
+}
+
+.modal-header h5 {
+  color: var(--c-text);
+}
+
+.modal-footer {
+  border-top: 1px solid var(--c-border);
+}
+
+/* ----- Legenda de equipamentos (graficos) ----- */
+.app-content-v2 .legenda-item {
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+}
+
+.app-content-v2 .legenda-titulo {
+  color: var(--c-text);
+}
+
+.app-content-v2 .legenda-sub,
+.app-content-v2 .legenda-valor {
+  color: var(--c-text-suave);
+}
+
+.app-content-v2 .legenda-valor {
+  color: var(--c-text);
+}
+
+/* ----- Toast do atalho secreto (DemoKonami) ----- */
+.demo-toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 2000;
+  padding: 0.9rem 1.4rem;
+  border-radius: 14px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #fff;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.25);
+  animation: demo-toast-in 0.25s ease;
+}
+
+.demo-toast.info {
+  background: #334155;
+}
+
+.demo-toast.sucesso {
+  background: var(--c-brand);
+}
+
+.demo-toast.erro {
+  background: #dc2626;
+}
+
+@keyframes demo-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
