@@ -2,14 +2,15 @@ import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useTheme } from "../context/ThemeContext.jsx";
+import Icon from "./Icon.jsx";
 
 const links = [
-  { to: "/", label: "Início", icon: "⌂", end: true },
-  { to: "/consumo", label: "Consumo", icon: "⚡" },
-  { to: "/equipamentos", label: "Equipamentos", icon: "🔌" },
-  { to: "/relatorios", label: "Relatórios", icon: "📈" },
-  { to: "/configuracoes", label: "Configurações", icon: "⚙" },
-  { to: "/perfil", label: "Perfil", icon: "👤" },
+  { to: "/", label: "Início", icon: "home", end: true },
+  { to: "/consumo", label: "Consumo", icon: "bolt" },
+  { to: "/equipamentos", label: "Equipamentos", icon: "plug" },
+  { to: "/relatorios", label: "Relatórios", icon: "chart" },
+  { to: "/configuracoes", label: "Configurações", icon: "settings" },
+  { to: "/perfil", label: "Perfil", icon: "user" },
 ];
 
 const COLLAPSE_KEY = "ecowatt-sidebar-collapsed";
@@ -62,7 +63,9 @@ export default function Sidebar() {
     <aside className={colapsada ? "sidebar is-colapsada" : "sidebar"}>
       <div className="sidebar-topo">
         <NavLink to="/" className="sidebar-brand">
-          <span className="sidebar-brand-ico">🌱</span>
+          <span className="sidebar-brand-ico">
+            <Icon name="leaf" size={22} />
+          </span>
           <span className="sidebar-brand-txt">EcoWatt</span>
         </NavLink>
         <button
@@ -87,7 +90,9 @@ export default function Sidebar() {
             }
             title={colapsada ? link.label : undefined}
           >
-            <span className="sidebar-link-icon">{link.icon}</span>
+            <span className="sidebar-link-icon">
+              <Icon name={link.icon} />
+            </span>
             <span className="sidebar-link-txt">{link.label}</span>
           </NavLink>
         ))}
@@ -101,7 +106,7 @@ export default function Sidebar() {
           title="Alternar tema claro/escuro"
         >
           <span className="sidebar-tema-ico">
-            {tema === "dark" ? "☀️" : "🌙"}
+            <Icon name={tema === "dark" ? "sun" : "moon"} size={18} />
           </span>
           <span className="sidebar-tema-txt">
             {tema === "dark" ? "Tema claro" : "Tema escuro"}
@@ -119,7 +124,9 @@ export default function Sidebar() {
           onClick={handleLogout}
           title={colapsada ? "Sair" : undefined}
         >
-          <span className="sidebar-sair-ico">↪</span>
+          <span className="sidebar-sair-ico">
+            <Icon name="logout" size={18} />
+          </span>
           <span className="sidebar-sair-txt">Sair</span>
         </button>
       </div>

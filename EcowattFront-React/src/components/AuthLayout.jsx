@@ -1,4 +1,5 @@
 import { useTheme } from "../context/ThemeContext.jsx";
+import Icon from "./Icon.jsx";
 import "../styles/auth.css";
 
 // Casca visual compartilhada por Login e Cadastro: painel da marca (verde) a
@@ -16,11 +17,14 @@ export default function AuthLayout({ children }) {
         onClick={alternarTema}
         title="Alternar tema claro/escuro"
       >
-        {tema === "dark" ? "☀️ Tema claro" : "🌙 Tema escuro"}
+        <Icon name={tema === "dark" ? "sun" : "moon"} size={16} />
+        {tema === "dark" ? "Tema claro" : "Tema escuro"}
       </button>
 
       <aside className="auth-brand">
-        <div className="auth-brand-logo">🌱 EcoWatt</div>
+        <div className="auth-brand-logo">
+          <Icon name="leaf" size={26} /> EcoWatt
+        </div>
 
         <div className="auth-brand-texto">
           <h2>Consumo consciente, conta mais leve.</h2>

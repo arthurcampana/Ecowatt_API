@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Bar, Doughnut, Line } from "react-chartjs-2";
-import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 import "../charts/registerCharts.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { consumoService } from "../api/consumoService.js";
@@ -32,6 +32,12 @@ export default function Relatorios() {
   const [mensagem, setMensagem] = useState(null); // { texto, tipo }
 
   const painelRef = useRef(null);
+
+  // Refs para os componentes de grafico (react-chartjs-2 expoe o canvas em
+  // ref.current.canvas), usados para embutir as imagens no PDF nativo.
+  const refGraficoPrincipal = useRef(null);
+  const refDoughnut = useRef(null);
+  const refCusto = useRef(null);
 
   useEffect(() => {
     async function carregar() {
@@ -263,48 +269,172 @@ export default function Relatorios() {
     },
   };
 
-  async function exportarPDF() {
+  // Gera um PDF nativo (texto selecionavel + graficos em alta resolucao),
+  // com cabecalho da marca, cards de indicadores, graficos, tabela e rodape
+  // paginado. Substitui a antiga "foto" via html2canvas.
+  function exportarPDF() {
     if (consumosFiltrados.length === 0) {
       alert("Gere um relatório primeiro.");
       return;
     }
 
-    const canvas = await html2canvas(painelRef.current, {
-      scale: 2,
-      useCORS: true,
+    const VERDE = [21, 128, 61];
+    const CINZA = [100, 116, 139];
+    const ESCURO = [15, 23, 42];
+
+    const doc = new jsPDF("p", "mm", "a4");
+    const larguraPagina = doc.internal.pageSize.getWidth();
+    const alturaPagina = doc.internal.pageSize.getHeight();
+    const margem = 14;
+    const larguraUtil = larguraPagina - margem * 2;
+
+    // ---------- Cabecalho ----------
+    doc.setFillColor(...VERDE);
+    doc.rect(0, 0, larguraPagina, 30, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text("EcoWatt", margem, 13);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.text("Relatório de Consumo", margem, 21);
+
+    const periodo =
+      dataInicial || dataFinal
+        ? `${dataInicial ? formatarData(dataInicial) : "início"} até ${
+            dataFinal ? formatarData(dataFinal) : "hoje"
+          }`
+        : "Todo o período";
+    doc.setFontSize(9);
+    doc.text(`Período: ${periodo}`, larguraPagina - margem, 13, {
+      align: "right",
     });
-    const imgData = canvas.toDataURL("image/png");
-
-    const pdf = new jsPDF("p", "mm", "a4");
-
-    const pageWidth = 210;
-    const pageHeight = 297;
-    const margin = 10;
-    const imgWidth = pageWidth - margin * 2;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-    let heightLeft = imgHeight;
-    let position = margin;
-
-    pdf.setFontSize(18);
-    pdf.text("Relatório EcoWatt", 60, 15);
-
-    pdf.setFontSize(11);
-    pdf.text("Data: " + new Date().toLocaleDateString("pt-BR"), margin, 25);
-
-    position = 35;
-
-    pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight - position;
-
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+    doc.text(
+      `Gerado em: ${new Date().toLocaleDateString("pt-BR")}`,
+      larguraPagina - margem,
+      20,
+      { align: "right" }
+    );
+    if (usuario?.nome) {
+      doc.text(`Usuário: ${usuario.nome}`, larguraPagina - margem, 27, {
+        align: "right",
+      });
     }
 
-    pdf.save("Relatorio_EcoWatt.pdf");
+    let y = 42;
+
+    // ---------- Cards de indicadores ----------
+    const indicadores = [
+      { label: "Consumo Total", valor: cards.consumoTotal },
+      { label: "Consumo Médio", valor: cards.consumoMedio },
+      { label: "Maior Consumo", valor: cards.maiorConsumo },
+      { label: "Menor Consumo", valor: cards.menorConsumo },
+      { label: "Custo Estimado", valor: cards.custoTotal },
+      { label: "Meta", valor: cards.metaAtual },
+      { label: "Status", valor: cards.statusMeta.texto },
+    ];
+
+    const colunas = 4;
+    const espaco = 4;
+    const larguraCard = (larguraUtil - espaco * (colunas - 1)) / colunas;
+    const alturaCard = 20;
+
+    indicadores.forEach((ind, i) => {
+      const col = i % colunas;
+      const linha = Math.floor(i / colunas);
+      const x = margem + col * (larguraCard + espaco);
+      const cardY = y + linha * (alturaCard + espaco);
+
+      doc.setDrawColor(226, 232, 240);
+      doc.setFillColor(248, 250, 252);
+      doc.roundedRect(x, cardY, larguraCard, alturaCard, 2, 2, "FD");
+
+      doc.setTextColor(...CINZA);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7.5);
+      doc.text(ind.label, x + 4, cardY + 7);
+
+      const ehStatus = ind.label === "Status";
+      if (ehStatus) {
+        const ok = cards.statusMeta.cls === "status-ok";
+        doc.setTextColor(...(ok ? VERDE : [220, 38, 38]));
+      } else {
+        doc.setTextColor(...ESCURO);
+      }
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(ehStatus ? 9 : 12);
+      doc.text(String(ind.valor), x + 4, cardY + 15);
+    });
+
+    const linhasCards = Math.ceil(indicadores.length / colunas);
+    y += linhasCards * (alturaCard + espaco) + 6;
+
+    // ---------- Helper para embutir um grafico ----------
+    function addGrafico(ref, titulo) {
+      const canvas = ref.current?.canvas;
+      if (!canvas) {
+        return;
+      }
+      const img = canvas.toDataURL("image/png", 1.0);
+      const propW = canvas.width;
+      const propH = canvas.height;
+      const imgW = larguraUtil;
+      const imgH = (propH * imgW) / propW;
+
+      // Nova pagina se nao couber (titulo + grafico).
+      if (y + 10 + imgH > alturaPagina - 18) {
+        doc.addPage();
+        y = 20;
+      }
+
+      doc.setTextColor(...ESCURO);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.text(titulo, margem, y);
+      y += 5;
+
+      doc.addImage(img, "PNG", margem, y, imgW, imgH);
+      y += imgH + 8;
+    }
+
+    addGrafico(refGraficoPrincipal, "Evolução do Consumo");
+    if (equipamentos.length > 0) {
+      addGrafico(refDoughnut, "Consumo por Equipamento");
+      addGrafico(refCusto, "Estimativa de Custo por Equipamento");
+    }
+
+    // ---------- Tabela (histórico) ----------
+    autoTable(doc, {
+      startY: y,
+      head: [["Data", "Consumo (kWh)"]],
+      body: tabela.map((item) => [
+        formatarData(item.dataRegistro),
+        Number(item.consumoKwh).toFixed(2) + " kWh",
+      ]),
+      margin: { left: margem, right: margem },
+      styles: { fontSize: 9, cellPadding: 2.5 },
+      headStyles: { fillColor: VERDE, textColor: 255, fontStyle: "bold" },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
+      didDrawPage: () => {
+        // Rodape com numero de pagina em todas as paginas.
+        const pagina = doc.internal.getNumberOfPages();
+        doc.setFontSize(8);
+        doc.setTextColor(...CINZA);
+        doc.text(
+          `EcoWatt • Relatório de Consumo`,
+          margem,
+          alturaPagina - 8
+        );
+        doc.text(
+          `Página ${pagina}`,
+          larguraPagina - margem,
+          alturaPagina - 8,
+          { align: "right" }
+        );
+      },
+    });
+
+    doc.save("Relatorio_EcoWatt.pdf");
   }
 
   return (
@@ -407,11 +537,13 @@ export default function Relatorios() {
             <div className="chart-container">
               {tipoGrafico === "bar" ? (
                 <Bar
+                  ref={refGraficoPrincipal}
                   data={graficoPrincipal}
                   options={opcoesGraficoPrincipal}
                 />
               ) : (
                 <Line
+                  ref={refGraficoPrincipal}
                   data={graficoPrincipal}
                   options={opcoesGraficoPrincipal}
                 />
@@ -448,7 +580,11 @@ export default function Relatorios() {
             ) : (
               <>
                 <div className="chart-container">
-                  <Doughnut data={dadosDoughnut} options={opcoesDoughnut} />
+                  <Doughnut
+                    ref={refDoughnut}
+                    data={dadosDoughnut}
+                    options={opcoesDoughnut}
+                  />
                 </div>
                 <LegendaEquipamentos
                   labels={labelsEquip}
@@ -465,7 +601,11 @@ export default function Relatorios() {
               <p className="aviso">Nenhum equipamento cadastrado.</p>
             ) : (
               <div className="chart-container">
-                <Bar data={graficoCusto} options={opcoesGraficoCusto} />
+                <Bar
+                  ref={refCusto}
+                  data={graficoCusto}
+                  options={opcoesGraficoCusto}
+                />
               </div>
             )}
           </div>

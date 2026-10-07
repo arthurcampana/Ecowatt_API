@@ -26,6 +26,11 @@
   --pastel-ambar: #fef3c7;
   --pastel-ambar-ico: #fcd34d;
   --pastel-ambar-txt: #92400e;
+
+  --btn-edit-bg: #eef2ff;
+  --btn-edit-txt: #3730a3;
+  --btn-delete-bg: #fee2e2;
+  --btn-delete-txt: #991b1b;
 }
 
 html[data-theme="dark"] {
@@ -47,6 +52,11 @@ html[data-theme="dark"] {
   --pastel-ambar: rgba(251, 191, 36, 0.12);
   --pastel-ambar-ico: rgba(251, 191, 36, 0.25);
   --pastel-ambar-txt: #fbbf24;
+
+  --btn-edit-bg: rgba(129, 140, 248, 0.18);
+  --btn-edit-txt: #a5b4fc;
+  --btn-delete-bg: rgba(248, 113, 113, 0.18);
+  --btn-delete-txt: #fca5a5;
 }
 
 /* ---------- Shell com sidebar ---------- */
@@ -166,10 +176,20 @@ html[data-theme="dark"] {
 }
 
 .sidebar-link-icon {
-  font-size: 1.1rem;
-  width: 1.3rem;
+  width: 1.4rem;
   flex-shrink: 0;
-  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Alinhamento dos icones SVG na marca, no botao de tema e no sair */
+.sidebar-brand-ico,
+.sidebar-tema-ico,
+.sidebar-sair-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sidebar-rodape {
@@ -341,22 +361,24 @@ html[data-theme="dark"] {
 .dash-metric-ico {
   width: 42px;
   height: 42px;
-  border-radius: 50%;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
   margin-bottom: 1rem;
 }
 
 .dash-metric.verde .dash-metric-ico {
   background: var(--pastel-verde-ico);
+  color: var(--pastel-verde-txt);
 }
 .dash-metric.azul .dash-metric-ico {
   background: var(--pastel-azul-ico);
+  color: var(--pastel-azul-txt);
 }
 .dash-metric.ambar .dash-metric-ico {
   background: var(--pastel-ambar-ico);
+  color: var(--pastel-ambar-txt);
 }
 
 .dash-metric-valor {
@@ -611,6 +633,17 @@ html[data-theme="dark"] {
 .app-content-v2 .btn-save {
   background: var(--c-brand);
   color: #fff;
+}
+
+/* ----- Botoes de acao (editar / excluir) ----- */
+.app-content-v2 .btn-edit {
+  background: var(--btn-edit-bg);
+  color: var(--btn-edit-txt);
+}
+
+.app-content-v2 .btn-delete {
+  background: var(--btn-delete-bg);
+  color: var(--btn-delete-txt);
 }
 
 /* ----- Tabela de relatorios ----- */

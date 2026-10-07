@@ -6,6 +6,7 @@ import { consumoService } from "../api/consumoService.js";
 import { equipamentoUsuarioService } from "../api/equipamentoUsuarioService.js";
 import { CORES } from "../utils/chartPalette.js";
 import LegendaEquipamentos from "../components/LegendaEquipamentos.jsx";
+import Icon from "../components/Icon.jsx";
 
 const MESES = [
   "Jan",
@@ -141,7 +142,7 @@ export default function Dashboard() {
   return (
     <div className="dash">
       <div className="dash-head">
-        <h1>Olá{primeiroNome ? `, ${primeiroNome}` : ""} 👋</h1>
+        <h1>Olá{primeiroNome ? `, ${primeiroNome}` : ""}</h1>
         <p>Resumo do seu consumo de energia — {nomeMesAtual}</p>
       </div>
 
@@ -150,7 +151,9 @@ export default function Dashboard() {
       {/* Cards de metrica pastel */}
       <section className="dash-metrics">
         <article className="dash-metric verde">
-          <div className="dash-metric-ico">📅</div>
+          <div className="dash-metric-ico">
+            <Icon name="calendar" />
+          </div>
           <div className="dash-metric-valor">
             {totalMesAtual.toFixed(2)} <em>kWh</em>
           </div>
@@ -158,7 +161,9 @@ export default function Dashboard() {
         </article>
 
         <article className="dash-metric azul">
-          <div className="dash-metric-ico">📊</div>
+          <div className="dash-metric-ico">
+            <Icon name="trending" />
+          </div>
           <div className="dash-metric-valor">
             {mediaMensal.toFixed(2)} <em>kWh</em>
           </div>
@@ -166,7 +171,9 @@ export default function Dashboard() {
         </article>
 
         <article className="dash-metric ambar">
-          <div className="dash-metric-ico">🔋</div>
+          <div className="dash-metric-ico">
+            <Icon name="battery" />
+          </div>
           <div className="dash-metric-valor">
             {totalAno.toFixed(2)} <em>kWh</em>
           </div>

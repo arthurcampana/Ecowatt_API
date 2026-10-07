@@ -100,9 +100,13 @@ html[data-theme="dark"] .auth {
   z-index: 1;
   font-size: 1.6rem;
   font-weight: 800;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.auth-brand-logo svg {
+  flex-shrink: 0;
 }
 
 .auth-brand-texto {
