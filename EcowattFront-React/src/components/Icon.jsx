@@ -91,6 +91,59 @@ const PATHS = {
       <path d="M4 20c2-4 5-6 9-7" />
     </>
   ),
+  // feedback / ui
+  "check-circle": (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M8.5 12.5l2.5 2.5 5-5.5" />
+    </>
+  ),
+  "alert-circle": (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 8v5" />
+      <path d="M12 16.5v.5" />
+    </>
+  ),
+  info: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v5" />
+      <path d="M12 7.5v.5" />
+    </>
+  ),
+  x: (
+    <>
+      <path d="M6 6l12 12" />
+      <path d="M18 6L6 18" />
+    </>
+  ),
+  inbox: (
+    <>
+      <path d="M3 12h5l2 3h4l2-3h5" />
+      <path d="M5 6l-2 6v6a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-6l-2-6a1 1 0 0 0-1-.7H6a1 1 0 0 0-1 .7z" />
+    </>
+  ),
+  plus: (
+    <>
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </>
+  ),
+  eye: (
+    <>
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" />
+      <circle cx="12" cy="12" r="3" />
+    </>
+  ),
+  "eye-off": (
+    <>
+      <path d="M3 3l18 18" />
+      <path d="M10.6 10.6a3 3 0 0 0 4.2 4.2" />
+      <path d="M9.4 5.2A9.7 9.7 0 0 1 12 5c6.5 0 10 7 10 7a16 16 0 0 1-3.2 3.9" />
+      <path d="M6.1 6.1A16 16 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 3.3-.6" />
+    </>
+  ),
 };
 
 export default function Icon({ name, size = 20, strokeWidth = 1.8, ...rest }) {

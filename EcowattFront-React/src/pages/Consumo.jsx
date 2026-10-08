@@ -1,15 +1,35 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useUI } from "../context/UIContext.jsx";
 import { consumoService } from "../api/consumoService.js";
 import { formatarDataHora } from "../utils/formato.js";
+import EmptyState from "../components/EmptyState.jsx";
+import Icon from "../components/Icon.jsx";
+
+const MESES_COMPLETOS = [
+  "Janeiro",
+  "Fevereiro",
+  "Março",
+  "Abril",
+  "Maio",
+  "Junho",
+  "Julho",
+  "Agosto",
+  "Setembro",
+  "Outubro",
+  "Novembro",
+  "Dezembro",
+];
 
 // Tela de registro de consumo: lista os registros (mais recentes primeiro),
 // permite criar/editar/excluir e filtrar por mes/ano sobre a lista carregada.
 export default function Consumo() {
   const { usuario } = useAuth();
+  const { toast, confirmar } = useUI();
 
   const [todosConsumos, setTodosConsumos] = useState([]);
   const [erroLista, setErroLista] = useState(null);
+  const [carregando, setCarregando] = useState(true);
 
   const [formAberto, setFormAberto] = useState(false);
   const [consumoId, setConsumoId] = useState("");
@@ -22,12 +42,15 @@ export default function Consumo() {
   const [mensagem, setMensagem] = useState(null); // { texto, tipo }
 
   async function carregarConsumos() {
+    setCarregando(true);
     try {
       const dados = await consumoService.listarPorUsuario(usuario.id);
       setTodosConsumos(dados || []);
       setErroLista(null);
     } catch (error) {
       setErroLista(error?.message || "Erro ao carregar consumos");
+    } finally {
+      setCarregando(false);
     }
   }
 
@@ -61,16 +84,15 @@ export default function Consumo() {
     try {
       if (consumoId) {
         await consumoService.alterar(consumoId, payload);
+        toast("Consumo atualizado com sucesso.", "sucesso");
       } else {
         await consumoService.adicionar(payload);
+        toast("Consumo registrado com sucesso.", "sucesso");
       }
       fecharFormulario();
       carregarConsumos();
     } catch (error) {
-      setMensagem({
-        texto: error?.message || "Erro ao salvar consumo",
-        tipo: "erro",
-      });
+      toast(error?.message || "Erro ao salvar consumo", "erro");
     }
   }
 
@@ -84,20 +106,34 @@ export default function Consumo() {
   }
 
   async function excluirConsumo(id) {
-    if (!window.confirm("Deseja excluir esse consumo?")) {
+    const ok = await confirmar({
+      titulo: "Excluir consumo",
+      mensagem: "Tem certeza que deseja excluir este registro de consumo?",
+      confirmLabel: "Excluir",
+    });
+    if (!ok) {
       return;
     }
 
     try {
       await consumoService.remover(id);
+      toast("Consumo excluído.", "sucesso");
       carregarConsumos();
     } catch (error) {
-      setMensagem({
-        texto: error?.message || "Erro ao excluir consumo",
-        tipo: "erro",
-      });
+      toast(error?.message || "Erro ao excluir consumo", "erro");
     }
   }
+
+  // Anos distintos presentes nos dados, para o dropdown de filtro.
+  const anosDisponiveis = useMemo(() => {
+    const set = new Set();
+    todosConsumos.forEach((c) => {
+      if (c.dataRegistro) {
+        set.add(new Date(c.dataRegistro).getFullYear());
+      }
+    });
+    return [...set].sort((a, b) => b - a);
+  }, [todosConsumos]);
 
   // Filtra a lista carregada por mes/ano e exibe sempre do mais recente para
   // o mais antigo.
@@ -116,6 +152,44 @@ export default function Consumo() {
     });
 
   const ordenados = [...filtrados].reverse();
+
+  const temFiltro = filtroMes !== "" || filtroAno !== "";
+
+  // Resumo da lista filtrada: quantidade, total e media.
+  const resumo = useMemo(() => {
+    const qtd = filtrados.length;
+    const total = filtrados.reduce((s, c) => s + Number(c.consumoKwh), 0);
+    return {
+      qtd,
+      total,
+      media: qtd ? total / qtd : 0,
+    };
+  }, [filtrados]);
+
+  // Agrupa os registros (ja ordenados do mais recente) por "Mes Ano".
+  const grupos = useMemo(() => {
+    const mapa = new Map();
+    ordenados.forEach((item) => {
+      const d = new Date(item.dataRegistro);
+      const chave = `${d.getFullYear()}-${d.getMonth()}`;
+      if (!mapa.has(chave)) {
+        mapa.set(chave, {
+          titulo: `${MESES_COMPLETOS[d.getMonth()]} de ${d.getFullYear()}`,
+          itens: [],
+          total: 0,
+        });
+      }
+      const g = mapa.get(chave);
+      g.itens.push(item);
+      g.total += Number(item.consumoKwh);
+    });
+    return [...mapa.values()];
+  }, [ordenados]);
+
+  function limparFiltros() {
+    setFiltroMes("");
+    setFiltroAno("");
+  }
 
   return (
     <div>
@@ -166,16 +240,27 @@ export default function Consumo() {
             <label className="form-label" htmlFor="filtroAno">
               Ano
             </label>
-            <input
+            <select
               id="filtroAno"
-              type="number"
               className="form-control"
-              placeholder="Ex: 2026"
               value={filtroAno}
               onChange={(e) => setFiltroAno(e.target.value)}
-            />
+            >
+              <option value="">Todos</option>
+              {anosDisponiveis.map((ano) => (
+                <option key={ano} value={ano}>
+                  {ano}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
+
+        {temFiltro && (
+          <button type="button" className="btn-limpar-filtro" onClick={limparFiltros}>
+            <Icon name="x" size={14} /> Limpar filtros
+          </button>
+        )}
       </div>
 
       <div className={`form-card${formAberto ? " active" : ""}`}>
@@ -233,36 +318,82 @@ export default function Consumo() {
         <h4>Histórico de Consumos</h4>
       </div>
 
+      {/* Resumo da lista filtrada */}
+      {!carregando && !erroLista && ordenados.length > 0 && (
+        <div className="resumo-barra">
+          <div className="resumo-item">
+            <span>Registros</span>
+            <strong>{resumo.qtd}</strong>
+          </div>
+          <div className="resumo-item">
+            <span>Total {temFiltro ? "filtrado" : ""}</span>
+            <strong>{resumo.total.toFixed(2)} kWh</strong>
+          </div>
+          <div className="resumo-item">
+            <span>Média</span>
+            <strong>{resumo.media.toFixed(2)} kWh</strong>
+          </div>
+        </div>
+      )}
+
       <div className="lista-consumos">
-        {erroLista ? (
+        {carregando ? (
+          <>
+            <div className="lista-skel" />
+            <div className="lista-skel" />
+            <div className="lista-skel" />
+          </>
+        ) : erroLista ? (
           <div className="consumo-card">{erroLista}</div>
+        ) : ordenados.length === 0 && temFiltro ? (
+          <EmptyState
+            icon="inbox"
+            titulo="Nenhum resultado para esse filtro"
+            descricao="Não há consumos no período selecionado. Ajuste ou limpe os filtros."
+            acaoLabel="Limpar filtros"
+            onAcao={limparFiltros}
+          />
         ) : ordenados.length === 0 ? (
-          <div className="consumo-card">Nenhum consumo encontrado.</div>
+          <EmptyState
+            icon="bolt"
+            titulo="Nenhum consumo registrado"
+            descricao="Comece registrando seu primeiro consumo de energia para acompanhar sua evolução."
+            acaoLabel="Adicionar consumo"
+            onAcao={abrirFormulario}
+          />
         ) : (
-          ordenados.map((item) => (
-            <div className="consumo-card" key={item.id}>
-              <div className="consumo-info">
-                <h5>{Number(item.consumoKwh).toFixed(2)} kWh</h5>
-                <p>{formatarDataHora(item.dataRegistro)}</p>
-                <div className="badge-consumo">Registro #{item.id}</div>
+          grupos.map((grupo) => (
+            <div className="consumo-grupo" key={grupo.titulo}>
+              <div className="consumo-grupo-head">
+                <h5>{grupo.titulo}</h5>
+                <span>{grupo.total.toFixed(2)} kWh</span>
               </div>
 
-              <div className="consumo-actions">
-                <button
-                  type="button"
-                  className="btn-action btn-edit"
-                  onClick={() => editarConsumo(item)}
-                >
-                  Editar
-                </button>
-                <button
-                  type="button"
-                  className="btn-action btn-delete"
-                  onClick={() => excluirConsumo(item.id)}
-                >
-                  Excluir
-                </button>
-              </div>
+              {grupo.itens.map((item) => (
+                <div className="consumo-card" key={item.id}>
+                  <div className="consumo-info">
+                    <h5>{Number(item.consumoKwh).toFixed(2)} kWh</h5>
+                    <p>{formatarDataHora(item.dataRegistro)}</p>
+                  </div>
+
+                  <div className="consumo-actions">
+                    <button
+                      type="button"
+                      className="btn-action btn-edit"
+                      onClick={() => editarConsumo(item)}
+                    >
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-action btn-delete"
+                      onClick={() => excluirConsumo(item.id)}
+                    >
+                      Excluir
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           ))
         )}

@@ -1,20 +1,44 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useUI } from "../context/UIContext.jsx";
 import { usuarioService } from "../api/usuarioService.js";
+import Icon from "../components/Icon.jsx";
+import "../styles/perfil.css"; // estilos da pagina de perfil
 
-// Tela de perfil: carrega os dados do usuario logado e permite alterar nome e
-// senha. A data de criacao e exibida como '--' porque o endpoint de busca nao
-// devolve dataRegistro (decisao registrada em context.json).
+// Calcula uma pontuacao simples de forca de senha (0-4) com base em tamanho e
+// variedade de caracteres. Usado apenas para feedback visual.
+function forcaSenha(senha) {
+  if (!senha) {
+    return 0;
+  }
+  let score = 0;
+  if (senha.length >= 6) score++;
+  if (senha.length >= 10) score++;
+  if (/[A-Z]/.test(senha) && /[a-z]/.test(senha)) score++;
+  if (/\d/.test(senha) && /[^A-Za-z0-9]/.test(senha)) score++;
+  return Math.min(score, 4);
+}
+
+const ROTULO_FORCA = ["", "Fraca", "Razoável", "Boa", "Forte"];
+
+// Tela de perfil: header com avatar + identidade e dois blocos independentes
+// (informacoes pessoais / seguranca). Toda a comunicacao com a API foi mantida
+// do fluxo anterior; apenas separada em duas submissoes.
 export default function Perfil() {
   const { usuario, atualizarUsuario } = useAuth();
+  const { toast } = useUI();
 
   const [nome, setNome] = useState("");
+  const [nomeOriginal, setNomeOriginal] = useState("");
   const [email, setEmail] = useState("");
+
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
-  const [mensagem, setMensagem] = useState(null); // { texto, tipo }
-  const [toastVisivel, setToastVisivel] = useState(false);
-  const [carregando, setCarregando] = useState(false);
+  const [verSenha, setVerSenha] = useState(false);
+  const [verConfirmar, setVerConfirmar] = useState(false);
+
+  const [salvandoDados, setSalvandoDados] = useState(false);
+  const [salvandoSenha, setSalvandoSenha] = useState(false);
 
   useEffect(() => {
     let ativo = true;
@@ -26,15 +50,12 @@ export default function Perfil() {
           return;
         }
         setNome(dados.nome ?? "");
+        setNomeOriginal(dados.nome ?? "");
         setEmail(dados.email ?? "");
       } catch (error) {
-        if (!ativo) {
-          return;
+        if (ativo) {
+          toast(error?.message || "Erro ao carregar perfil.", "erro");
         }
-        setMensagem({
-          texto: error?.message || "Erro ao carregar perfil.",
-          tipo: "erro",
-        });
       }
     }
 
@@ -43,124 +64,231 @@ export default function Perfil() {
     return () => {
       ativo = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [usuario.id]);
 
-  async function handleSubmit(event) {
-    event.preventDefault();
-    setMensagem(null);
+  const nomeMudou = nome.trim() !== nomeOriginal && nome.trim().length > 0;
+  const senhasBatem = senha === confirmarSenha;
+  const score = useMemo(() => forcaSenha(senha), [senha]);
 
-    if (senha && senha !== confirmarSenha) {
-      setMensagem({ texto: "As senhas não conferem.", tipo: "erro" });
+  async function salvarDados(event) {
+    event.preventDefault();
+    const nomeNormalizado = nome.trim();
+    if (!nomeNormalizado) {
+      toast("O nome não pode ficar vazio.", "erro");
       return;
     }
 
-    const nomeNormalizado = nome.trim();
-
     try {
-      setCarregando(true);
+      setSalvandoDados(true);
       await usuarioService.alterar(usuario.id, {
         nome: nomeNormalizado,
-        senha: senha || null,
+        senha: null,
       });
-
-      setSenha("");
-      setConfirmarSenha("");
-
+      setNomeOriginal(nomeNormalizado);
       if (nomeNormalizado !== usuario.nome) {
         atualizarUsuario({ nome: nomeNormalizado });
       }
-
-      setToastVisivel(true);
-      setTimeout(() => setToastVisivel(false), 3000);
+      toast("Informações atualizadas com sucesso.", "sucesso");
     } catch (error) {
-      setMensagem({
-        texto: error?.message || "Erro ao atualizar perfil.",
-        tipo: "erro",
-      });
+      toast(error?.message || "Erro ao atualizar perfil.", "erro");
     } finally {
-      setCarregando(false);
+      setSalvandoDados(false);
     }
   }
 
-  const inicial = nome ? nome.charAt(0).toUpperCase() : "";
+  async function salvarSenha(event) {
+    event.preventDefault();
+    if (!senha) {
+      toast("Informe a nova senha.", "erro");
+      return;
+    }
+    if (senha.length < 6) {
+      toast("A senha deve ter pelo menos 6 caracteres.", "erro");
+      return;
+    }
+    if (!senhasBatem) {
+      toast("As senhas não conferem.", "erro");
+      return;
+    }
+
+    try {
+      setSalvandoSenha(true);
+      await usuarioService.alterar(usuario.id, {
+        nome: nomeOriginal,
+        senha,
+      });
+      setSenha("");
+      setConfirmarSenha("");
+      toast("Senha alterada com sucesso.", "sucesso");
+    } catch (error) {
+      toast(error?.message || "Erro ao alterar a senha.", "erro");
+    } finally {
+      setSalvandoSenha(false);
+    }
+  }
+
+  const iniciais = (nome || usuario?.nome || "?")
+    .split(" ")
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
   return (
-    <div className="perfil-card">
-      <div className="perfil-topo">
-        <div className="avatar">
-          <span>{inicial}</span>
-        </div>
-        <h3>Meu Perfil</h3>
-        <p className="aviso">Atualize suas informações pessoais.</p>
+    <div className="perfil">
+      <div className="page-header">
+        <h2>Meu Perfil</h2>
+        <p>Gerencie suas informações pessoais e de segurança.</p>
       </div>
 
-      {mensagem && <div className={mensagem.tipo}>{mensagem.texto}</div>}
-
-      <form onSubmit={handleSubmit}>
-        <div className="campo">
-          <label className="form-label" htmlFor="nome">
-            Nome
-          </label>
-          <input
-            id="nome"
-            type="text"
-            className="form-control"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-          />
+      {/* Header de identidade */}
+      <div className="perfil-header">
+        <div className="perfil-avatar">{iniciais}</div>
+        <div className="perfil-identidade">
+          <h3>{nome || usuario?.nome}</h3>
+          <span>{email}</span>
         </div>
+      </div>
 
-        <div className="campo">
-          <label className="form-label" htmlFor="email">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            className="form-control"
-            value={email}
-            disabled
-          />
-        </div>
+      <div className="perfil-grid">
+        {/* Informacoes pessoais */}
+        <section className="perfil-secao">
+          <div className="perfil-secao-head">
+            <Icon name="user" size={18} />
+            <h4>Informações pessoais</h4>
+          </div>
 
-        <div className="campo">
-          <label className="form-label" htmlFor="senha">
-            Nova senha
-          </label>
-          <input
-            id="senha"
-            type="password"
-            className="form-control"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-          />
-        </div>
+          <form onSubmit={salvarDados}>
+            <div className="campo">
+              <label className="form-label" htmlFor="nome">
+                Nome
+              </label>
+              <input
+                id="nome"
+                type="text"
+                className="form-control"
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+              />
+            </div>
 
-        <div className="campo">
-          <label className="form-label" htmlFor="confirmarSenha">
-            Confirmar senha
-          </label>
-          <input
-            id="confirmarSenha"
-            type="password"
-            className="form-control"
-            value={confirmarSenha}
-            onChange={(e) => setConfirmarSenha(e.target.value)}
-          />
-        </div>
+            <div className="campo">
+              <label className="form-label" htmlFor="email">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                className="form-control"
+                value={email}
+                disabled
+              />
+              <div className="helper-text">O email não pode ser alterado.</div>
+            </div>
 
-        <div className="info-box">
-          <strong>Conta criada em</strong>
-          <p>--</p>
-        </div>
+            <button
+              type="submit"
+              className="btn-save"
+              disabled={!nomeMudou || salvandoDados}
+            >
+              {salvandoDados ? "Salvando..." : "Salvar informações"}
+            </button>
+          </form>
+        </section>
 
-        <button type="submit" className="btn-save" disabled={carregando}>
-          {carregando ? "Salvando..." : "Salvar Alterações"}
-        </button>
-      </form>
+        {/* Seguranca */}
+        <section className="perfil-secao">
+          <div className="perfil-secao-head">
+            <Icon name="settings" size={18} />
+            <h4>Segurança</h4>
+          </div>
 
-      <div className={`toast-custom${toastVisivel ? " show" : ""}`}>
-        Perfil atualizado com sucesso.
+          <form onSubmit={salvarSenha}>
+            <div className="campo">
+              <label className="form-label" htmlFor="senha">
+                Nova senha
+              </label>
+              <div className="input-senha">
+                <input
+                  id="senha"
+                  type={verSenha ? "text" : "password"}
+                  className="form-control"
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
+                  placeholder="Mínimo 6 caracteres"
+                />
+                <button
+                  type="button"
+                  className="btn-olho"
+                  onClick={() => setVerSenha((v) => !v)}
+                  aria-label={verSenha ? "Ocultar senha" : "Mostrar senha"}
+                >
+                  <Icon name={verSenha ? "eye-off" : "eye"} size={18} />
+                </button>
+              </div>
+
+              {senha && (
+                <div className="forca-senha">
+                  <div className="forca-barras">
+                    {[1, 2, 3, 4].map((n) => (
+                      <span
+                        key={n}
+                        className={`forca-barra n${score} ${
+                          n <= score ? "ativa" : ""
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className={`forca-rotulo n${score}`}>
+                    {ROTULO_FORCA[score]}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="campo">
+              <label className="form-label" htmlFor="confirmarSenha">
+                Confirmar senha
+              </label>
+              <div className="input-senha">
+                <input
+                  id="confirmarSenha"
+                  type={verConfirmar ? "text" : "password"}
+                  className={`form-control ${
+                    confirmarSenha && !senhasBatem ? "invalido" : ""
+                  }`}
+                  value={confirmarSenha}
+                  onChange={(e) => setConfirmarSenha(e.target.value)}
+                  placeholder="Repita a nova senha"
+                />
+                <button
+                  type="button"
+                  className="btn-olho"
+                  onClick={() => setVerConfirmar((v) => !v)}
+                  aria-label={verConfirmar ? "Ocultar senha" : "Mostrar senha"}
+                >
+                  <Icon name={verConfirmar ? "eye-off" : "eye"} size={18} />
+                </button>
+              </div>
+              {confirmarSenha && !senhasBatem && (
+                <div className="helper-text erro-texto">
+                  As senhas não conferem.
+                </div>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              className="btn-save"
+              disabled={
+                !senha || !senhasBatem || senha.length < 6 || salvandoSenha
+              }
+            >
+              {salvandoSenha ? "Alterando..." : "Alterar senha"}
+            </button>
+          </form>
+        </section>
       </div>
     </div>
   );

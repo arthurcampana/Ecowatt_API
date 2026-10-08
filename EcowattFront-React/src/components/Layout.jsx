@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar.jsx";
 import DemoKonami from "./DemoKonami.jsx";
+import LabKonami from "./LabKonami.jsx";
 import "../styles/dashboard.css";
 
 // Casca das paginas internas (layout "Opção C"): menu lateral fixo +
@@ -13,6 +14,7 @@ export default function Layout() {
         <Outlet />
       </main>
       <DemoKonami />
+      <LabKonami />
     </div>
   );
 }

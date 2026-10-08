@@ -1,0 +1,276 @@
+/* ============================================================
+   UI global: toasts + modal de confirmacao + empty states.
+   Usa as variaveis de tema (--c-*) quando disponiveis, com
+   fallback para o tema claro.
+   ============================================================ */
+
+:root {
+  --ui-surface: #ffffff;
+  --ui-border: #e2e8f0;
+  --ui-text: #0f172a;
+  --ui-text-suave: #64748b;
+  --ui-overlay: rgba(15, 23, 42, 0.5);
+}
+
+html[data-theme="dark"] {
+  --ui-surface: #111827;
+  --ui-border: #1f2937;
+  --ui-text: #f1f5f9;
+  --ui-text-suave: #94a3b8;
+  --ui-overlay: rgba(0, 0, 0, 0.6);
+}
+
+/* ---------- Toasts ---------- */
+.ui-toasts {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: 360px;
+}
+
+.ui-toast {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
+  border-left: 4px solid #64748b;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
+  color: var(--ui-text);
+  font-size: 0.92rem;
+  font-weight: 500;
+  animation: ui-toast-in 0.22s ease;
+}
+
+.ui-toast span {
+  flex: 1;
+}
+
+.ui-toast.sucesso {
+  border-left-color: #16a34a;
+}
+.ui-toast.sucesso svg {
+  color: #16a34a;
+}
+
+.ui-toast.erro {
+  border-left-color: #dc2626;
+}
+.ui-toast.erro svg {
+  color: #dc2626;
+}
+
+.ui-toast.info {
+  border-left-color: #3b82f6;
+}
+.ui-toast.info svg {
+  color: #3b82f6;
+}
+
+.ui-toast-x {
+  border: none;
+  background: none;
+  color: var(--ui-text-suave);
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+}
+
+.ui-toast-x:hover {
+  color: var(--ui-text);
+}
+
+@keyframes ui-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ---------- Modal de confirmacao ---------- */
+.ui-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3100;
+  background: var(--ui-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: ui-fade 0.15s ease;
+}
+
+.ui-dialog {
+  width: 100%;
+  max-width: 400px;
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
+  border-radius: 18px;
+  padding: 1.8rem;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.3);
+  animation: ui-pop 0.18s ease;
+}
+
+.ui-dialog-ico {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+}
+
+.ui-dialog-ico.perigo {
+  background: rgba(220, 38, 38, 0.12);
+  color: #dc2626;
+}
+
+.ui-dialog-titulo {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--ui-text);
+}
+
+.ui-dialog-msg {
+  margin: 0 0 1.6rem 0;
+  color: var(--ui-text-suave);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.ui-dialog-acoes {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.ui-dialog-acoes button {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 11px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: 0.15s ease;
+}
+
+.ui-btn-cancelar {
+  background: transparent;
+  border-color: var(--ui-border);
+  color: var(--ui-text);
+}
+
+.ui-btn-cancelar:hover {
+  background: var(--ui-border);
+}
+
+.ui-btn-perigo {
+  background: #dc2626;
+  color: #fff;
+}
+
+.ui-btn-perigo:hover {
+  background: #b91c1c;
+}
+
+.ui-btn-ok {
+  background: #16a34a;
+  color: #fff;
+}
+
+.ui-btn-ok:hover {
+  background: #15803d;
+}
+
+@keyframes ui-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ui-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ---------- Empty state ---------- */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 3rem 1.5rem;
+  gap: 0.3rem;
+}
+
+.empty-state-ico {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--c-brand-soft, #dcfce7);
+  color: var(--c-brand, #16a34a);
+  margin-bottom: 0.8rem;
+}
+
+.empty-state h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ui-text);
+}
+
+.empty-state p {
+  margin: 0.2rem 0 1.2rem 0;
+  color: var(--ui-text-suave);
+  font-size: 0.95rem;
+  max-width: 340px;
+}
+
+.empty-state .empty-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.3rem;
+  border: none;
+  border-radius: 11px;
+  background: var(--c-brand, #16a34a);
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.empty-state .empty-btn:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}

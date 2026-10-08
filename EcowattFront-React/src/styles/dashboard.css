@@ -773,3 +773,768 @@ html[data-theme="dark"] {
     transform: translateY(0);
   }
 }
+
+/* ============================================================
+   Modal "Novo equipamento base" no tema escuro.
+   As classes .modal-* vem do global.css com cores fixas (header
+   branco, fundo claro). No dark mode isso quebra o visual, entao
+   aqui sobrescrevemos usando as variaveis de tema.
+   ============================================================ */
+html[data-theme="dark"] .modal-content {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  color: var(--c-text);
+}
+
+html[data-theme="dark"] .modal-header {
+  background: var(--c-surface-2);
+  border-bottom: 1px solid var(--c-border);
+}
+
+html[data-theme="dark"] .modal-header h5 {
+  color: var(--c-text);
+}
+
+html[data-theme="dark"] .modal-body {
+  color: var(--c-text);
+}
+
+html[data-theme="dark"] .modal-footer {
+  border-top: 1px solid var(--c-border);
+}
+
+html[data-theme="dark"] .modal-content .btn-close-custom {
+  background: var(--c-surface);
+  color: var(--c-text-suave);
+}
+
+/* Inputs dentro do modal (ja cobertos em geral, reforco no escuro) */
+html[data-theme="dark"] .modal-body .form-control {
+  background: var(--c-surface-2);
+  border-color: var(--c-border);
+  color: var(--c-text);
+}
+
+/* ----- Texto dos botoes primarios no tema escuro -----
+   Sobre o verde vibrante do dark mode, um texto verde bem escuro fica mais
+   nitido e elegante que o branco. Aplica-se so no tema escuro. */
+html[data-theme="dark"] .app-content-v2 .btn-add,
+html[data-theme="dark"] .app-content-v2 .btn-save,
+html[data-theme="dark"] .empty-state .empty-btn {
+  color: #052e16;
+}
+
+/* ============================================================
+   Dashboard — novos blocos: variacao, meta+custo, boas-vindas,
+   skeletons. Usam as variaveis de tema --c-*.
+   ============================================================ */
+
+/* ----- Variacao vs. mes anterior (nos cards) ----- */
+.dash-variacao {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.dash-variacao.baixa {
+  color: #16a34a;
+}
+.dash-variacao.alta {
+  color: #dc2626;
+}
+
+/* ----- Linha meta + custo ----- */
+.dash-row2 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+.dash-tag.perigo {
+  background: rgba(220, 38, 38, 0.12);
+  color: #dc2626;
+}
+
+/* barra de progresso da meta */
+.dash-progress {
+  height: 12px;
+  border-radius: 999px;
+  background: var(--c-border);
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.dash-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: #16a34a;
+  transition: width 0.4s ease;
+}
+.dash-progress-fill.alerta {
+  background: #f59e0b;
+}
+.dash-progress-fill.perigo {
+  background: #dc2626;
+}
+
+.dash-custo-valor {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: var(--c-text);
+  display: flex;
+  flex-direction: column;
+}
+
+.dash-custo-valor span {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--c-text-suave);
+  margin-top: 0.2rem;
+}
+
+.dash-metric-ico.verde-ico {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--c-brand-soft);
+  color: var(--c-brand);
+  margin: 0;
+}
+
+.dash-link-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--c-brand);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+.dash-link-btn:hover {
+  text-decoration: underline;
+}
+
+/* ----- Boas-vindas (conta nova) ----- */
+.dash-welcome {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 24px;
+  padding: 3rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dash-welcome-ico {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--c-brand-soft);
+  color: var(--c-brand);
+  margin-bottom: 1.2rem;
+}
+
+.dash-welcome h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.dash-welcome p {
+  margin: 0 0 1.8rem 0;
+  color: var(--c-text-suave);
+  max-width: 440px;
+  line-height: 1.5;
+}
+
+.dash-welcome-acoes {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.dash-welcome-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.4rem;
+  border-radius: 12px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface-2);
+  color: var(--c-text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.dash-welcome-btn:hover {
+  transform: translateY(-1px);
+}
+
+.dash-welcome-btn.primario {
+  background: var(--c-brand);
+  border-color: var(--c-brand);
+  color: #fff;
+}
+
+html[data-theme="dark"] .dash-welcome-btn.primario {
+  color: #052e16;
+}
+
+/* ----- Skeletons ----- */
+.dash-skel-card {
+  height: 118px;
+  border-radius: 20px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  position: relative;
+  overflow: hidden;
+}
+
+.dash-skel-panel {
+  height: 320px;
+  border-radius: 20px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  position: relative;
+  overflow: hidden;
+}
+
+.dash-skel-card::after,
+.dash-skel-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(148, 163, 184, 0.12),
+    transparent
+  );
+  animation: dash-shimmer 1.4s infinite;
+}
+
+@keyframes dash-shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (max-width: 900px) {
+  .dash-row2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================
+   Consumo / Equipamentos — resumo, agrupamento, identidade
+   visual, botao de limpar filtro e skeletons de lista.
+   ============================================================ */
+
+/* ----- Barra de resumo ----- */
+.resumo-barra {
+  display: flex;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 16px;
+  padding: 1.1rem 1.5rem;
+  margin-bottom: 1.3rem;
+}
+
+.resumo-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.resumo-item span {
+  font-size: 0.8rem;
+  color: var(--c-text-suave);
+}
+
+.resumo-item strong {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--c-text);
+}
+
+/* ----- Botao limpar filtro ----- */
+.btn-limpar-filtro {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1rem;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  background: var(--c-surface-2);
+  color: var(--c-text-suave);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.btn-limpar-filtro:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+/* ----- Agrupamento por mes (Consumo) ----- */
+.consumo-grupo {
+  margin-bottom: 1.5rem;
+}
+
+.consumo-grupo-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.3rem 0.6rem;
+  margin-bottom: 0.6rem;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.consumo-grupo-head h5 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.consumo-grupo-head span {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--c-brand);
+}
+
+.consumo-grupo .consumo-card {
+  margin-bottom: 0.7rem;
+}
+
+/* ----- Identidade visual do equipamento ----- */
+.app-content-v2 .equip-info {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.equip-avatar {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* ----- Skeleton de item de lista ----- */
+.lista-skel {
+  height: 86px;
+  border-radius: 20px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.lista-skel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(148, 163, 184, 0.12),
+    transparent
+  );
+  animation: dash-shimmer 1.4s infinite;
+}
+
+/* ============================================================
+   Relatorios — atalhos de periodo, placeholder (estados vazios)
+   e cards de indicadores repaginados.
+   ============================================================ */
+
+/* ----- Atalhos de periodo ----- */
+.atalhos-periodo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.atalhos-label {
+  font-size: 0.85rem;
+  color: var(--c-text-suave);
+  margin-right: 0.2rem;
+}
+
+.atalhos-periodo button {
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--c-border);
+  border-radius: 999px;
+  background: var(--c-surface-2);
+  color: var(--c-text);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.atalhos-periodo button:hover {
+  border-color: var(--c-brand);
+  color: var(--c-brand);
+}
+
+/* ----- Placeholder (estados vazios) ----- */
+.relatorio-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 3.5rem 1.5rem;
+  background: var(--c-surface);
+  border: 1px dashed var(--c-border);
+  border-radius: 20px;
+  margin-top: 1.5rem;
+}
+
+.relatorio-placeholder-ico {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--c-brand-soft);
+  color: var(--c-brand);
+  margin-bottom: 1rem;
+}
+
+.relatorio-placeholder h4 {
+  margin: 0 0 0.4rem 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.relatorio-placeholder p {
+  margin: 0;
+  max-width: 400px;
+  color: var(--c-text-suave);
+  line-height: 1.5;
+}
+
+/* ----- Cards de indicadores repaginados ----- */
+.rel-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.1rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.rel-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 18px;
+  padding: 1.3rem;
+  transition: transform 0.2s ease;
+}
+
+.rel-card:hover {
+  transform: translateY(-3px);
+}
+
+.rel-card-ico {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.8rem;
+}
+
+.rel-card.verde .rel-card-ico {
+  background: var(--pastel-verde-ico);
+  color: var(--pastel-verde-txt);
+}
+.rel-card.azul .rel-card-ico {
+  background: var(--pastel-azul-ico);
+  color: var(--pastel-azul-txt);
+}
+.rel-card.ambar .rel-card-ico {
+  background: var(--pastel-ambar-ico);
+  color: var(--pastel-ambar-txt);
+}
+.rel-card.status .rel-card-ico {
+  background: var(--c-brand-soft);
+  color: var(--c-brand);
+}
+
+.rel-card h6 {
+  margin: 0 0 0.3rem 0;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--c-text-suave);
+}
+
+.rel-card h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--c-text);
+}
+
+@media (max-width: 900px) {
+  .rel-cards {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .rel-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================
+   Configuracoes — inputs com afixo, cards de resumo com icone,
+   preview de custo.
+   ============================================================ */
+
+/* ----- Input com prefixo/sufixo (R$ / kWh) ----- */
+.input-afixo {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-afixo .form-control {
+  width: 100%;
+  margin-bottom: 0; /* a margem global quebra o calculo do top:50% do afixo */
+}
+
+.input-afixo .afixo {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  line-height: 1;
+  color: var(--c-text-suave);
+  font-size: 0.95rem;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+/* sufixo (direita) */
+.input-afixo .afixo:not(.prefixo) {
+  right: 1rem;
+}
+
+/* prefixo (esquerda) */
+.input-afixo .afixo.prefixo {
+  left: 1rem;
+}
+
+.input-afixo .form-control.com-prefixo {
+  padding-left: 2.6rem;
+}
+
+/* ----- Preview de custo ----- */
+.config-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--c-brand-soft);
+  color: var(--c-text);
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1.3rem;
+  font-size: 0.9rem;
+}
+
+.config-preview svg {
+  color: var(--c-brand);
+  flex-shrink: 0;
+}
+
+/* ----- Cards de resumo com icone ----- */
+.config-resumo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.config-resumo-ico {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.config-resumo.verde .config-resumo-ico {
+  background: var(--pastel-verde-ico);
+  color: var(--pastel-verde-txt);
+}
+.config-resumo.azul .config-resumo-ico {
+  background: var(--pastel-azul-ico);
+  color: var(--pastel-azul-txt);
+}
+.config-resumo.ambar .config-resumo-ico {
+  background: var(--pastel-ambar-ico);
+  color: var(--pastel-ambar-txt);
+}
+
+.config-resumo h6 {
+  margin: 0 0 0.2rem 0;
+}
+
+.config-resumo h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+/* ============================================================
+   Relatorios — seletor de graficos e toggle de tipo de grafico.
+   ============================================================ */
+
+.seletor-graficos {
+  margin-top: 1.3rem;
+}
+
+.seletor-graficos h5 {
+  margin: 0 0 0.2rem 0;
+}
+
+.seletor-opcoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 0.9rem;
+}
+
+/* Cada opcao e um "chip" clicavel: fica verde preenchido quando ativo. */
+.check-grafico {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.6rem 1rem 0.6rem 0.85rem;
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  background: var(--c-surface-2);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--c-text-suave);
+  cursor: pointer;
+  user-select: none;
+  transition: 0.15s ease;
+}
+
+.check-grafico:hover {
+  border-color: var(--c-brand);
+}
+
+/* esconde o checkbox nativo, mas mantem acessivel */
+.check-grafico input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* marcador visual (quadradinho) */
+.check-grafico span::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  margin-right: 0.55rem;
+  vertical-align: -4px;
+  border: 2px solid #b7c2bb;
+  border-radius: 6px;
+  background: transparent;
+  transition: 0.15s ease;
+}
+
+/* estado selecionado: chip verde + check */
+.check-grafico:has(input:checked) {
+  background: var(--c-brand-soft);
+  border-color: var(--c-brand);
+  color: var(--c-brand);
+}
+
+.check-grafico:has(input:checked) span::before {
+  background: var(--c-brand);
+  border-color: var(--c-brand);
+  /* checkmark branco desenhado via background */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7'/%3E%3C/svg%3E");
+  background-size: 13px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* foco acessivel pelo teclado */
+.check-grafico:has(input:focus-visible) {
+  box-shadow: 0 0 0 3px var(--c-brand-soft);
+}
+
+/* Toggle Barras / Linha */
+.tipo-grafico-toggle {
+  display: inline-flex;
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.tipo-grafico-toggle button {
+  border: none;
+  background: var(--c-surface);
+  color: var(--c-text-suave);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.tipo-grafico-toggle button:hover {
+  color: var(--c-text);
+}
+
+.tipo-grafico-toggle button.ativo {
+  background: var(--c-brand);
+  color: #fff;
+}
+
+html[data-theme="dark"] .tipo-grafico-toggle button.ativo {
+  color: #052e16;
+}

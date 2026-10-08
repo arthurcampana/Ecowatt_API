@@ -1,7 +1,29 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useUI } from "../context/UIContext.jsx";
 import { equipamentoService } from "../api/equipamentoService.js";
 import { equipamentoUsuarioService } from "../api/equipamentoUsuarioService.js";
+import EmptyState from "../components/EmptyState.jsx";
+
+// Cores para o circulo de identidade de cada equipamento (deterministico
+// pelo nome, para o mesmo equipamento ter sempre a mesma cor).
+const CORES_AVATAR = [
+  "#16a34a",
+  "#3b82f6",
+  "#f59e0b",
+  "#8b5cf6",
+  "#ec4899",
+  "#06b6d4",
+  "#ef4444",
+];
+
+function corDoNome(nome) {
+  let soma = 0;
+  for (let i = 0; i < (nome || "").length; i++) {
+    soma += nome.charCodeAt(i);
+  }
+  return CORES_AVATAR[soma % CORES_AVATAR.length];
+}
 
 // Tela de equipamentos do usuario: lista os equipamentos vinculados (mais
 // recentes primeiro), permite criar/editar/excluir com uma previa ao vivo do
@@ -9,10 +31,12 @@ import { equipamentoUsuarioService } from "../api/equipamentoUsuarioService.js";
 // equipamento base novo no catalogo.
 export default function Equipamentos() {
   const { usuario } = useAuth();
+  const { toast, confirmar } = useUI();
 
   const [equipamentosUsuario, setEquipamentosUsuario] = useState([]);
   const [catalogo, setCatalogo] = useState([]);
   const [erroLista, setErroLista] = useState(null);
+  const [carregando, setCarregando] = useState(true);
 
   const [formAberto, setFormAberto] = useState(false);
   const [equipUserId, setEquipUserId] = useState("");
@@ -28,6 +52,7 @@ export default function Equipamentos() {
   const [mensagem, setMensagem] = useState(null); // { texto, tipo }
 
   async function carregarEquipamentosUsuario() {
+    setCarregando(true);
     try {
       const dados = await equipamentoUsuarioService.listarPorUsuario(
         usuario.id
@@ -36,6 +61,8 @@ export default function Equipamentos() {
       setErroLista(null);
     } catch (error) {
       setErroLista(error?.message || "Erro ao carregar equipamentos");
+    } finally {
+      setCarregando(false);
     }
   }
 
@@ -108,16 +135,15 @@ export default function Equipamentos() {
     try {
       if (equipUserId) {
         await equipamentoUsuarioService.alterar(equipUserId, payload);
+        toast("Equipamento atualizado com sucesso.", "sucesso");
       } else {
         await equipamentoUsuarioService.adicionar(payload);
+        toast("Equipamento adicionado com sucesso.", "sucesso");
       }
       fecharFormulario();
       carregarEquipamentosUsuario();
     } catch (error) {
-      setMensagem({
-        texto: error?.message || "Erro ao salvar equipamento",
-        tipo: "erro",
-      });
+      toast(error?.message || "Erro ao salvar equipamento", "erro");
     }
   }
 
@@ -144,18 +170,21 @@ export default function Equipamentos() {
   }
 
   async function excluirEquipamento(id) {
-    if (!window.confirm("Deseja excluir esse equipamento?")) {
+    const ok = await confirmar({
+      titulo: "Excluir equipamento",
+      mensagem: "Tem certeza que deseja remover este equipamento?",
+      confirmLabel: "Excluir",
+    });
+    if (!ok) {
       return;
     }
 
     try {
       await equipamentoUsuarioService.remover(id);
+      toast("Equipamento excluído.", "sucesso");
       carregarEquipamentosUsuario();
     } catch (error) {
-      setMensagem({
-        texto: error?.message || "Erro ao excluir equipamento",
-        tipo: "erro",
-      });
+      toast(error?.message || "Erro ao excluir equipamento", "erro");
     }
   }
 
@@ -183,16 +212,19 @@ export default function Equipamentos() {
       // Auto-seleciona o equipamento recem-criado (a previa recalcula sozinha).
       setEquipamentoSelecionado(String(novoEquip.id));
       fecharModal();
+      toast("Equipamento base cadastrado.", "sucesso");
     } catch (error) {
-      setMensagem({
-        texto: error?.message || "Erro ao cadastrar equipamento",
-        tipo: "erro",
-      });
+      toast(error?.message || "Erro ao cadastrar equipamento", "erro");
     }
   }
 
   // Mais recentes primeiro.
   const ordenados = [...equipamentosUsuario].reverse();
+
+  const totalEsperado = equipamentosUsuario.reduce(
+    (s, e) => s + Number(e.consumoEsperado),
+    0
+  );
 
   return (
     <div>
@@ -303,20 +335,53 @@ export default function Equipamentos() {
         <h4>Seus Equipamentos</h4>
       </div>
 
+      {!carregando && !erroLista && ordenados.length > 0 && (
+        <div className="resumo-barra">
+          <div className="resumo-item">
+            <span>Equipamentos</span>
+            <strong>{equipamentosUsuario.length}</strong>
+          </div>
+          <div className="resumo-item">
+            <span>Consumo esperado total</span>
+            <strong>{totalEsperado.toFixed(2)} kWh/dia</strong>
+          </div>
+        </div>
+      )}
+
       <div className="lista-equip">
-        {erroLista ? (
+        {carregando ? (
+          <>
+            <div className="lista-skel" />
+            <div className="lista-skel" />
+            <div className="lista-skel" />
+          </>
+        ) : erroLista ? (
           <div className="equip-card">{erroLista}</div>
         ) : ordenados.length === 0 ? (
-          <div className="equip-card">Nenhum equipamento encontrado.</div>
+          <EmptyState
+            icon="plug"
+            titulo="Nenhum equipamento cadastrado"
+            descricao="Adicione seus equipamentos para estimar o consumo esperado de cada um."
+            acaoLabel="Adicionar equipamento"
+            onAcao={abrirFormulario}
+          />
         ) : (
           ordenados.map((item) => (
             <div className="equip-card" key={item.id}>
               <div className="equip-info">
-                <h5>{item.nomeIdentificacao}</h5>
-                <p>{item.nomeEquipamento}</p>
-                <a className="badge-consumo">
-                  {Number(item.consumoEsperado).toFixed(2)} kWh/dia
-                </a>
+                <span
+                  className="equip-avatar"
+                  style={{ background: corDoNome(item.nomeIdentificacao) }}
+                >
+                  {(item.nomeIdentificacao || "?").charAt(0).toUpperCase()}
+                </span>
+                <div className="equip-texto">
+                  <h5>{item.nomeIdentificacao}</h5>
+                  <p>{item.nomeEquipamento}</p>
+                  <span className="badge-consumo">
+                    {Number(item.consumoEsperado).toFixed(2)} kWh/dia
+                  </span>
+                </div>
               </div>
 
               <div className="equip-actions">

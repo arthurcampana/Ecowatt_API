@@ -4,12 +4,23 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import "../charts/registerCharts.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useUI } from "../context/UIContext.jsx";
 import { consumoService } from "../api/consumoService.js";
 import { configuracaoService } from "../api/configuracaoService.js";
 import { equipamentoUsuarioService } from "../api/equipamentoUsuarioService.js";
 import { formatarData } from "../utils/formato.js";
 import { CORES } from "../utils/chartPalette.js";
+import { useChartTheme } from "../charts/useChartTheme.js";
 import LegendaEquipamentos from "../components/LegendaEquipamentos.jsx";
+import Icon from "../components/Icon.jsx";
+
+// Formata uma data para o input date (YYYY-MM-DD) no fuso local.
+function paraInput(d) {
+  const ano = d.getFullYear();
+  const mes = String(d.getMonth() + 1).padStart(2, "0");
+  const dia = String(d.getDate()).padStart(2, "0");
+  return `${ano}-${mes}-${dia}`;
+}
 
 // Tela de relatorios (rota /relatorios): filtra os consumos por intervalo de
 // datas e mostra cards, tabela, um grafico de barras/linha alternavel, os dois
@@ -18,6 +29,8 @@ import LegendaEquipamentos from "../components/LegendaEquipamentos.jsx";
 // unica de consumos carregada (o legado tinha uma mistura consumos/todosConsumos).
 export default function Relatorios() {
   const { usuario } = useAuth();
+  const { toast } = useUI();
+  const temaChart = useChartTheme();
 
   const [consumos, setConsumos] = useState([]);
   const [config, setConfig] = useState({ meta: 0, valorTarifa: 0 });
@@ -28,6 +41,18 @@ export default function Relatorios() {
   const [tipoGrafico, setTipoGrafico] = useState("bar"); // 'bar' | 'line'
   const [painelVisivel, setPainelVisivel] = useState(false);
   const [consumosFiltrados, setConsumosFiltrados] = useState([]);
+  const [exportando, setExportando] = useState(false);
+
+  // Quais graficos o usuario quer ver na tela e no PDF.
+  const [graficosAtivos, setGraficosAtivos] = useState({
+    evolucao: true,
+    equipamentos: true,
+    custo: true,
+  });
+
+  function alternarGrafico(chave) {
+    setGraficosAtivos((atual) => ({ ...atual, [chave]: !atual[chave] }));
+  }
 
   const [mensagem, setMensagem] = useState(null); // { texto, tipo }
 
@@ -82,7 +107,36 @@ export default function Relatorios() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [usuario.id]);
 
+  // Preenche o intervalo de datas a partir de um atalho rapido.
+  function aplicarAtalho(tipo) {
+    const hoje = new Date();
+    let inicio = new Date();
+    let fim = new Date();
+
+    if (tipo === "7dias") {
+      inicio.setDate(hoje.getDate() - 6);
+    } else if (tipo === "mes") {
+      inicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+      fim = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+    } else if (tipo === "mesPassado") {
+      inicio = new Date(hoje.getFullYear(), hoje.getMonth() - 1, 1);
+      fim = new Date(hoje.getFullYear(), hoje.getMonth(), 0);
+    } else if (tipo === "ano") {
+      inicio = new Date(hoje.getFullYear(), 0, 1);
+      fim = new Date(hoje.getFullYear(), 11, 31);
+    }
+
+    setDataInicial(paraInput(inicio));
+    setDataFinal(paraInput(fim));
+  }
+
   function gerarRelatorio() {
+    // Validacao: data final nao pode ser anterior a inicial.
+    if (dataInicial && dataFinal && new Date(dataFinal) < new Date(dataInicial)) {
+      toast("A data final não pode ser anterior à inicial.", "erro");
+      return;
+    }
+
     const filtrados = consumos.filter((item) => {
       const data = new Date(item.dataRegistro);
 
@@ -105,6 +159,10 @@ export default function Relatorios() {
 
     setConsumosFiltrados(filtrados);
     setPainelVisivel(true);
+
+    if (filtrados.length === 0) {
+      toast("Nenhum consumo encontrado no período selecionado.", "info");
+    }
   }
 
   function trocarGrafico() {
@@ -272,11 +330,48 @@ export default function Relatorios() {
   // Gera um PDF nativo (texto selecionavel + graficos em alta resolucao),
   // com cabecalho da marca, cards de indicadores, graficos, tabela e rodape
   // paginado. Substitui a antiga "foto" via html2canvas.
+  // Forca o texto/grade de um grafico para cores claras (para o PDF, que tem
+  // fundo branco), captura a imagem e restaura o estado anterior.
+  function capturarGraficoClaro(chart) {
+    if (!chart) {
+      return null;
+    }
+    const corTextoOriginal = chart.options.color;
+    const corGradeOriginal = chart.options.scales?.x?.grid?.color;
+
+    chart.options.color = "#334155";
+    ["x", "y"].forEach((eixo) => {
+      if (chart.options.scales?.[eixo]) {
+        chart.options.scales[eixo].ticks = {
+          ...chart.options.scales[eixo].ticks,
+          color: "#334155",
+        };
+        chart.options.scales[eixo].grid = {
+          ...chart.options.scales[eixo].grid,
+          color: "rgba(100,116,139,0.15)",
+        };
+      }
+    });
+    chart.update("none");
+
+    const img = chart.canvas.toDataURL("image/png", 1.0);
+
+    chart.options.color = corTextoOriginal;
+    if (corGradeOriginal !== undefined && chart.options.scales?.x?.grid) {
+      chart.options.scales.x.grid.color = corGradeOriginal;
+    }
+    chart.update("none");
+
+    return { img, w: chart.canvas.width, h: chart.canvas.height };
+  }
+
   function exportarPDF() {
     if (consumosFiltrados.length === 0) {
-      alert("Gere um relatório primeiro.");
+      toast("Gere um relatório antes de exportar.", "info");
       return;
     }
+
+    setExportando(true);
 
     const VERDE = [21, 128, 61];
     const CINZA = [100, 116, 139];
@@ -371,13 +466,11 @@ export default function Relatorios() {
 
     // ---------- Helper para embutir um grafico ----------
     function addGrafico(ref, titulo) {
-      const canvas = ref.current?.canvas;
-      if (!canvas) {
+      const captura = capturarGraficoClaro(ref.current);
+      if (!captura) {
         return;
       }
-      const img = canvas.toDataURL("image/png", 1.0);
-      const propW = canvas.width;
-      const propH = canvas.height;
+      const { img, w: propW, h: propH } = captura;
       const imgW = larguraUtil;
       const imgH = (propH * imgW) / propW;
 
@@ -397,10 +490,16 @@ export default function Relatorios() {
       y += imgH + 8;
     }
 
-    addGrafico(refGraficoPrincipal, "Evolução do Consumo");
+    if (graficosAtivos.evolucao) {
+      addGrafico(refGraficoPrincipal, "Evolução do Consumo");
+    }
     if (equipamentos.length > 0) {
-      addGrafico(refDoughnut, "Consumo por Equipamento");
-      addGrafico(refCusto, "Estimativa de Custo por Equipamento");
+      if (graficosAtivos.equipamentos) {
+        addGrafico(refDoughnut, "Consumo por Equipamento");
+      }
+      if (graficosAtivos.custo) {
+        addGrafico(refCusto, "Estimativa de Custo por Equipamento");
+      }
     }
 
     // ---------- Tabela (histórico) ----------
@@ -435,6 +534,8 @@ export default function Relatorios() {
     });
 
     doc.save("Relatorio_EcoWatt.pdf");
+    toast("Relatório exportado em PDF.", "sucesso");
+    setExportando(false);
   }
 
   return (
@@ -477,79 +578,190 @@ export default function Relatorios() {
           </div>
         </div>
 
+        <div className="atalhos-periodo">
+          <span className="atalhos-label">Atalhos:</span>
+          <button type="button" onClick={() => aplicarAtalho("7dias")}>
+            Últimos 7 dias
+          </button>
+          <button type="button" onClick={() => aplicarAtalho("mes")}>
+            Este mês
+          </button>
+          <button type="button" onClick={() => aplicarAtalho("mesPassado")}>
+            Mês passado
+          </button>
+          <button type="button" onClick={() => aplicarAtalho("ano")}>
+            Este ano
+          </button>
+        </div>
+
         <div className="relatorio-acoes">
           <button type="button" className="btn-add" onClick={gerarRelatorio}>
             Gerar Relatório
           </button>
-          <button type="button" className="btn-save" onClick={exportarPDF}>
-            Exportar PDF
+          <button
+            type="button"
+            className="btn-save"
+            onClick={exportarPDF}
+            disabled={exportando || !painelVisivel || consumosFiltrados.length === 0}
+          >
+            {exportando ? "Exportando..." : "Exportar PDF"}
           </button>
         </div>
       </div>
 
-      {painelVisivel && (
+      {/* Seletor: quais graficos incluir (tela + PDF) */}
+      {painelVisivel && consumosFiltrados.length > 0 && (
+        <div className="config-card seletor-graficos">
+          <h5>Personalizar relatório</h5>
+          <p className="helper-text">Escolha quais gráficos incluir na tela e no PDF.</p>
+          <div className="seletor-opcoes">
+            <label className="check-grafico">
+              <input
+                type="checkbox"
+                checked={graficosAtivos.evolucao}
+                onChange={() => alternarGrafico("evolucao")}
+              />
+              <span>Evolução do consumo</span>
+            </label>
+            <label className="check-grafico">
+              <input
+                type="checkbox"
+                checked={graficosAtivos.equipamentos}
+                onChange={() => alternarGrafico("equipamentos")}
+              />
+              <span>Consumo por equipamento</span>
+            </label>
+            <label className="check-grafico">
+              <input
+                type="checkbox"
+                checked={graficosAtivos.custo}
+                onChange={() => alternarGrafico("custo")}
+              />
+              <span>Custo por equipamento</span>
+            </label>
+          </div>
+        </div>
+      )}
+
+      {/* Estado inicial: antes de gerar */}
+      {!painelVisivel && (
+        <div className="relatorio-placeholder">
+          <div className="relatorio-placeholder-ico">
+            <Icon name="chart" size={32} />
+          </div>
+          <h4>Nenhum relatório gerado</h4>
+          <p>
+            Selecione um período (ou use um atalho) e clique em “Gerar
+            Relatório” para visualizar seus indicadores e gráficos.
+          </p>
+        </div>
+      )}
+
+      {/* Painel gerado, mas sem dados no periodo */}
+      {painelVisivel && consumosFiltrados.length === 0 && (
+        <div className="relatorio-placeholder">
+          <div className="relatorio-placeholder-ico">
+            <Icon name="inbox" size={32} />
+          </div>
+          <h4>Nenhum consumo no período</h4>
+          <p>Não há registros de consumo no intervalo selecionado. Tente outro período.</p>
+        </div>
+      )}
+
+      {painelVisivel && consumosFiltrados.length > 0 && (
         <div ref={painelRef} className="painel-relatorio">
-          <div className="indicadores-grid">
-            <div className="indicador">
+          <div className="rel-cards">
+            <div className="rel-card verde">
+              <div className="rel-card-ico">
+                <Icon name="bolt" />
+              </div>
               <h6>Consumo Total</h6>
               <h3>{cards.consumoTotal}</h3>
             </div>
-            <div className="indicador">
+            <div className="rel-card azul">
+              <div className="rel-card-ico">
+                <Icon name="trending" />
+              </div>
               <h6>Consumo Médio</h6>
               <h3>{cards.consumoMedio}</h3>
             </div>
-            <div className="indicador">
+            <div className="rel-card verde">
+              <div className="rel-card-ico">
+                <Icon name="battery" />
+              </div>
               <h6>Maior Consumo</h6>
               <h3>{cards.maiorConsumo}</h3>
             </div>
-            <div className="indicador">
+            <div className="rel-card azul">
+              <div className="rel-card-ico">
+                <Icon name="battery" />
+              </div>
               <h6>Menor Consumo</h6>
               <h3>{cards.menorConsumo}</h3>
             </div>
-          </div>
-
-          <div className="indicadores-grid indicadores-grid-3">
-            <div className="indicador">
+            <div className="rel-card ambar">
+              <div className="rel-card-ico">
+                <Icon name="info" />
+              </div>
               <h6>Custo Estimado</h6>
               <h3>{cards.custoTotal}</h3>
             </div>
-            <div className="indicador">
+            <div className="rel-card ambar">
+              <div className="rel-card-ico">
+                <Icon name="calendar" />
+              </div>
               <h6>Meta</h6>
               <h3>{cards.metaAtual}</h3>
             </div>
-            <div className="indicador">
+            <div className="rel-card status">
+              <div className="rel-card-ico">
+                <Icon name={cards.statusMeta.cls === "status-ok" ? "check-circle" : "alert-circle"} />
+              </div>
               <h6>Status</h6>
               <h3 className={cards.statusMeta.cls}>{cards.statusMeta.texto}</h3>
             </div>
           </div>
 
-          <div className="chart-card">
-            <div className="chart-card-header">
-              <h5>Evolução do Consumo</h5>
-              <button
-                type="button"
-                className="btn-trocar-grafico"
-                onClick={trocarGrafico}
-              >
-                Alterar gráfico
-              </button>
+          {graficosAtivos.evolucao && (
+            <div className="chart-card">
+              <div className="chart-card-header">
+                <h5>Evolução do Consumo</h5>
+                <div className="tipo-grafico-toggle">
+                  <button
+                    type="button"
+                    className={tipoGrafico === "bar" ? "ativo" : ""}
+                    onClick={() => setTipoGrafico("bar")}
+                  >
+                    Barras
+                  </button>
+                  <button
+                    type="button"
+                    className={tipoGrafico === "line" ? "ativo" : ""}
+                    onClick={() => setTipoGrafico("line")}
+                  >
+                    Linha
+                  </button>
+                </div>
+              </div>
+              <div className="chart-container">
+                {tipoGrafico === "bar" ? (
+                  <Bar
+                    key={`bar-${temaChart}`}
+                    ref={refGraficoPrincipal}
+                    data={graficoPrincipal}
+                    options={opcoesGraficoPrincipal}
+                  />
+                ) : (
+                  <Line
+                    key={`line-${temaChart}`}
+                    ref={refGraficoPrincipal}
+                    data={graficoPrincipal}
+                    options={opcoesGraficoPrincipal}
+                  />
+                )}
+              </div>
             </div>
-            <div className="chart-container">
-              {tipoGrafico === "bar" ? (
-                <Bar
-                  ref={refGraficoPrincipal}
-                  data={graficoPrincipal}
-                  options={opcoesGraficoPrincipal}
-                />
-              ) : (
-                <Line
-                  ref={refGraficoPrincipal}
-                  data={graficoPrincipal}
-                  options={opcoesGraficoPrincipal}
-                />
-              )}
-            </div>
-          </div>
+          )}
 
           <div className="chart-card">
             <h5>Histórico</h5>
@@ -573,42 +785,48 @@ export default function Relatorios() {
             </div>
           </div>
 
-          <div className="chart-card">
-            <h5>Consumo por Equipamentos</h5>
-            {equipamentos.length === 0 ? (
-              <p className="aviso">Nenhum equipamento cadastrado.</p>
-            ) : (
-              <>
+          {graficosAtivos.equipamentos && (
+            <div className="chart-card">
+              <h5>Consumo por Equipamentos</h5>
+              {equipamentos.length === 0 ? (
+                <p className="aviso">Nenhum equipamento cadastrado.</p>
+              ) : (
+                <>
+                  <div className="chart-container">
+                    <Doughnut
+                      key={`dough-${temaChart}`}
+                      ref={refDoughnut}
+                      data={dadosDoughnut}
+                      options={opcoesDoughnut}
+                    />
+                  </div>
+                  <LegendaEquipamentos
+                    labels={labelsEquip}
+                    valores={valoresEquip}
+                    cores={CORES}
+                  />
+                </>
+              )}
+            </div>
+          )}
+
+          {graficosAtivos.custo && (
+            <div className="chart-card">
+              <h5>Estimativa de custo por equipamento</h5>
+              {equipamentos.length === 0 ? (
+                <p className="aviso">Nenhum equipamento cadastrado.</p>
+              ) : (
                 <div className="chart-container">
-                  <Doughnut
-                    ref={refDoughnut}
-                    data={dadosDoughnut}
-                    options={opcoesDoughnut}
+                  <Bar
+                    key={`custo-${temaChart}`}
+                    ref={refCusto}
+                    data={graficoCusto}
+                    options={opcoesGraficoCusto}
                   />
                 </div>
-                <LegendaEquipamentos
-                  labels={labelsEquip}
-                  valores={valoresEquip}
-                  cores={CORES}
-                />
-              </>
-            )}
-          </div>
-
-          <div className="chart-card">
-            <h5>Estimativa de custo por equipamento</h5>
-            {equipamentos.length === 0 ? (
-              <p className="aviso">Nenhum equipamento cadastrado.</p>
-            ) : (
-              <div className="chart-container">
-                <Bar
-                  ref={refCusto}
-                  data={graficoCusto}
-                  options={opcoesGraficoCusto}
-                />
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

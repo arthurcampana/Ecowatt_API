@@ -1,0 +1,175 @@
+/* ============================================================
+   Pagina de Perfil — header de identidade + secoes (dados /
+   seguranca), com suporte a tema claro/escuro via variaveis --c-*.
+   ============================================================ */
+
+.perfil {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ---------- Header de identidade ---------- */
+.perfil-header {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 20px;
+  padding: 1.5rem 1.8rem;
+}
+
+.perfil-avatar {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, #16a34a, #15803d);
+}
+
+.perfil-identidade h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.perfil-identidade span {
+  color: var(--c-text-suave);
+  font-size: 0.95rem;
+}
+
+/* ---------- Grid de secoes ---------- */
+.perfil-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.perfil-secao {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 20px;
+  padding: 1.6rem;
+}
+
+.perfil-secao-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.3rem;
+  color: var(--c-brand);
+}
+
+.perfil-secao-head h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+/* ---------- Input com botao de olho ---------- */
+.input-senha {
+  position: relative;
+}
+
+.input-senha .form-control {
+  width: 100%;
+  padding-right: 2.8rem;
+}
+
+.btn-olho {
+  position: absolute;
+  top: 50%;
+  right: 0.6rem;
+  transform: translateY(-50%);
+  border: none;
+  background: none;
+  color: var(--c-text-suave);
+  cursor: pointer;
+  display: inline-flex;
+  padding: 0.3rem;
+  border-radius: 8px;
+}
+
+.btn-olho:hover {
+  color: var(--c-brand);
+}
+
+/* ---------- Validacao ---------- */
+.form-control.invalido {
+  border-color: #dc2626 !important;
+}
+
+.erro-texto {
+  color: #dc2626 !important;
+}
+
+/* ---------- Forca da senha ---------- */
+.forca-senha {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 0.6rem;
+}
+
+.forca-barras {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+
+.forca-barra {
+  height: 5px;
+  flex: 1;
+  border-radius: 999px;
+  background: var(--c-border);
+  transition: background 0.2s ease;
+}
+
+.forca-barra.ativa.n1 {
+  background: #dc2626;
+}
+.forca-barra.ativa.n2 {
+  background: #f59e0b;
+}
+.forca-barra.ativa.n3 {
+  background: #3b82f6;
+}
+.forca-barra.ativa.n4 {
+  background: #16a34a;
+}
+
+.forca-rotulo {
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.forca-rotulo.n1 {
+  color: #dc2626;
+}
+.forca-rotulo.n2 {
+  color: #f59e0b;
+}
+.forca-rotulo.n3 {
+  color: #3b82f6;
+}
+.forca-rotulo.n4 {
+  color: #16a34a;
+}
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 860px) {
+  .perfil-grid {
+    grid-template-columns: 1fr;
+  }
+}
