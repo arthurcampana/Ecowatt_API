@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoWatt — Produto &amp; Protótipo</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css" id="theme">
+
+  <style>
+    :root {
+      --eco-green: #1b8a5a;
+      --eco-green-dark: #0f5f3d;
+      --eco-lime: #8bc34a;
+      --eco-amber: #f6a623;
+      --eco-blue: #2b7fb8;
+      --eco-ink: #16261f;
+      --eco-mute: #5a6b63;
+    }
+    .reveal { font-family: "Segoe UI","Helvetica Neue",Arial,sans-serif; font-size: 30px; color: var(--eco-ink); }
+    .reveal .slides section { text-align: left; top: 0 !important; }
+    .reveal h1,.reveal h2,.reveal h3 { color: var(--eco-green-dark); text-transform: none; font-weight: 700; letter-spacing:-0.01em; }
+    .reveal h1 { font-size: 2.0em; line-height: 1.1; }
+    .reveal h2 { font-size: 1.3em; margin-bottom: 0.35em; }
+    .reveal h3 { font-size: 1.0em; color: var(--eco-green); }
+    .reveal p,.reveal li { line-height: 1.33; }
+    .reveal ul,.reveal ol { margin-left: 1.1em; }
+    .reveal li { margin-bottom: 0.3em; }
+    .reveal strong { color: var(--eco-green-dark); }
+    .reveal a { color: var(--eco-green); }
+
+    .reveal h2.titulo-secao { border-bottom: 4px solid var(--eco-lime); padding-bottom: 0.18em; display: inline-block; }
+
+    .eyebrow {
+      display:inline-block; font-size:0.5em; font-weight:700; letter-spacing:0.14em;
+      text-transform:uppercase; color:#fff; background:var(--eco-green);
+      padding:0.3em 0.9em; border-radius:999px; margin-bottom:0.55em;
+    }
+    .eyebrow.blue { background: var(--eco-blue); }
+    .eyebrow.amber { background: var(--eco-amber); }
+
+    .capa { background: linear-gradient(135deg,var(--eco-green-dark) 0%,var(--eco-green) 55%,var(--eco-lime) 120%); color:#fff; }
+    .capa h1,.capa h2,.capa h3,.capa p { color:#fff; }
+    .capa .logo-eco { font-size:1.1em; font-weight:800; }
+    .capa .sub { opacity:0.92; font-size:0.78em; line-height:1.5; }
+    .capa .autores { margin-top:0.6em; font-weight:700; font-size:0.9em; }
+
+    .divisor { background: linear-gradient(135deg,var(--eco-ink) 0%,var(--eco-green-dark) 100%); color:#fff; text-align:center !important; }
+    .divisor h1,.divisor h2,.divisor p { color:#fff; text-align:center; }
+    .divisor .num-parte { font-size:1.0em; font-weight:800; color:var(--eco-lime); letter-spacing:0.2em; }
+
+    .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:0.55em; margin-top:0.35em; }
+    .grid.cols-3 { grid-template-columns:repeat(3,1fr); }
+    .card {
+      background:#fff; border:1px solid #dfe8e2; border-left:5px solid var(--eco-green);
+      border-radius:10px; padding:0.55em 0.72em; box-shadow:0 2px 6px rgba(15,95,61,0.06);
+    }
+    .card h3 { margin:0 0 0.18em 0; font-size:0.8em; }
+    .card p,.card ul { font-size:0.66em; margin:0; color:var(--eco-mute); }
+    .card ul { margin-left:0.9em; }
+    .card.amber { border-left-color:var(--eco-amber); }
+    .card.lime { border-left-color:var(--eco-lime); }
+    .card.blue { border-left-color:var(--eco-blue); }
+    .card .big { font-size:1.8em; font-weight:800; color:var(--eco-green-dark); line-height:1; }
+
+    .metricas { display:grid; grid-template-columns:repeat(4,1fr); gap:0.6em; margin-top:0.6em; }
+    .metrica { text-align:center; background:#fff; border-radius:12px; padding:0.7em 0.4em; border:1px solid #dfe8e2; }
+    .metrica .valor { font-size:2.0em; font-weight:800; color:var(--eco-green); line-height:1; }
+    .metrica .rotulo { font-size:0.5em; color:var(--eco-mute); text-transform:uppercase; letter-spacing:0.08em; margin-top:0.4em; }
+
+    .reveal table { font-size:0.6em; border-collapse:collapse; width:100%; margin-top:0.3em; }
+    .reveal table th { background:var(--eco-green-dark); color:#fff; padding:0.4em 0.6em; text-align:left; font-weight:600; }
+    .reveal table td { padding:0.33em 0.6em; border-bottom:1px solid #e2ebe5; }
+    .reveal table tr:nth-child(even) td { background:#eef5f0; }
+
+    .tag { display:inline-block; font-size:0.55em; font-weight:700; padding:0.1em 0.6em; border-radius:999px; color:#fff; }
+    .tag.ok { background:var(--eco-green); }
+    .tag.crit { background:#c0392b; }
+    .tag.alta { background:var(--eco-amber); }
+    .tag.media { background:#7f8c8d; }
+
+    .lead { font-size:0.8em; color:var(--eco-mute); max-width:92%; }
+    .nota { font-size:0.6em; color:var(--eco-mute); font-style:italic; margin-top:0.4em; }
+
+    .pipeline { display:flex; align-items:stretch; gap:0.4em; margin-top:0.5em; }
+    .pipeline .etapa {
+      flex:1; background:#fff; border:1px solid #dfe8e2; border-top:4px solid var(--eco-blue);
+      border-radius:8px; padding:0.5em; text-align:center;
+    }
+    .pipeline .etapa h3 { font-size:0.72em; margin:0 0 0.2em 0; color:var(--eco-blue); }
+    .pipeline .etapa p { font-size:0.58em; color:var(--eco-mute); margin:0; }
+    .pipeline .seta { align-self:center; color:var(--eco-mute); font-size:1.2em; }
+
+    .stack-badge {
+      display:inline-block; font-size:0.6em; font-weight:600; background:#eef5f0;
+      color:var(--eco-green-dark); border:1px solid #cfe3d7; border-radius:6px;
+      padding:0.25em 0.6em; margin:0.15em 0.15em 0 0;
+    }
+
+    .reveal .slide-number { background:var(--eco-green-dark); }
+    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:1.0em; }
+    .two-col h3 { margin-top:0; }
+    .highlight-box {
+      background:#fff8ec; border:1px solid #f3d9a6; border-left:5px solid var(--eco-amber);
+      border-radius:8px; padding:0.5em 0.7em; margin-top:0.4em; font-size:0.72em;
+    }
+    .antes-depois { display:grid; grid-template-columns:1fr 1fr; gap:0.6em; margin-top:0.4em; }
+    .ad-col { background:#fff; border:1px solid #dfe8e2; border-radius:10px; padding:0.5em 0.7em; }
+    .ad-col.antes { border-left:5px solid #b0b7b3; }
+    .ad-col.depois { border-left:5px solid var(--eco-green); }
+    .ad-col h3 { font-size:0.78em; margin:0 0 0.3em 0; }
+    .ad-col.antes h3 { color:#8a938e; }
+    .ad-col ul { font-size:0.62em; color:var(--eco-mute); margin-left:0.9em; }
+  </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+  <!-- CAPA -->
+  <section class="capa" data-background-color="#0f5f3d">
+    <div class="logo-eco">⚡ EcoWatt</div>
+    <h1>Produto &amp; Protótipo</h1>
+    <p class="sub">
+      Plataforma web para monitorar, analisar e simular o consumo de energia<br>
+      elétrica em residências e pequenas empresas.
+    </p>
+    <p class="autores">Alessandro Bento  •  Arthur Campana</p>
+    <p class="sub" style="margin-top:0.8em;">
+      Projeto Aplicado IV — Análise e Desenvolvimento de Sistemas<br>
+      UniSENAI Santa Catarina · Campus Florianópolis · 2026
+    </p>
+  </section>
+
+  <!-- AGENDA -->
+  <section>
+    <span class="eyebrow">Roteiro</span>
+    <h2 class="titulo-secao">O que vamos apresentar</h2>
+    <div class="grid cols-3">
+      <div class="card"><h3>1 · Produto</h3><p>Protótipo construído no semestre.</p></div>
+      <div class="card"><h3>2 · Testes</h3><p>Casos, resultados e aprendizados.</p></div>
+      <div class="card lime"><h3>3 · Arquitetura</h3><p>Implementação e ambiente.</p></div>
+      <div class="card blue"><h3>4 · Dados</h3><p>Como tratamos os dados e o papel futuro do Big Data comportamental.</p></div>
+      <div class="card amber"><h3>5 · Negócio</h3><p>Proposta de valor e modelo.</p></div>
+      <div class="card amber"><h3>6 · Go-to-Market</h3><p>Vendas, canais e monetização.</p></div>
+    </div>
+    <p class="nota">A apresentação conecta a parte técnica (dados e testes) à parte de negócio.</p>
+  </section>
+
+  <!-- ============ 1. PRODUTO / PROTÓTIPO ============ -->
+  <section class="divisor" data-background-color="#16261f">
+    <p class="num-parte">BLOCO 1</p>
+    <h1>Desenvolvimento do Protótipo</h1>
+    <p>O que foi construído e está funcionando.</p>
+  </section>
+
+  <!-- DEMONSTRAÇÃO -->
+  <section>
+    <span class="eyebrow">Demonstração</span>
+    <h2 class="titulo-secao">Estado atual do produto</h2>
+    <p class="lead">Protótipo funcional com frontend (SPA React), backend (Spring Boot) e banco integrados. Fluxo completo: cadastro → login → consumo → equipamentos → dashboard → relatório.</p>
+    <div class="grid cols-3">
+      <div class="card"><h3>Autenticação</h3><p>Cadastro, login e perfil com JWT.</p></div>
+      <div class="card"><h3>Consumo</h3><p>Registro mensal em kWh, histórico agrupado por mês e filtros.</p></div>
+      <div class="card"><h3>Equipamentos</h3><p>Cadastro e cálculo automático do consumo esperado diário.</p></div>
+      <div class="card lime"><h3>Metas</h3><p>Barra de progresso: dentro ou acima da meta mensal.</p></div>
+      <div class="card lime"><h3>Dashboard</h3><p>Consumo do mês/ano, média, variação e custo estimado (Chart.js).</p></div>
+      <div class="card lime"><h3>Relatórios</h3><p>Indicadores, gráficos e exportação em PDF nativo.</p></div>
+    </div>
+    <p class="nota">8 telas no frontend React · API REST com 6 grupos de endpoints · banco PostgreSQL com 5 tabelas.</p>
+  </section>
+
+  <!-- TELAS -->
+  <section>
+    <span class="eyebrow">Demonstração</span>
+    <h2 class="titulo-secao">Telas do protótipo</h2>
+    <div class="grid cols-3">
+      <div class="card"><h3>Login / Cadastro</h3><p>Layout dividido com identidade da marca e tema claro/escuro.</p></div>
+      <div class="card"><h3>Dashboard</h3><p>Cards de métrica, meta, custo estimado e gráficos.</p></div>
+      <div class="card"><h3>Consumo</h3><p>Registro, histórico por mês, resumo e filtros.</p></div>
+      <div class="card lime"><h3>Equipamentos</h3><p>Cadastro, consumo esperado e total agregado.</p></div>
+      <div class="card lime"><h3>Configurações</h3><p>Tarifa, meta mensal e preview de custo.</p></div>
+      <div class="card lime"><h3>Relatórios + Perfil</h3><p>Exportação em PDF · perfil com segurança.</p></div>
+    </div>
+    <p class="nota">Sugestão: na banca, demonstrar ao vivo com o backend em http://localhost:8080 e o frontend via Vite em http://localhost:5500.</p>
+  </section>
+
+  <!-- EVOLUÇÃO DO FRONTEND (NOVO) -->
+  <section>
+    <span class="eyebrow">Evolução</span>
+    <h2 class="titulo-secao">Evolução do frontend</h2>
+    <p class="lead">O frontend foi migrado de páginas estáticas (HTML/CSS/JS puro) para uma Single Page Application em React + Vite, com um sistema de design próprio.</p>
+    <div class="antes-depois">
+      <div class="ad-col antes">
+        <h3>Antes — HTML/JS puro</h3>
+        <ul>
+          <li>Páginas .html separadas, Bootstrap</li>
+          <li>Servido via Live Server</li>
+          <li>Sem reaproveitamento de componentes</li>
+          <li>Tema único (claro)</li>
+        </ul>
+      </div>
+      <div class="ad-col depois">
+        <h3>Depois — React + Vite (SPA)</h3>
+        <ul>
+          <li>Componentes reutilizáveis e rotas (React Router)</li>
+          <li>Tema claro/escuro persistente</li>
+          <li>Sidebar retrátil, ícones SVG, layout coeso</li>
+          <li>Toasts, modais, empty states e skeletons</li>
+        </ul>
+      </div>
+    </div>
+    <p class="nota">A API REST (Spring Boot) permaneceu a mesma — a migração foi apenas na camada de apresentação, consumindo os mesmos endpoints.</p>
+  </section>
+
+  <!-- EXPERIÊNCIA DO USUÁRIO (NOVO) -->
+  <section>
+    <span class="eyebrow">Experiência</span>
+    <h2 class="titulo-secao">Melhorias de experiência (UX)</h2>
+    <div class="grid cols-3">
+      <div class="card"><h3>Tema claro/escuro</h3><p>Alternância com preferência salva no navegador.</p></div>
+      <div class="card"><h3>Dashboard inteligente</h3><p>Meta com progresso, variação mês a mês e custo estimado.</p></div>
+      <div class="card lime"><h3>PDF nativo</h3><p>Relatório com texto selecionável + gráficos em alta resolução.</p></div>
+      <div class="card lime"><h3>Feedback consistente</h3><p>Toasts, modal de confirmação e estados vazios amigáveis.</p></div>
+      <div class="card blue"><h3>Custo real (Celesc)</h3><p>Estimativa usando a tarifa de Florianópolis (~R$ 0,76/kWh).</p></div>
+      <div class="card blue"><h3>Carregamento</h3><p>Skeletons durante o fetch, sem telas em branco.</p></div>
+    </div>
+    <p class="nota">Foco em transformar o protótipo funcional em uma experiência próxima de um produto real.</p>
+  </section>
+
+  <!-- CASOS DE TESTE -->
+  <section>
+    <span class="eyebrow blue">Testes</span>
+    <h2 class="titulo-secao">Casos de teste do protótipo</h2>
+    <p class="lead">Suíte automatizada no backend com JUnit 5 + Mockito (unitário), Spring Boot Test + H2 (integração) e JaCoCo (cobertura). Endpoints verificados no Postman.</p>
+    <table>
+      <thead><tr><th>ID</th><th>Cenário</th><th>Resultado esperado</th><th>Prior.</th></tr></thead>
+      <tbody>
+        <tr><td>UT-USR-05</td><td>Alterar somente o nome do usuário</td><td>Hash da senha preservado</td><td><span class="tag crit">Crítica</span></td></tr>
+        <tr><td>UT-EQU-01</td><td>Associar equipamento ao usuário</td><td>consumo = horas × consumo/hora</td><td><span class="tag crit">Crítica</span></td></tr>
+        <tr><td>UT-JWT-02</td><td>Validar token adulterado/expirado</td><td>Exceção, sem autenticação</td><td><span class="tag crit">Crítica</span></td></tr>
+        <tr><td>SEC-05</td><td>Usuário A acessa dados de B</td><td>Operação negada (IDOR)</td><td><span class="tag crit">Crítica</span></td></tr>
+        <tr><td>WEB-02</td><td>Cadastro com e-mail inválido</td><td>HTTP 400 com validação</td><td><span class="tag alta">Alta</span></td></tr>
+      </tbody>
+    </table>
+    <p class="nota">Casos combinam cenários positivos, negativos, limites e autorização, derivados das entidades, serviços e regras reais do código.</p>
+  </section>
+
+  <!-- RESULTADOS DOS TESTES -->
+  <section>
+    <span class="eyebrow blue">Testes</span>
+    <h2 class="titulo-secao">Resultados: o que funcionou</h2>
+    <div class="metricas">
+      <div class="metrica"><div class="valor">61</div><div class="rotulo">Testes aprovados</div></div>
+      <div class="metrica"><div class="valor">0</div><div class="rotulo">Falhas / erros</div></div>
+      <div class="metrica"><div class="valor">2</div><div class="rotulo">Defeitos corrigidos</div></div>
+      <div class="metrica"><div class="valor">86%</div><div class="rotulo">Cobertura em serviços</div></div>
+    </div>
+    <p class="lead" style="margin-top:0.6em;">Status da suíte (backend): <strong>BUILD SUCCESS</strong> — 61 executados, 0 falhas, 0 erros, 0 ignorados. Cobertura geral de 53% (controladores verificados no Postman).</p>
+    <p class="nota">O frontend foi validado por testes manuais de fluxo; testes automatizados de UI são um próximo passo do roadmap de qualidade.</p>
+  </section>
+
+  <!-- O QUE FALHOU E APRENDIZADOS -->
+  <section>
+    <span class="eyebrow blue">Testes</span>
+    <h2 class="titulo-secao">O que falhou e os aprendizados</h2>
+    <div class="grid">
+      <div class="card amber"><h3>Defeito 1 — Alteração de usuário</h3><p>Ao alterar o nome, o sistema gravava o nome no lugar da senha. <strong>Corrigido:</strong> a senha só muda se uma nova for informada.</p></div>
+      <div class="card amber"><h3>Defeito 2 — Cálculo de consumo</h3><p>Ao mudar só as horas, o consumo não recalculava. <strong>Corrigido:</strong> recálculo quando horas ou equipamento mudam.</p></div>
+    </div>
+    <div class="highlight-box">
+      <strong>Defeito em aberto (IDOR):</strong> com token válido, um usuário conseguia acessar dados de outro informando o ID. Identificado por análise de segurança; <strong>plano de correção:</strong> validar, em cada operação, se o ID solicitado pertence ao usuário do token, com teste de regressão.
+    </div>
+    <p class="nota">Aprendizado: os testes viraram especificação. Cada defeito corrigido deixou um teste de regressão que trava o erro se ele voltar.</p>
+  </section>
+
+  <!-- ============ 2. ARQUITETURA ============ -->
+  <section class="divisor" data-background-color="#16261f">
+    <p class="num-parte">BLOCO 2</p>
+    <h1>Arquitetura &amp; Implementação</h1>
+    <p>Como foi construído e onde roda.</p>
+  </section>
+
+  <!-- STACK -->
+  <section>
+    <span class="eyebrow">Arquitetura</span>
+    <h2 class="titulo-secao">Stack tecnológica real</h2>
+    <div class="grid cols-3">
+      <div class="card">
+        <h3>Backend</h3>
+        <p>
+          <span class="stack-badge">Java 21</span>
+          <span class="stack-badge">Spring Boot 3.5</span>
+          <span class="stack-badge">Spring Web</span>
+          <span class="stack-badge">Spring Data JPA</span>
+          <span class="stack-badge">Spring Security</span>
+          <span class="stack-badge">JWT (jjwt)</span>
+          <span class="stack-badge">Flyway</span>
+          <span class="stack-badge">Maven</span>
+        </p>
+      </div>
+      <div class="card lime">
+        <h3>Frontend</h3>
+        <p>
+          <span class="stack-badge">React 18</span>
+          <span class="stack-badge">Vite 5</span>
+          <span class="stack-badge">React Router</span>
+          <span class="stack-badge">Chart.js</span>
+          <span class="stack-badge">react-chartjs-2</span>
+          <span class="stack-badge">jsPDF</span>
+          <span class="stack-badge">jspdf-autotable</span>
+          <span class="stack-badge">html2canvas</span>
+        </p>
+      </div>
+      <div class="card amber">
+        <h3>Dados &amp; Qualidade</h3>
+        <p>
+          <span class="stack-badge">PostgreSQL</span>
+          <span class="stack-badge">Hibernate</span>
+          <span class="stack-badge">H2 (testes)</span>
+          <span class="stack-badge">JUnit 5</span>
+          <span class="stack-badge">Mockito</span>
+          <span class="stack-badge">JaCoCo</span>
+          <span class="stack-badge">Swagger/OpenAPI</span>
+        </p>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:0.5em;">Backend em camadas: <strong>controller → service → repository → model</strong>, com DTOs e migrações versionadas (Flyway). Frontend SPA desacoplado, consumindo a API via REST (variável VITE_API_URL).</p>
+  </section>
+
+  <!-- AMBIENTE DE IMPLEMENTAÇÃO -->
+  <section>
+    <span class="eyebrow">Arquitetura</span>
+    <h2 class="titulo-secao">Ambiente de implementação</h2>
+    <p class="lead">O produto roda como aplicação web distribuída pela internet — sem instalação local pelo usuário.</p>
+    <table>
+      <thead><tr><th>Camada</th><th>Onde roda</th><th>Observação</th></tr></thead>
+      <tbody>
+        <tr><td>Backend (API REST)</td><td>Serviço de nuvem / instância 2 vCPU, 4 GB RAM</td><td>Spring Boot empacotado, HTTPS</td></tr>
+        <tr><td>Frontend web (SPA)</td><td>Build Vite servido como estáticos (ex.: Vercel/Netlify)</td><td>Aponta para a API via VITE_API_URL</td></tr>
+        <tr><td>Banco de dados</td><td>PostgreSQL gerenciado em nuvem</td><td>Migrações Flyway + backup</td></tr>
+        <tr><td>Desenvolvimento</td><td>Backend localhost:8080 · Frontend Vite localhost:5500</td><td>Banco local / H2 nos testes</td></tr>
+      </tbody>
+    </table>
+    <p class="nota">Publicação gradual: homologação → beta restrita → produção, com teste de fumaça e plano de rollback.</p>
+  </section>
+
+  <!-- ============ DADOS / BIG DATA ============ -->
+  <section>
+    <span class="eyebrow blue">Dados</span>
+    <h2 class="titulo-secao">Camada de dados e analytics</h2>
+    <p class="lead">O valor do EcoWatt vem de transformar leituras de consumo em indicadores. Hoje esse processamento é analítico, sobre dados estruturados.</p>
+    <div class="pipeline">
+      <div class="etapa"><h3>Coleta</h3><p>Consumos em kWh e equipamentos, via API REST</p></div>
+      <div class="seta">→</div>
+      <div class="etapa"><h3>Armazenamento</h3><p>PostgreSQL com histórico por usuário</p></div>
+      <div class="seta">→</div>
+      <div class="etapa"><h3>Processamento</h3><p>Agregações: total, média, maior/menor, custo</p></div>
+      <div class="seta">→</div>
+      <div class="etapa"><h3>Visualização</h3><p>Dashboard e relatórios (Chart.js, PDF)</p></div>
+    </div>
+    <div class="highlight-box">
+      <strong>Transparência técnica:</strong> todo o dado é inserido manualmente pelo usuário (consumo e equipamentos) e armazenado de forma estruturada no PostgreSQL. O volume é perfeitamente tratável por um banco relacional.
+    </div>
+  </section>
+
+  <!-- BIG DATA: FOCO EM COMPORTAMENTO (FUTURO) -->
+  <section>
+    <span class="eyebrow blue">Dados</span>
+    <h2 class="titulo-secao">Big Data: foco em comportamento</h2>
+    <p class="lead"><strong>Hoje não usamos Big Data</strong> — o volume atual (consumos inseridos manualmente) é tratado tranquilamente pelo PostgreSQL. Se a base de usuários crescer, o valor do Big Data não estaria em sensores, e sim em <strong>entender o comportamento de consumo das pessoas</strong>.</p>
+    <table>
+      <thead><tr><th>Aplicação (futura)</th><th>O que faria</th></tr></thead>
+      <tbody>
+        <tr><td>Padrões de consumo</td><td>Identificar hábitos e perfis de uso entre muitos usuários</td></tr>
+        <tr><td>Comparação entre perfis</td><td>"Casas parecidas com a sua gastam X" — referência e metas realistas</td></tr>
+        <tr><td>Detecção de desperdício</td><td>Apontar consumos fora do padrão do próprio usuário</td></tr>
+        <tr><td>Recomendações</td><td>Sugestões de economia com base em quem tem perfil semelhante</td></tr>
+      </tbody>
+    </table>
+    <div class="highlight-box">
+      <strong>Transparência:</strong> isso é visão de evolução, não implementação atual. O foco seria análise <em>comportamental</em> (padrões de uso entre usuários), não processamento de leituras de medidores (IoT). Para o escopo de hoje, seria sobre-engenharia.
+    </div>
+  </section>
+
+  <!-- ============ 3. MODELO DE NEGÓCIO ============ -->
+  <section class="divisor" data-background-color="#16261f">
+    <p class="num-parte">BLOCO 3</p>
+    <h1>Modelo de Negócio</h1>
+    <p>Qual dor resolvemos e como o negócio funciona.</p>
+  </section>
+
+  <!-- PROPOSTA DE VALOR + IMPACTO -->
+  <section>
+    <span class="eyebrow amber">Negócio</span>
+    <h2 class="titulo-secao">Proposta de valor e impacto</h2>
+    <div class="two-col">
+      <div>
+        <h3>A dor</h3>
+        <p class="lead">O consumidor só vê o total da fatura em kWh. Não sabe qual aparelho pesa na conta nem como uma compra vai afetar o gasto.</p>
+        <h3 style="margin-top:0.5em;">O benefício</h3>
+        <p class="lead">Visibilidade clara e simulação do consumo, transformando dados técnicos em decisões do dia a dia.</p>
+      </div>
+      <div>
+        <h3>Impacto que gera valor</h3>
+        <ul style="font-size:0.72em;">
+          <li><strong>Economia:</strong> identificar desperdícios e reduzir a conta</li>
+          <li><strong>Previsibilidade:</strong> simular antes de comprar um aparelho</li>
+          <li><strong>Consciência:</strong> metas e alertas de consumo</li>
+          <li><strong>Sustentabilidade:</strong> uso responsável de energia (Agenda 2030)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ESTRUTURA DO MODELO + PÚBLICO -->
+  <section>
+    <span class="eyebrow amber">Negócio</span>
+    <h2 class="titulo-secao">Estrutura do modelo e público-alvo</h2>
+    <div class="grid cols-3">
+      <div class="card amber"><h3>Modelo</h3><p><strong>SaaS</strong> (software como serviço), acesso web por assinatura, sem instalação.</p></div>
+      <div class="card amber"><h3>Freemium B2C</h3><p>Plano gratuito básico para residências; plano pago com relatórios e previsões.</p></div>
+      <div class="card amber"><h3>B2B</h3><p>Plano para pequenas empresas: múltiplos pontos e relatórios gerenciais.</p></div>
+    </div>
+    <h3 style="margin-top:0.5em;">Público-alvo</h3>
+    <div class="grid">
+      <div class="card"><h3>Residências</h3><p>Famílias que querem controlar e reduzir a conta de luz.</p></div>
+      <div class="card lime"><h3>Pequenas empresas</h3><p>Comércios e escritórios que precisam acompanhar o custo de energia.</p></div>
+    </div>
+    <p class="nota">Modelo de negócio proposto a partir do produto. O documento acadêmico (Canvas) foca em entregas e stakeholders; a monetização aqui é uma proposta de evolução comercial.</p>
+  </section>
+
+  <!-- ============ 4. GO-TO-MARKET ============ -->
+  <section class="divisor" data-background-color="#16261f">
+    <p class="num-parte">BLOCO 4</p>
+    <h1>Estratégia de Comercialização</h1>
+    <p>Como vender, atrair clientes e gerar receita.</p>
+  </section>
+
+  <!-- GO TO MARKET -->
+  <section>
+    <span class="eyebrow amber">Go-to-Market</span>
+    <h2 class="titulo-secao">Vendas, canais e monetização</h2>
+    <div class="grid cols-3">
+      <div class="card">
+        <h3>Estratégia de vendas</h3>
+        <ul><li>Autosserviço no site (self-service)</li><li>Venda direta a pequenas empresas</li><li>Parcerias com cooperativas e lojas de eletro</li></ul>
+      </div>
+      <div class="card lime">
+        <h3>Atração de clientes</h3>
+        <ul><li>Marketing de conteúdo sobre economia de energia</li><li>SEO e redes sociais</li><li>Indicação (plano gratuito como porta de entrada)</li></ul>
+      </div>
+      <div class="card amber">
+        <h3>Monetização</h3>
+        <ul><li>Assinatura mensal/anual (plano pago)</li><li>Plano B2B por nº de pontos</li><li>Freemium: gratuito → conversão para pago</li></ul>
+      </div>
+    </div>
+    <div class="highlight-box">
+      <strong>Conexão técnica ↔ negócio:</strong> os testes e a cobertura sustentam a confiabilidade que um SaaS por assinatura exige; a camada de dados (e o roadmap de Big Data/IA) é o que habilita os relatórios e previsões dos planos pagos.
+    </div>
+  </section>
+
+  <!-- CHECKLIST / FECHAMENTO -->
+  <section>
+    <span class="eyebrow">Fechamento</span>
+    <h2 class="titulo-secao">Cobertura do checklist</h2>
+    <table>
+      <thead><tr><th>Requisito</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Demonstração do protótipo</td><td><span class="tag ok">Coberto</span></td></tr>
+        <tr><td>Casos e resultados de teste (o que funcionou/falhou)</td><td><span class="tag ok">Coberto</span></td></tr>
+        <tr><td>Ambiente de implementação</td><td><span class="tag ok">Coberto</span></td></tr>
+        <tr><td>Ferramentas de dados / Big Data + justificativa</td><td><span class="tag ok">Coberto (não usado hoje + visão comportamental)</span></td></tr>
+        <tr><td>Proposta de valor, modelo e público-alvo</td><td><span class="tag ok">Coberto</span></td></tr>
+        <tr><td>Vendas, atração de clientes e monetização</td><td><span class="tag ok">Coberto</span></td></tr>
+        <tr><td>Impacto que gera valor ao usuário</td><td><span class="tag ok">Coberto</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- FINAL -->
+  <section class="capa" data-background-color="#0f5f3d">
+    <div class="logo-eco" style="font-size:1.4em;">⚡ EcoWatt</div>
+    <h1 style="font-size:1.6em;">Obrigado!</h1>
+    <p class="sub">Alessandro Bento  •  Arthur Campana</p>
+    <p class="sub">Projeto Aplicado IV · UniSENAI Santa Catarina · Florianópolis · 2026</p>
+  </section>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script>
+  Reveal.initialize({ hash:true, slideNumber:'c/t', transition:'slide', width:1280, height:720, margin:0.06, controls:true, progress:true });
+</script>
+</body>
+</html>
