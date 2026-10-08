@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -94,10 +95,54 @@ class UsuarioServiceTest {
 
         usuarioService.alterarUsuario(1L, dto);
 
-        // Comportamento correto esperado: a senha nao deve mudar ao alterar somente o nome.
-        // Este teste deve FALHAR com o codigo atual, pois o servico codifica o nome como senha.
+        // Regressao do defeito ja corrigido: ao alterar apenas o nome, a senha
+        // deve permanecer intacta. Antes da correcao o servico gravava o nome
+        // como senha e este teste falhava; com a correcao aplicada, ele passa.
         assertThat(usuario.getSenha())
                 .as("A senha nao deveria ser alterada ao mudar apenas o nome")
                 .isEqualTo(hashOriginal);
+    }
+
+    @Test
+    @DisplayName("alterarUsuario deve codificar a nova senha quando nome e senha sao informados")
+    void alterarUsuario_quandoAlteraNomeESenha_deveCodificarNovaSenha() {
+        Usuario usuario = usuarioExistente();
+        UsuarioUpdateDTO dto = new UsuarioUpdateDTO("Novo Nome", "novaSenha123");
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
+        when(passwordEncoder.encode("novaSenha123")).thenReturn("novo-hash");
+
+        Optional<UsuarioResponseDTO> resposta = usuarioService.alterarUsuario(1L, dto);
+
+        assertThat(resposta).isPresent();
+        assertThat(usuario.getNome()).isEqualTo("Novo Nome");
+        assertThat(usuario.getSenha()).isEqualTo("novo-hash");
+        assertThat(usuario.getSenha()).isNotEqualTo("novaSenha123");
+        verify(usuarioRepository).save(usuario);
+    }
+
+    @Test
+    @DisplayName("alterarUsuario deve retornar vazio quando o id nao existe")
+    void alterarUsuario_quandoIdInexistente_deveRetornarVazio() {
+        UsuarioUpdateDTO dto = new UsuarioUpdateDTO("Qualquer", null);
+        when(usuarioRepository.findById(99L)).thenReturn(Optional.empty());
+
+        Optional<UsuarioResponseDTO> resposta = usuarioService.alterarUsuario(99L, dto);
+
+        assertThat(resposta).isEmpty();
+        verify(usuarioRepository, never()).save(any(Usuario.class));
+    }
+
+    @Test
+    @DisplayName("listarUsuarios deve converter todos os usuarios para DTO")
+    void listarUsuarios_quandoExistemUsuarios_deveRetornarListaDeDTO() {
+        Usuario a = new Usuario(1L, "Usuario A", "hash-a", "usuario.a@exemplo.test", LocalDate.now());
+        Usuario b = new Usuario(2L, "Usuario B", "hash-b", "usuario.b@exemplo.test", LocalDate.now());
+        when(usuarioRepository.findAll()).thenReturn(List.of(a, b));
+
+        List<UsuarioResponseDTO> resposta = usuarioService.listarUsuarios();
+
+        assertThat(resposta).hasSize(2);
+        assertThat(resposta.get(0).email()).isEqualTo("usuario.a@exemplo.test");
+        assertThat(resposta.get(1).email()).isEqualTo("usuario.b@exemplo.test");
     }
 }
