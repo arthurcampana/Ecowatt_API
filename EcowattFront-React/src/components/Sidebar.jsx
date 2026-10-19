@@ -5,12 +5,13 @@ import { useTheme } from "../context/ThemeContext.jsx";
 import Icon from "./Icon.jsx";
 
 const links = [
-  { to: "/", label: "Início", icon: "home", end: true },
-  { to: "/consumo", label: "Consumo", icon: "bolt" },
-  { to: "/equipamentos", label: "Equipamentos", icon: "plug" },
-  { to: "/relatorios", label: "Relatórios", icon: "chart" },
-  { to: "/configuracoes", label: "Configurações", icon: "settings" },
-  { to: "/perfil", label: "Perfil", icon: "user" },
+  { to: "/", label: "Início", icon: "home", end: true, evento: "menu_inicio" },
+  { to: "/consumo", label: "Consumo", icon: "bolt", evento: "menu_consumo" },
+  { to: "/equipamentos", label: "Equipamentos", icon: "plug", evento: "menu_equipamentos" },
+  { to: "/relatorios", label: "Relatórios", icon: "chart", evento: "menu_relatorios" },
+  { to: "/analytics", label: "Analytics", icon: "trending", evento: "menu_analytics" },
+  { to: "/configuracoes", label: "Configurações", icon: "settings", evento: "menu_configuracoes" },
+  { to: "/perfil", label: "Perfil", icon: "user", evento: "menu_perfil" },
 ];
 
 const COLLAPSE_KEY = "ecowatt-sidebar-collapsed";
@@ -85,6 +86,7 @@ export default function Sidebar() {
             key={link.to}
             to={link.to}
             end={link.end}
+            data-evento={link.evento}
             className={({ isActive }) =>
               isActive ? "sidebar-link active" : "sidebar-link"
             }
@@ -121,6 +123,7 @@ export default function Sidebar() {
         <button
           type="button"
           className="sidebar-sair"
+          data-evento="logout"
           onClick={handleLogout}
           title={colapsada ? "Sair" : undefined}
         >

@@ -1,0 +1,19 @@
+# Parquets gerados pelo pipeline (dados derivados, não versionar)
+data/
+
+# Driver JDBC baixado localmente
+*.jar
+
+# Binários do Hadoop/winutils (necessários só no Windows, baixados localmente)
+hadoop/
+
+# Logs de execução
+run_*.log
+pip_install.log
+
+# Artefatos Python / Spark
+__pycache__/
+*.pyc
+spark-warehouse/
+metastore_db/
+derby.log

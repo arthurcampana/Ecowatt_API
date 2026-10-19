@@ -184,7 +184,7 @@ export default function Configuracoes() {
                 </div>
               )}
 
-              <button type="submit" className="btn-save" disabled={salvando}>
+              <button type="submit" className="btn-save" data-evento="configuracao_salvar" disabled={salvando}>
                 {salvando ? "Salvando..." : "Salvar Configuração"}
               </button>
             </form>

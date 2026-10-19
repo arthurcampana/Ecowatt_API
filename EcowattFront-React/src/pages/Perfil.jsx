@@ -190,6 +190,7 @@ export default function Perfil() {
             <button
               type="submit"
               className="btn-save"
+              data-evento="perfil_salvar_dados"
               disabled={!nomeMudou || salvandoDados}
             >
               {salvandoDados ? "Salvando..." : "Salvar informações"}
@@ -281,6 +282,7 @@ export default function Perfil() {
             <button
               type="submit"
               className="btn-save"
+              data-evento="perfil_alterar_senha"
               disabled={
                 !senha || !senhasBatem || senha.length < 6 || salvandoSenha
               }

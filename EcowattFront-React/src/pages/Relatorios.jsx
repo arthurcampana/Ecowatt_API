@@ -595,12 +595,13 @@ export default function Relatorios() {
         </div>
 
         <div className="relatorio-acoes">
-          <button type="button" className="btn-add" onClick={gerarRelatorio}>
+          <button type="button" className="btn-add" data-evento="relatorio_gerar" onClick={gerarRelatorio}>
             Gerar Relatório
           </button>
           <button
             type="button"
             className="btn-save"
+            data-evento="relatorio_exportar_pdf"
             onClick={exportarPDF}
             disabled={exportando || !painelVisivel || consumosFiltrados.length === 0}
           >

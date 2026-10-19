@@ -1,0 +1,53 @@
+# Sobe o EcoWatt completo com um comando:  docker compose up --build
+#
+#   - postgres : banco de dados (porta 5432)
+#   - backend  : API Spring Boot (porta 8080)
+#   - frontend : app React servido por Nginx (porta 5500 -> casa com o CORS)
+#
+# Depois de subir, acesse: http://localhost:5500
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ecowatt
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: senai
+    ports:
+      - "5432:5432"
+    volumes:
+      - ecowatt_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ecowatt"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./demo/demo
+    environment:
+      # Aponta para o serviço postgres (não localhost) dentro da rede do compose
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ecowatt
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: senai
+      # Segredo do JWT (troque em produção)
+      JWT_SECRET: MinhaChaveSuperSecretaParaJWTComMaisDe32Caracteres123456
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./EcowattFront-React
+      args:
+        # URL que o browser usa para falar com o backend (porta publicada)
+        VITE_API_URL: http://localhost:8080
+    ports:
+      - "5500:80"
+    depends_on:
+      - backend
+
+volumes:
+  ecowatt_pgdata:

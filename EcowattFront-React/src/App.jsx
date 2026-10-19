@@ -7,6 +7,7 @@ import Consumo from "./pages/Consumo.jsx";
 import Configuracoes from "./pages/Configuracoes.jsx";
 import Equipamentos from "./pages/Equipamentos.jsx";
 import Relatorios from "./pages/Relatorios.jsx";
+import Analytics from "./pages/Analytics.jsx";
 import Layout from "./components/Layout.jsx";
 import RotaProtegida from "./components/RotaProtegida.jsx";
 
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/consumo" element={<Consumo />} />
         <Route path="/equipamentos" element={<Equipamentos />} />
         <Route path="/relatorios" element={<Relatorios />} />
+        <Route path="/analytics" element={<Analytics />} />
         <Route path="/configuracoes" element={<Configuracoes />} />
         <Route path="/perfil" element={<Perfil />} />
       </Route>

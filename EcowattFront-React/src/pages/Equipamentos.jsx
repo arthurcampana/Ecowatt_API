@@ -234,7 +234,7 @@ export default function Equipamentos() {
           <p>Gerencie os equipamentos vinculados ao seu consumo.</p>
         </div>
 
-        <button type="button" className="btn-add" onClick={abrirFormulario}>
+        <button type="button" className="btn-add" data-evento="equipamento_adicionar" onClick={abrirFormulario}>
           Adicionar Equipamento
         </button>
       </div>
@@ -324,7 +324,7 @@ export default function Equipamentos() {
               </div>
             </div>
 
-            <button type="submit" className="btn-save">
+            <button type="submit" className="btn-save" data-evento="equipamento_salvar">
               Salvar Equipamento
             </button>
           </form>

@@ -199,7 +199,12 @@ export default function Consumo() {
           <p>Gerencie e acompanhe os registros de consumo energético.</p>
         </div>
 
-        <button type="button" className="btn-add" onClick={abrirFormulario}>
+        <button
+          type="button"
+          className="btn-add"
+          data-evento="consumo_adicionar"
+          onClick={abrirFormulario}
+        >
           Adicionar Consumo
         </button>
       </div>
@@ -307,7 +312,7 @@ export default function Consumo() {
               />
             </div>
 
-            <button type="submit" className="btn-save">
+            <button type="submit" className="btn-save" data-evento="consumo_salvar">
               Salvar Consumo
             </button>
           </form>
@@ -380,6 +385,7 @@ export default function Consumo() {
                     <button
                       type="button"
                       className="btn-action btn-edit"
+                      data-evento="consumo_editar"
                       onClick={() => editarConsumo(item)}
                     >
                       Editar
@@ -387,6 +393,7 @@ export default function Consumo() {
                     <button
                       type="button"
                       className="btn-action btn-delete"
+                      data-evento="consumo_excluir"
                       onClick={() => excluirConsumo(item.id)}
                     >
                       Excluir

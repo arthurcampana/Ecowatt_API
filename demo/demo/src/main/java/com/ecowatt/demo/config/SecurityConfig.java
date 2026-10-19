@@ -83,7 +83,11 @@ public class SecurityConfig {
 
         config.setAllowedOrigins(List.of(
                 "http://localhost:5500",
-                "http://127.0.0.1:5500"
+                "http://127.0.0.1:5500",
+                "http://localhost:5173",   // Vite (React)
+                "http://127.0.0.1:5173",
+                "http://localhost:3000",   // Create React App
+                "http://127.0.0.1:3000"
         ));
 
         config.setAllowedHeaders(List.of("*"));
