@@ -59,6 +59,7 @@ export function AuthProvider({ children }) {
       id: resposta.id,
       nome: resposta.nome,
       email: resposta.email,
+      role: resposta.role,
     };
 
     localStorage.setItem(USER_KEY, JSON.stringify(dadosUsuario));
@@ -71,6 +72,7 @@ export function AuthProvider({ children }) {
   const value = {
     usuario,
     autenticado: Boolean(usuario),
+    isAdmin: usuario?.role === "ADMIN",
     login,
     logout,
     atualizarUsuario,

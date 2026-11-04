@@ -30,7 +30,14 @@ export default function App() {
         <Route path="/consumo" element={<Consumo />} />
         <Route path="/equipamentos" element={<Equipamentos />} />
         <Route path="/relatorios" element={<Relatorios />} />
-        <Route path="/analytics" element={<Analytics />} />
+        <Route
+          path="/analytics"
+          element={
+            <RotaProtegida somenteAdmin>
+              <Analytics />
+            </RotaProtegida>
+          }
+        />
         <Route path="/configuracoes" element={<Configuracoes />} />
         <Route path="/perfil" element={<Perfil />} />
       </Route>

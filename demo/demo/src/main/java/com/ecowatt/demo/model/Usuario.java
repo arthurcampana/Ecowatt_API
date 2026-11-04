@@ -24,14 +24,22 @@ public class Usuario {
     @Column(name = "data_registro")
     private LocalDate dataRegistro;
 
+    @Column(name = "role", nullable = false)
+    private String role;
+
     public Usuario() {}
 
     public Usuario(Long id, String nome, String senha, String email, LocalDate dataRegistro) {
+        this(id, nome, senha, email, dataRegistro, "USER");
+    }
+
+    public Usuario(Long id, String nome, String senha, String email, LocalDate dataRegistro, String role) {
         this.id = id;
         this.nome = nome;
         this.senha = senha;
         this.email = email;
         this.dataRegistro = dataRegistro;
+        this.role = role;
     }
 
     public Long getId() {
@@ -72,5 +80,13 @@ public class Usuario {
 
     public void setDataRegistro(LocalDate dataRegistro) {
         this.dataRegistro = dataRegistro;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

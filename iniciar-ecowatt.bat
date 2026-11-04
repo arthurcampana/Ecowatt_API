@@ -5,105 +5,88 @@ setlocal
 
 REM Pasta onde este .bat esta (raiz do projeto), com barra final.
 set "RAIZ=%~dp0"
+cd /d "%RAIZ%"
 
 echo ============================================
-echo            EcoWatt - Inicializador
+echo            EcoWatt - Inicializador (Docker)
 echo ============================================
 echo.
 
-REM ---------- 1. PostgreSQL ----------
-echo [1/3] Verificando PostgreSQL...
-sc query postgresql-x64-18 | find "RUNNING" >nul
+REM ---------- Verificacoes ----------
+echo [1/2] Verificando o Docker...
+
+where docker >nul 2>&1
 if errorlevel 1 (
-    echo       Servico parado. Tentando iniciar...
-    net start postgresql-x64-18 >nul 2>&1
-    if errorlevel 1 (
-        echo       [AVISO] Nao foi possivel iniciar o PostgreSQL automaticamente.
-        echo       Inicie manualmente ^(precisa de permissao de administrador^) e rode de novo.
-        echo.
-    ) else (
-        echo       PostgreSQL iniciado.
-    )
-) else (
-    echo       PostgreSQL ja esta rodando.
+    echo       [ERRO] Docker nao encontrado no PATH. Instale o Docker Desktop.
+    goto FIM_ERRO
 )
-echo.
 
-REM ---------- 2. Backend ----------
-echo [2/3] Iniciando backend ^(Spring Boot^) em nova janela...
-start "EcoWatt Backend" cmd /k "cd /d "%RAIZ%demo\demo" && mvnw.cmd spring-boot:run"
-echo       Backend subindo em http://localhost:8080
-echo.
-
-REM ---------- Esperar o backend responder na porta 8080 ----------
-echo.
-echo       Aguardando o backend ficar pronto ^(pode levar ate ~40s^)...
-set /a TENTATIVAS=0
-:ESPERA_BACKEND
-set /a TENTATIVAS+=1
-powershell -NoProfile -Command "try { (New-Object Net.Sockets.TcpClient).Connect('localhost',8080); exit 0 } catch { exit 1 }" >nul 2>&1
-if not errorlevel 1 goto BACKEND_PRONTO
-if %TENTATIVAS% geq 40 (
-    echo       [AVISO] Backend demorou a responder. Abrindo o front mesmo assim.
-    echo       Se der erro de conexao, aguarde e recarregue a pagina ^(F5^).
-    goto BACKEND_PRONTO
+docker info >nul 2>&1
+if errorlevel 1 (
+    echo       [ERRO] Docker nao esta rodando. Abra o Docker Desktop e tente de novo.
+    goto FIM_ERRO
 )
-timeout /t 1 /nobreak >nul
-goto ESPERA_BACKEND
 
-:BACKEND_PRONTO
-echo       Backend pronto.
+echo       OK: Docker encontrado e rodando.
 echo.
 
-REM ---------- 3. Frontend ----------
-echo [3/3] Preparando frontend ^(React/Vite^)...
-if not exist "%RAIZ%EcowattFront-React\node_modules" (
-    echo       node_modules nao encontrado. Rodando npm install ^(primeira vez^)...
-    pushd "%RAIZ%EcowattFront-React"
-    call npm install
-    popd
+REM ---------- Sobe o stack completo (postgres + backend + frontend) ----------
+echo [2/2] Subindo EcoWatt via Docker Compose ^(build na primeira vez^)...
+echo       Isso pode levar alguns minutos no primeiro uso.
+echo.
+docker compose up -d --build postgres backend frontend
+if errorlevel 1 (
+    echo       [ERRO] Falha ao subir o stack via Docker Compose.
+    goto FIM_ERRO
 )
-echo       Iniciando frontend em nova janela...
-start "EcoWatt Frontend" cmd /k "cd /d "%RAIZ%EcowattFront-React" && npm run dev"
-echo       Frontend subindo em http://localhost:5500
-echo.
 
+echo.
 echo ============================================
-echo  Pronto! O EcoWatt esta subindo.
-echo    - Backend  ^(porta 8080^)
-echo    - Frontend ^(porta 5500^)
+echo  Pronto! O EcoWatt esta no ar (containers Docker).
+echo    - PostgreSQL ^(porta 5432^)
+echo    - Backend    ^(porta 8080^)
+echo    - Frontend   ^(porta 5500^)
 echo.
-echo  Aguarde alguns segundos e acesse:
-echo    http://localhost:5500
+echo  Acesse: http://localhost:5500
+echo.
+echo  Para gerar dados de exemplo: faca login e use Ctrl+Shift+D,
+echo  ou chame POST http://localhost:8080/demo/popular/{usuarioId}.
+echo.
+echo  Pipeline de dados (PySpark): rode  rodar-pipeline-spark.bat
+echo  Parar tudo: rode  parar-ecowatt.bat  (ou digite P abaixo).
 echo ============================================
-echo.
-echo  Esta janela e o PAINEL DE CONTROLE.
-echo  Deixe-a aberta enquanto usa o sistema.
 echo.
 
 :MENU
 echo --------------------------------------------
 set "ESCOLHA="
-set /p "ESCOLHA=Digite P e Enter para PARAR tudo (ou feche a janela): "
+set /p "ESCOLHA=Digite L para ver LOGS, P para PARAR tudo (ou feche a janela): "
 if /i "%ESCOLHA%"=="P" goto PARAR
+if /i "%ESCOLHA%"=="L" (
+    echo.
+    echo  Mostrando logs ^(Ctrl+C para voltar ao menu^)...
+    docker compose logs -f --tail 40
+    echo.
+    goto MENU
+)
 goto MENU
 
 :PARAR
 echo.
-echo Encerrando backend e frontend...
-
-REM Fecha as janelas abertas por este script (pelo titulo).
-taskkill /FI "WINDOWTITLE eq EcoWatt Backend*" /T /F >nul 2>&1
-taskkill /FI "WINDOWTITLE eq EcoWatt Frontend*" /T /F >nul 2>&1
-
-REM Garante o encerramento dos processos que seguram as portas.
-REM Backend: processos java; Frontend: node (Vite).
-taskkill /IM java.exe /F >nul 2>&1
-taskkill /IM node.exe /F >nul 2>&1
-
+echo Encerrando os containers do EcoWatt...
+docker compose stop postgres backend frontend
 echo.
-echo EcoWatt encerrado. As portas 8080 e 5500 foram liberadas.
-echo (O PostgreSQL continua rodando como servico do Windows.)
+echo EcoWatt encerrado. (Os dados do banco continuam salvos no volume.)
+echo.
+pause
+endlocal
+goto :EOF
+
+:FIM_ERRO
+echo.
+echo ============================================
+echo  Inicializacao INTERROMPIDA. Veja a mensagem acima.
+echo ============================================
 echo.
 pause
 endlocal

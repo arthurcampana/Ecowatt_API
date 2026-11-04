@@ -1,96 +1,66 @@
 @echo off
 chcp 65001 >nul
-title EcoWatt - Pipeline de Dados (PySpark)
+title EcoWatt - Pipeline de Dados (PySpark via Docker)
 setlocal
 
 REM Pasta onde este .bat esta (raiz do projeto), com barra final.
 set "RAIZ=%~dp0"
-set "SPARK=%RAIZ%spark"
-set "JDBC=postgresql-42.7.4.jar"
+cd /d "%RAIZ%"
 
 echo ============================================
 echo   EcoWatt - Pipeline de Dados (bronze/prata/ouro)
+echo   Executa o PySpark dentro do Docker.
 echo ============================================
 echo.
-
-cd /d "%SPARK%"
 
 REM ---------- Verificacoes ----------
-echo [0/4] Verificando pre-requisitos...
+echo [0/2] Verificando pre-requisitos...
 
-where python >nul 2>&1
+where docker >nul 2>&1
 if errorlevel 1 (
-    echo       [ERRO] Python nao encontrado no PATH. Instale o Python 3.9+.
+    echo       [ERRO] Docker nao encontrado no PATH. Instale o Docker Desktop.
     goto FIM_ERRO
 )
 
-python -c "import pyspark" >nul 2>&1
+docker info >nul 2>&1
 if errorlevel 1 (
-    echo       [ERRO] PySpark nao instalado. Rode:  pip install -r spark\requirements.txt
+    echo       [ERRO] Docker nao esta rodando. Abra o Docker Desktop e tente de novo.
     goto FIM_ERRO
 )
 
-if not exist "%SPARK%\%JDBC%" (
-    echo       [ERRO] Driver JDBC nao encontrado: %JDBC%
-    echo       Baixe de https://jdbc.postgresql.org/download/ e coloque em spark\
-    goto FIM_ERRO
-)
-
-if not exist "%SPARK%\hadoop\bin\winutils.exe" (
-    echo       [ERRO] winutils.exe nao encontrado em spark\hadoop\bin\
-    echo       Baixe winutils.exe e hadoop.dll de:
-    echo         https://github.com/cdarlint/winutils ^(pasta hadoop-3.3.6/bin^)
-    echo       e coloque em spark\hadoop\bin\
-    goto FIM_ERRO
-)
-
-echo       OK: Python, PySpark, driver JDBC e winutils encontrados.
+echo       OK: Docker encontrado e rodando.
 echo.
 
-REM ---------- Configura ambiente do Spark no Windows ----------
-set "HADOOP_HOME=%SPARK%\hadoop"
-set "PATH=%HADOOP_HOME%\bin;%PATH%"
-
-REM ---------- 1. BRONZE (le o Postgres via JDBC) ----------
-echo [1/4] BRONZE - lendo evento_uso do PostgreSQL...
-set "PYSPARK_SUBMIT_ARGS=--jars %JDBC% pyspark-shell"
-python bronze.py
+REM ---------- 1. Garante o banco no ar (o pipeline le a tabela evento_uso) ----------
+echo [1/2] Subindo o PostgreSQL (se ainda nao estiver no ar)...
+docker compose up -d postgres
 if errorlevel 1 (
-    echo       [ERRO] Falha na camada BRONZE. O PostgreSQL esta rodando e populado?
+    echo       [ERRO] Falha ao subir o PostgreSQL via Docker Compose.
+    goto FIM_ERRO
+)
+echo.
+echo       OBS: o banco precisa ter eventos. Rode o app e use /demo/popular/{id}
+echo       ^(ou os atalhos Ctrl+Shift+D / Ctrl+Shift+F no front^) antes do pipeline.
+echo.
+
+REM ---------- 2. Roda o pipeline em lote (bronze -> prata -> ouro) ----------
+echo [2/2] Rodando o pipeline PySpark (bronze -^> prata -^> ouro)...
+docker compose run --rm spark
+if errorlevel 1 (
+    echo       [ERRO] Falha ao rodar o pipeline. O banco esta populado?
     goto FIM_ERRO
 )
 echo.
 
-REM As proximas camadas leem Parquet; nao precisam do driver JDBC.
-set "PYSPARK_SUBMIT_ARGS="
-
-REM ---------- 2. PRATA (limpeza e padronizacao) ----------
-echo [2/4] PRATA - limpando e padronizando...
-python prata.py
-if errorlevel 1 (
-    echo       [ERRO] Falha na camada PRATA.
-    goto FIM_ERRO
-)
-echo.
-
-REM ---------- 3. OURO (agregacoes finais) ----------
-echo [3/4] OURO - gerando mapa de calor e rankings...
-python ouro.py
-if errorlevel 1 (
-    echo       [ERRO] Falha na camada OURO.
-    goto FIM_ERRO
-)
-echo.
-
-REM ---------- 4. Resultado ----------
-echo [4/4] Pipeline concluido com sucesso!
-echo.
 echo ============================================
-echo  Tabelas geradas em spark\data\ouro\:
+echo  Pipeline concluido com sucesso!
+echo.
+echo  Tabelas geradas (Parquet) no volume ecowatt_spark_data,
+echo  em /app/data/ouro/ dentro do container:
 echo    - mapa_calor
 echo    - ranking_endpoints
 echo    - ranking_cliques
-echo  ^(formato Parquet; bronze e prata em spark\data\^)
+echo    - ranking_cliques_pagina
 echo ============================================
 echo.
 pause

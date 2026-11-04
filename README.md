@@ -48,6 +48,7 @@ O EcoWatt foi desenvolvido para auxiliar usuários no acompanhamento do consumo 
 ## Usuários
 - Cadastro, login e autenticação JWT
 - Perfil e configurações
+- **Controle de acesso por papel (RBAC)**: cada usuário tem um papel `USER` (padrão) ou `ADMIN`. Recursos de análise de uso — a página `/analytics` e o mapa de calor de cliques — são restritos a administradores; o restante do sistema é comum a todos os usuários logados.
 
 ## Equipamentos
 O usuário cadastra equipamentos informando nome de identificação, equipamento e horas de uso por dia. O sistema calcula o **consumo esperado diário**. É possível editar, excluir e listar.
@@ -73,7 +74,9 @@ Camada que registra **como a aplicação é usada**:
 - **Mapa de calor de cliques**: overlay com manchas sobre os elementos mais clicados (quanto mais cliques, maior/mais quente a mancha).
 - **Rankings**: endpoints mais usados e cliques mais frequentes.
 
-Tudo isso é exposto na rota `/analytics` do app e nos endpoints `/metricas/*` da API.
+- **Cliques por página**: ranking de cliques agrupado por rota do front (onde o usuário clica em cada tela).
+
+A coleta de eventos (acessos e cliques) acontece para **todos** os usuários logados. Já a **visualização** — a rota `/analytics` do app e os endpoints de leitura `GET /metricas/*` — é restrita a administradores (`ADMIN`).
 
 ---
 
@@ -91,7 +94,7 @@ Ecowatt_API/
 │   │   ├── model/             # Entidades JPA (inclui EventoUso)
 │   │   ├── repository/        # Spring Data repositories
 │   │   └── service/           # Regras de negócio (inclui AnalyticsService)
-│   ├── src/main/resources/db/migration/   # Flyway (V1, V2, V3)
+│   ├── src/main/resources/db/migration/   # Flyway (V1..V4; V4 = papel/role + seed admin)
 │   ├── Dockerfile
 │   └── pom.xml
 │
@@ -120,7 +123,7 @@ Ecowatt_API/
 
 # Modelo de Dados
 
-- **Usuário**: id, nome, email, senha, dataRegistro
+- **Usuário**: id, nome, email, senha, role (`USER`/`ADMIN`), dataRegistro
 - **Equipamento**: id, nome, modelo, consumoPorHora
 - **EquipamentoUsuario**: id, usuario, equipamento, nomeIdentificacao, horasPorDia, consumoEsperado
 - **Consumo**: id, usuario, consumoKwh, dataRegistro
@@ -132,8 +135,8 @@ Ecowatt_API/
 # API REST (principais rotas)
 
 ## Públicas
-- `POST /usuario/add` — cadastro
-- `POST /usuario/login` — login (retorna o token JWT)
+- `POST /usuario/add` — cadastro (novo usuário recebe papel `USER`)
+- `POST /usuario/login` — login (retorna o token JWT e o papel do usuário)
 - `POST /demo/popular/{usuarioId}` — popula dados de demonstração
 
 ## Autenticadas (exigem `Authorization: Bearer <token>`)
@@ -141,10 +144,14 @@ Ecowatt_API/
 - `GET/POST/PUT/DELETE /equipamentos/**`, `/equipamento-usuario/**`
 - `GET/POST/PUT/DELETE /configuracao/**`
 - **Métricas:**
-  - `POST /metricas/evento-clique` — registra um clique
-  - `GET /metricas/mapa-calor` — acessos por dia × hora
-  - `GET /metricas/endpoints-mais-usados`
-  - `GET /metricas/cliques-mais-usados`
+  - `POST /metricas/evento-clique` — registra um clique (qualquer usuário logado)
+
+## Somente administradores (`ROLE_ADMIN`)
+Os endpoints de **leitura** de métricas retornam `403` para usuários comuns:
+- `GET /metricas/mapa-calor` — acessos por dia × hora
+- `GET /metricas/endpoints-mais-usados`
+- `GET /metricas/cliques-mais-usados`
+- `GET /metricas/cliques-por-pagina` — cliques agrupados por página
 
 Documentação interativa: `http://localhost:8080/swagger-ui.html`
 
@@ -155,9 +162,18 @@ Documentação interativa: `http://localhost:8080/swagger-ui.html`
 Autenticação baseada em JWT:
 
 1. Usuário faz login.
-2. Backend gera o token JWT.
+2. Backend gera o token JWT, que inclui o **papel** do usuário (`USER`/`ADMIN`).
 3. O token é armazenado no navegador.
 4. As requisições autenticadas enviam o header `Authorization`.
+
+**Autorização por papel (RBAC):** o filtro JWT converte o papel do token em uma
+authority do Spring Security (`ROLE_USER` / `ROLE_ADMIN`). Os endpoints de leitura
+de métricas exigem `ROLE_ADMIN`; o front esconde a página Analytics e o mapa de
+calor para quem não é admin (e bloqueia a rota `/analytics` por URL).
+
+**Usuário administrador padrão:** a migração `V4` cria automaticamente, no primeiro
+start (banco novo), um admin de demonstração — e-mail `admin@ecowatt.com`, senha
+`admin123` (hash BCrypt). Troque essas credenciais fora de um contexto acadêmico.
 
 O segredo do JWT é configurável por variável de ambiente (`JWT_SECRET`).
 
@@ -165,18 +181,19 @@ O segredo do JWT é configurável por variável de ambiente (`JWT_SECRET`).
 
 # Como executar
 
-Há três formas. Escolha uma.
+Há três formas. Escolha uma. **Todas usam Docker** para o banco/serviços, de modo
+que o pipeline PySpark lê o mesmo banco que o app alimenta.
 
 ## Opção 1 — Script (Windows, mais simples)
 
-Dê dois cliques em **`iniciar-ecowatt.bat`**. Ele:
-1. inicia o PostgreSQL (serviço do Windows),
-2. sobe o backend (`http://localhost:8080`),
-3. instala dependências do front na primeira vez e sobe o Vite (`http://localhost:5500`).
+Com o Docker Desktop aberto, dê dois cliques em **`iniciar-ecowatt.bat`**. Ele sobe
+o stack completo via Docker Compose (postgres + backend + frontend) e deixa um
+painel de controle (digite `L` para ver logs, `P` para parar). Para parar também
+dá para usar **`parar-ecowatt.bat`**.
 
-Acesse **http://localhost:5500**. Para encerrar, digite `P` no painel.
+Acesse **http://localhost:5500**.
 
-## Opção 2 — Docker Compose (não precisa instalar nada além do Docker)
+## Opção 2 — Docker Compose (direto)
 
 Com o Docker Desktop aberto, na raiz do projeto:
 
@@ -186,7 +203,7 @@ docker compose up --build
 
 Front em `http://localhost:5500`, API em `http://localhost:8080`. Detalhes em **DOCKER.md**.
 
-## Opção 3 — Manual
+## Opção 3 — Manual (sem Docker)
 
 **Backend** (precisa de PostgreSQL rodando; credenciais em `application.properties` ou via variáveis de ambiente `SPRING_DATASOURCE_*`):
 
@@ -202,6 +219,10 @@ cd EcowattFront-React
 npm install
 npm run dev
 ```
+
+> Observação: no modo manual, o backend compila com um **JDK** (não um JRE). Se o
+> `JAVA_HOME` apontar para um JRE, aponte-o para um JDK (ex.: JDK 21+) antes de
+> rodar o `mvnw`.
 
 ---
 
@@ -222,12 +243,19 @@ Ou dê dois cliques em **`rodar-testes.bat`**.
 
 A pasta `spark/` contém um pipeline em lote que lê os eventos de uso do Postgres
 e os refina em camadas (bronze → prata → ouro), demonstrando tratamento de dados
-distribuído. Roda sob demanda (não faz parte do compose).
+distribuído. É um serviço do Docker Compose num **profile** separado (`spark`),
+então roda sob demanda, não junto com o app.
 
-No Windows, com o backend/banco no ar e os dados populados, dê dois cliques em
-**`rodar-pipeline-spark.bat`** — ele executa as três camadas em sequência e gera
-os Parquets em `spark/data/ouro/` (mapa de calor, ranking de endpoints e de
-cliques). Pré-requisitos e passos manuais em `spark/README.md`.
+Com o stack no ar e os dados populados, rode:
+
+```bash
+docker compose run --rm spark
+```
+
+No Windows dá para dar dois cliques em **`rodar-pipeline-spark.bat`** (mesmo
+efeito, via Docker). Ele executa as três camadas e gera os Parquets no volume
+`ecowatt_spark_data` (mapa de calor, ranking de endpoints, ranking de cliques e
+**ranking de cliques por página**). Detalhes em `spark/README.md`.
 
 ---
 
@@ -235,10 +263,11 @@ cliques). Pré-requisitos e passos manuais em `spark/README.md`.
 
 - Comparação entre meses e comparativo anual
 - Exportação para Excel
-- Previsão de consumo com base no histórico
-- Notificações quando a meta for ultrapassada
+- Previsão/projeção de consumo com base no histórico
+- Alertas quando a meta estiver perto de ser ultrapassada
+- Gestão de usuários pelo admin (listar, promover/rebaixar papel)
+- Recuperação de senha
 - Integração com dispositivos IoT
-- Dashboard administrativo
 
 ---
 

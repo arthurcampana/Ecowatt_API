@@ -1003,3 +1003,58 @@ body {
     width: 100%;
   }
 }
+
+/* ===== Cliques por pagina (Analytics) ===== */
+.cliques-por-pagina {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.cpp-pagina {
+  border: 1px solid var(--c-border, #e5e7eb);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  background: var(--c-surface-2, #f9fafb);
+  color: var(--c-text, inherit);
+}
+
+.cpp-pagina-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+  gap: 0.5rem;
+}
+
+.cpp-pagina-head strong {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9rem;
+  word-break: break-all;
+}
+
+.cpp-pagina-total {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.cpp-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.cpp-tabela th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--c-text-suave, #6b7280);
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--c-border, #e5e7eb);
+}
+
+.cpp-tabela td {
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--c-border, #f0f1f3);
+  color: var(--c-text, inherit);
+}

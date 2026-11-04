@@ -76,7 +76,29 @@ def main():
         | (col("seg_desde_anterior") >= 2)
     ).drop("seg_desde_anterior")
 
-    # 5. Deriva dia da semana (1=domingo no Spark) e hora, para a camada ouro.
+    # 5. Normaliza a página do clique (rota do front): tira espaços, deixa em
+    #    minúsculas e remove barra final redundante ("/consumo/" -> "/consumo").
+    #    Clique sem página vira "(sem pagina)" para não sumir na agregação.
+    df = df.withColumn(
+        "pagina_norm",
+        when(
+            col("tipo_evento") == "CLIQUE",
+            when(
+                col("pagina").isNull() | (trim(col("pagina")) == ""),
+                "(sem pagina)",
+            ).otherwise(
+                regexp_replace(trim(lower(col("pagina"))), r"/+$", "")
+            ),
+        ).otherwise(None),
+    )
+    # A regra acima pode zerar a raiz "/" ao remover a barra final; recupera.
+    df = df.withColumn(
+        "pagina_norm",
+        when((col("tipo_evento") == "CLIQUE") & (col("pagina_norm") == ""), "/")
+        .otherwise(col("pagina_norm")),
+    )
+
+    # 6. Deriva dia da semana (1=domingo no Spark) e hora, para a camada ouro.
     df = (
         df.withColumn("dia_semana", dayofweek("data_hora"))
           .withColumn("hora", hour("data_hora"))

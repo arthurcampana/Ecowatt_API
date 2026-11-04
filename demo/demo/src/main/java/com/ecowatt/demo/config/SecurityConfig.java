@@ -2,6 +2,7 @@ package com.ecowatt.demo.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -17,6 +18,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.List;
 
@@ -43,7 +46,18 @@ public class SecurityConfig {
 
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                .exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler((request, response, ex) -> {
+                            // Usuario autenticado, porem sem permissao (ex.: USER
+                            // tentando ler analytics): 403, distinto do 401 de sessao
+                            // ausente/expirada, para o front nao deslogar o usuario.
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType("application/json");
+                            response.setCharacterEncoding("UTF-8");
+                            response.getWriter().write("{\"erro\":\"Acesso negado\"}");
+                        })
+                )
 
                 .authorizeHttpRequests(auth -> auth
 
@@ -55,6 +69,18 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**"
                         ).permitAll()
+
+                        // Rastreio de cliques: qualquer usuario logado registra cliques.
+                        .requestMatchers(HttpMethod.POST, "/metricas/evento-clique")
+                        .authenticated()
+
+                        // Leituras de analytics: somente ADMIN.
+                        .requestMatchers(HttpMethod.GET,
+                                "/metricas/endpoints-mais-usados",
+                                "/metricas/cliques-mais-usados",
+                                "/metricas/cliques-por-pagina",
+                                "/metricas/mapa-calor"
+                        ).hasRole("ADMIN")
 
                         .anyRequest()
                         .authenticated()

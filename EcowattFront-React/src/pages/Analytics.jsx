@@ -19,6 +19,7 @@ export default function Analytics() {
   const [mapa, setMapa] = useState([]);
   const [endpoints, setEndpoints] = useState([]);
   const [cliques, setCliques] = useState([]);
+  const [cliquesPagina, setCliquesPagina] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
 
@@ -26,15 +27,17 @@ export default function Analytics() {
     let ativo = true;
     async function carregar() {
       try {
-        const [m, e, c] = await Promise.all([
+        const [m, e, c, cp] = await Promise.all([
           metricasService.mapaCalor(),
           metricasService.endpointsMaisUsados(),
           metricasService.cliquesMaisUsados(),
+          metricasService.cliquesPorPagina(),
         ]);
         if (!ativo) return;
         setMapa(m || []);
         setEndpoints(e || []);
         setCliques(c || []);
+        setCliquesPagina(cp || []);
       } catch (err) {
         if (ativo) setErro(err?.message || "Erro ao carregar analytics");
       } finally {
@@ -125,6 +128,14 @@ export default function Analytics() {
     );
   }
 
+  function exportarCliquesPorPagina() {
+    baixarCsv(
+      "cliques-por-pagina.csv",
+      ["pagina", "rotulo", "total"],
+      cliquesPagina.map((c) => [c.pagina, c.rotulo, c.total])
+    );
+  }
+
   // Grafico de endpoints (todos os monitorados).
   const dadosEndpoints = useMemo(() => {
     return {
@@ -154,6 +165,23 @@ export default function Analytics() {
       ],
     };
   }, [cliques]);
+
+  // Agrupa os cliques por pagina: [{ pagina, itens: [{rotulo, total}], total }]
+  // ja vem ordenado do backend (pagina asc, total desc), entao so precisamos
+  // preservar a ordem de chegada.
+  const paginas = useMemo(() => {
+    const mapaPag = new Map();
+    for (const c of cliquesPagina) {
+      const chave = c.pagina || "(sem pagina)";
+      if (!mapaPag.has(chave)) {
+        mapaPag.set(chave, { pagina: chave, itens: [], total: 0 });
+      }
+      const grupo = mapaPag.get(chave);
+      grupo.itens.push({ rotulo: c.rotulo, total: c.total });
+      grupo.total += Number(c.total) || 0;
+    }
+    return Array.from(mapaPag.values());
+  }, [cliquesPagina]);
 
   // Altura dinamica: ~34px por barra, para todas caberem sem espremer.
   function alturaGrafico(n) {
@@ -225,6 +253,7 @@ export default function Analytics() {
               <button
                 type="button"
                 className="btn-save"
+                data-evento="analytics_exportar_mapa_calor"
                 onClick={exportarMapaCalor}
                 disabled={mapa.length === 0}
               >
@@ -287,6 +316,7 @@ export default function Analytics() {
               <button
                 type="button"
                 className="btn-save"
+                data-evento="analytics_exportar_endpoints"
                 onClick={exportarEndpoints}
                 disabled={endpoints.length === 0}
               >
@@ -309,6 +339,7 @@ export default function Analytics() {
               <button
                 type="button"
                 className="btn-save"
+                data-evento="analytics_exportar_cliques"
                 onClick={exportarCliques}
                 disabled={cliques.length === 0}
               >
@@ -320,6 +351,54 @@ export default function Analytics() {
             ) : (
               <div style={{ height: alturaGrafico(cliques.length) }}>
                 <Bar data={dadosCliques} options={opcoesBarraH} />
+              </div>
+            )}
+          </div>
+
+          {/* Cliques por pagina: uma tabela separada para cada tela acessada */}
+          <div className="chart-card">
+            <div className="chart-card-header">
+              <h5>Cliques por página ({paginas.length})</h5>
+              <button
+                type="button"
+                className="btn-save"
+                data-evento="analytics_exportar_cliques_pagina"
+                onClick={exportarCliquesPorPagina}
+                disabled={cliquesPagina.length === 0}
+              >
+                Exportar CSV
+              </button>
+            </div>
+            {paginas.length === 0 ? (
+              <p className="aviso">Sem cliques registrados.</p>
+            ) : (
+              <div className="cliques-por-pagina">
+                {paginas.map((grupo) => (
+                  <div key={grupo.pagina} className="cpp-pagina">
+                    <div className="cpp-pagina-head">
+                      <strong>{grupo.pagina}</strong>
+                      <span className="cpp-pagina-total">
+                        {grupo.total} clique{grupo.total === 1 ? "" : "s"}
+                      </span>
+                    </div>
+                    <table className="cpp-tabela">
+                      <thead>
+                        <tr>
+                          <th>Elemento</th>
+                          <th style={{ textAlign: "right" }}>Cliques</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {grupo.itens.map((it) => (
+                          <tr key={it.rotulo}>
+                            <td>{it.rotulo}</td>
+                            <td style={{ textAlign: "right" }}>{it.total}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ))}
               </div>
             )}
           </div>

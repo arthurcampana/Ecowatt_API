@@ -247,6 +247,7 @@ export default function Dashboard() {
             <button
               type="button"
               className="dash-welcome-btn primario"
+              data-evento="dashboard_registrar_consumo"
               onClick={() => navigate("/consumo")}
             >
               <Icon name="bolt" size={16} /> Registrar consumo
@@ -254,6 +255,7 @@ export default function Dashboard() {
             <button
               type="button"
               className="dash-welcome-btn"
+              data-evento="dashboard_adicionar_equipamento"
               onClick={() => navigate("/equipamentos")}
             >
               <Icon name="plug" size={16} /> Adicionar equipamento
@@ -352,6 +354,7 @@ export default function Dashboard() {
             <button
               type="button"
               className="dash-link-btn"
+              data-evento="dashboard_definir_meta"
               onClick={() => navigate("/configuracoes")}
             >
               Definir meta em Configurações →
@@ -379,6 +382,7 @@ export default function Dashboard() {
               <button
                 type="button"
                 className="dash-link-btn"
+                data-evento="dashboard_definir_tarifa"
                 onClick={() => navigate("/configuracoes")}
               >
                 Defina a tarifa em Configurações →

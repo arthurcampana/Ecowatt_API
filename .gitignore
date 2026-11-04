@@ -17,3 +17,6 @@ Thumbs.db
 # Variáveis de ambiente / segredos
 .env
 *.env
+
+# Artefatos de workflows do agente (relatorios de design/review/verificacao)
+.agents/

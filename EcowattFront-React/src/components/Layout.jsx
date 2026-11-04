@@ -5,13 +5,18 @@ import DemoKonami from "./DemoKonami.jsx";
 import LabKonami from "./LabKonami.jsx";
 import { useClickTracking } from "../metricas/useClickTracking.js";
 import HeatmapOverlay from "../metricas/HeatmapOverlay.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
 import "../styles/dashboard.css";
 
 // Casca das paginas internas (layout "Opção C"): menu lateral fixo +
 // area de conteudo. As rotas filhas sao renderizadas no <Outlet />.
 export default function Layout() {
   // Rastreia os cliques de toda a area logada (camada bronze de metricas).
+  // Continua ativo para todos: so a VISUALIZACAO do mapa e exclusiva de ADMIN.
   useClickTracking();
+
+  // Mapa de calor de cliques e exclusivo de ADMIN (botao + overlay).
+  const { isAdmin } = useAuth();
 
   // Overlay de mapa de calor de cliques (liga/desliga pelo botao flutuante).
   const [heatmapAberto, setHeatmapAberto] = useState(false);
@@ -25,8 +30,8 @@ export default function Layout() {
       <DemoKonami />
       <LabKonami />
 
-      {/* Botao flutuante para ligar o mapa de calor de cliques */}
-      {!heatmapAberto && (
+      {/* Botao flutuante para ligar o mapa de calor de cliques (somente ADMIN) */}
+      {isAdmin && !heatmapAberto && (
         <button
           type="button"
           onClick={() => setHeatmapAberto(true)}
@@ -51,10 +56,12 @@ export default function Layout() {
         </button>
       )}
 
-      <HeatmapOverlay
-        aberto={heatmapAberto}
-        onFechar={() => setHeatmapAberto(false)}
-      />
+      {isAdmin && (
+        <HeatmapOverlay
+          aberto={heatmapAberto}
+          onFechar={() => setHeatmapAberto(false)}
+        />
+      )}
     </div>
   );
 }

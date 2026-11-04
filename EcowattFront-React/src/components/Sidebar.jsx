@@ -30,8 +30,13 @@ function lerColapsoSalvo() {
 // telas (ex.: Dashboard) possam reagir ao espaco disponivel. Preferencia
 // persistida em localStorage.
 export default function Sidebar() {
-  const { logout, usuario } = useAuth();
+  const { logout, usuario, isAdmin } = useAuth();
   const { tema, alternarTema } = useTheme();
+
+  // Analytics e exclusivo de ADMIN; para os demais, o item some do menu.
+  const linksVisiveis = isAdmin
+    ? links
+    : links.filter((l) => l.to !== "/analytics");
   const navigate = useNavigate();
 
   const [colapsada, setColapsada] = useState(lerColapsoSalvo);
@@ -81,7 +86,7 @@ export default function Sidebar() {
       </div>
 
       <nav className="sidebar-nav">
-        {links.map((link) => (
+        {linksVisiveis.map((link) => (
           <NavLink
             key={link.to}
             to={link.to}

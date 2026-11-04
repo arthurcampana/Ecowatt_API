@@ -33,7 +33,7 @@ class UserDetailsServiceCustomTest {
     @DisplayName("carregar usuario deve preservar email, hash e perfil USER")
     void loadUserByUsername_quandoExiste_deveRetornarUserDetails() {
         Usuario usuario = new Usuario(1L, "Usuario A", "hash-senha",
-                "usuario.a@exemplo.test", LocalDate.now());
+                "usuario.a@exemplo.test", LocalDate.now(), "USER");
         when(usuarioRepository.findByEmail("usuario.a@exemplo.test"))
                 .thenReturn(Optional.of(usuario));
 

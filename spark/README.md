@@ -33,8 +33,8 @@ PySpark (processamento em lote).
 | Script | Camada | Responsabilidade |
 |---|---|---|
 | `bronze.py` | 🥉 | Lê `evento_uso` do Postgres (JDBC) e grava cru em Parquet. |
-| `prata.py` | 🥈 | Remove ruído, deduplica clique duplo (window function), padroniza rótulos ("Sair"→"logout"), extrai dia/hora. |
-| `ouro.py` | 🥇 | Agrega: mapa de calor (dia × hora), ranking de endpoints, ranking de cliques. |
+| `prata.py` | 🥈 | Remove ruído, deduplica clique duplo (window function), padroniza rótulos ("Sair"→"logout") e a página do clique, extrai dia/hora. |
+| `ouro.py` | 🥇 | Agrega: mapa de calor (dia × hora), ranking de endpoints, ranking de cliques e ranking de cliques por página. |
 
 ## Pré-requisitos
 
@@ -62,7 +62,34 @@ Baixe os binários do Hadoop 3.x e coloque em `spark/hadoop/bin/`:
 
 Depois aponte `HADOOP_HOME` para `spark/hadoop` (ver comandos abaixo).
 
-## Como rodar
+## Como rodar — Docker (recomendado)
+
+O jeito mais simples, e que evita os problemas de ambiente no Windows (versão do
+Python, Java, winutils): rodar o pipeline dentro de um container. A imagem já traz
+Python 3.11 + `pyspark==3.5.1` + Java + o driver JDBC do PostgreSQL.
+
+A partir da **raiz do projeto** (onde está o `docker-compose.yml`):
+
+```powershell
+# 1) Suba o app (uma vez) e gere eventos: faça login e use Ctrl+Shift+D,
+#    ou chame POST /demo/popular/{usuarioId}.
+docker compose up --build
+
+# 2) Rode o pipeline em lote (bronze -> prata -> ouro) sob demanda.
+#    O serviço "spark" está num profile separado, então NÃO sobe junto com
+#    o app; só roda quando você pede:
+docker compose run --rm spark
+```
+
+Os Parquets de saída ficam no volume `ecowatt_spark_data` (montado em
+`/app/data` dentro do container). O serviço `spark` conecta no banco pelo host
+`postgres` (rede interna do compose), não `localhost`.
+
+> Por que um profile? O pipeline é um job em lote que roda e encerra — não é um
+> serviço que fica no ar. Mantê-lo fora do `up` padrão evita que ele tente
+> processar um banco ainda vazio na primeira subida.
+
+## Como rodar — local (sem Docker)
 
 Execute as camadas **em ordem**, a partir de **dentro da pasta `spark/`**.
 Estes são os comandos que funcionam de fato no Windows (PowerShell), rodando os
@@ -103,5 +130,7 @@ Em `spark/data/ouro/` ficam os Parquets agregados:
 - `mapa_calor/` — colunas `dia_semana`, `hora`, `total`
 - `ranking_endpoints/` — `endpoint`, `metodo`, `total`
 - `ranking_cliques/` — `rotulo_padronizado`, `total`
+- `ranking_cliques_pagina/` — `pagina_norm`, `rotulo_padronizado`, `total`
+  (mesma métrica do endpoint `GET /metricas/cliques-por-pagina` da API)
 
 A pasta `data/` é ignorada pelo git (dados derivados).

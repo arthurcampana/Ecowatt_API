@@ -1,0 +1,11 @@
+# Nao copiar artefatos locais para a imagem (a imagem gera os seus proprios).
+data/
+hadoop/
+*.jar
+__pycache__/
+*.pyc
+spark-warehouse/
+metastore_db/
+derby.log
+run_*.log
+pip_install.log

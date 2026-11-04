@@ -25,6 +25,7 @@ public class JwtService {
 
         return Jwts.builder()
                 .subject(usuario.getEmail())
+                .claim("role", usuario.getRole())
                 .issuedAt(new Date())
                 .expiration(
                         new Date(
@@ -53,5 +54,19 @@ public class JwtService {
         } catch (RuntimeException ex) {
             throw new RuntimeException("Token inválido", ex);
         }
+    }
+
+    public String extrairRole(String token) {
+
+        Claims claims =
+                Jwts.parser()
+                        .verifyWith(getKey())
+                        .build()
+                        .parseSignedClaims(token)
+                        .getPayload();
+
+        String role = claims.get("role", String.class);
+
+        return role != null ? role : "USER";
     }
 }

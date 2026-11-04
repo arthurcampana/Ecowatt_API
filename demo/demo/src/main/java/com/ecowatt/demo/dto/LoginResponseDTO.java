@@ -4,5 +4,6 @@ public record LoginResponseDTO(
         Long id,
         String nome,
         String email,
+        String role,
         String token
 ) {}

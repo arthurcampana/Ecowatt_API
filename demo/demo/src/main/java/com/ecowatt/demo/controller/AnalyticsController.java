@@ -61,6 +61,16 @@ public class AnalyticsController {
         }
     }
 
+    @GetMapping("/cliques-por-pagina")
+    public ResponseEntity<?> cliquesPorPagina() {
+        try {
+            return ResponseEntity.ok(service.rankingCliquesPorPagina());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao gerar ranking de cliques por página");
+        }
+    }
+
     @GetMapping("/mapa-calor")
     public ResponseEntity<?> mapaCalor() {
         try {

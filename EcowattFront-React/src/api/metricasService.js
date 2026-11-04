@@ -20,4 +20,7 @@ export const metricasService = {
 
   // Ranking de cliques de interface (onde os usuarios mais clicam).
   cliquesMaisUsados: () => api.get("/metricas/cliques-mais-usados"),
+
+  // Cliques agrupados por pagina (uma tabela separada por tela acessada).
+  cliquesPorPagina: () => api.get("/metricas/cliques-por-pagina"),
 };

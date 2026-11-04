@@ -67,6 +67,32 @@ public interface EventoUsoRepository extends JpaRepository<EventoUso, Long> {
             """, nativeQuery = true)
     List<CliqueRankingProjection> rankingCliques();
 
+    /**
+     * Ranking de cliques agrupado por página e rótulo: para cada rota do front,
+     * conta quantos cliques cada elemento recebeu. Permite montar uma tabela
+     * separada por página (onde o usuário clica dentro de cada tela).
+     * Ordena por página e, dentro dela, do elemento mais clicado para o menos.
+     */
+    @Query(value = """
+            SELECT
+                COALESCE(e.pagina, '(sem pagina)') AS pagina,
+                e.rotulo                           AS rotulo,
+                COUNT(*)                           AS total
+            FROM evento_uso e
+            WHERE e.tipo_evento = 'CLIQUE'
+              AND e.rotulo IS NOT NULL
+            GROUP BY e.pagina, e.rotulo
+            ORDER BY pagina ASC, total DESC
+            """, nativeQuery = true)
+    List<CliquePorPaginaProjection> rankingCliquesPorPagina();
+
+    /** Projeção para o ranking de cliques por página. */
+    interface CliquePorPaginaProjection {
+        String getPagina();
+        String getRotulo();
+        Long getTotal();
+    }
+
     /** Projeção para o ranking de endpoints. */
     interface EndpointUsoProjection {
         String getEndpoint();

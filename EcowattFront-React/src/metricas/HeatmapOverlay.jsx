@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { metricasService } from "../api/metricasService.js";
 
 /**
@@ -16,8 +17,13 @@ import { metricasService } from "../api/metricasService.js";
  */
 export default function HeatmapOverlay({ aberto, onFechar }) {
   const canvasRef = useRef(null);
+  // Posicao de scroll no momento da ultima pintura real do canvas. Enquanto o
+  // usuario rola, deslocamos o canvas por CSS (barato) em vez de repintar.
+  const scrollPintadoRef = useRef({ x: 0, y: 0 });
   const [cliques, setCliques] = useState([]);
   const [carregado, setCarregado] = useState(false);
+  // Rota atual: o heatmap e redesenhado quando ela muda (troca de pagina).
+  const location = useLocation();
 
   // Busca o ranking de cliques quando o overlay abre.
   useEffect(() => {
@@ -81,8 +87,11 @@ export default function HeatmapOverlay({ aberto, onFechar }) {
         const cy = r.top + r.height / 2;
 
         const intensidade = total / maxTotal; // 0..1
-        // raio da mancha: cresce com os cliques (limites p/ ficar agradável)
-        const raio = 40 + intensidade * 90;
+        // Raio da mancha: cresce com os cliques, mas limitado ao tamanho do
+        // proprio elemento para nao "vazar" sobre campos/vizinhos (antes um
+        // botao muito clicado pintava ate os campos acima dele).
+        const meia = Math.max(r.width, r.height) / 2;
+        const raio = Math.min(meia + 24, 24 + intensidade * 60);
 
         const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, raio);
         grad.addColorStop(0, `rgba(0,0,0,${0.15 + intensidade * 0.85})`);
@@ -109,12 +118,88 @@ export default function HeatmapOverlay({ aberto, onFechar }) {
         d[i + 3] = Math.min(255, alpha * 230);
       }
       ctx.putImageData(img, 0, 0);
+
+      // A pintura foi feita para a posicao de scroll atual. Guarda a referencia
+      // e zera qualquer deslocamento CSS acumulado durante o scroll anterior.
+      scrollPintadoRef.current = {
+        x: window.scrollX || window.pageXOffset || 0,
+        y: window.scrollY || window.pageYOffset || 0,
+      };
+      canvas.style.transform = "";
     }
 
+    // Agenda o desenho no proximo frame (deixa o layout estabilizar antes de
+    // ler getBoundingClientRect) com um coalescing simples por requestAnimationFrame.
+    let frame = null;
+    function agendarRedesenho() {
+      if (frame !== null) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = null;
+        desenhar();
+      });
+    }
+
+    // Enquanto o usuario rola, NAO repintamos (caro). Apenas deslocamos o canvas
+    // por CSS transform para as manchas acompanharem a pagina — a GPU faz isso
+    // de graca, sem travar. Quando a rolagem para, um desenho real reposiciona.
+    let scrollFrame = null;
+    let pararScroll = null;
+    function aoRolar() {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      if (scrollFrame === null) {
+        scrollFrame = window.requestAnimationFrame(() => {
+          scrollFrame = null;
+          const dx = (window.scrollX || window.pageXOffset || 0) - scrollPintadoRef.current.x;
+          const dy = (window.scrollY || window.pageYOffset || 0) - scrollPintadoRef.current.y;
+          // Conteudo desce quando rolamos para baixo -> canvas sobe (-dy).
+          canvas.style.transform = `translate(${-dx}px, ${-dy}px)`;
+        });
+      }
+      // Debounce: ao parar de rolar, repinta de verdade na posicao final.
+      if (pararScroll !== null) window.clearTimeout(pararScroll);
+      pararScroll = window.setTimeout(agendarRedesenho, 120);
+    }
+    window.addEventListener("scroll", aoRolar, { passive: true, capture: true });
+
+    // Desenha ao abrir e quando a pagina/dados mudam. NAO redesenhamos a cada
+    // frame de scroll de proposito: o heatmap faz getImageData + loop em todos
+    // os pixels da viewport, caro demais para rodar durante a rolagem (era isso
+    // que travava). O mapa mostra a distribuicao de cliques da tela.
     desenhar();
-    window.addEventListener("resize", desenhar);
-    return () => window.removeEventListener("resize", desenhar);
-  }, [aberto, carregado, cliques]);
+    agendarRedesenho();
+
+    // Ao trocar de pagina, os elementos com data-evento da nova tela podem
+    // ainda nao existir no DOM (paginas que buscam dados antes de renderizar).
+    // Em vez de chutar um unico timeout, observamos o DOM: cada mudanca agenda
+    // um redesenho (com debounce), ate a pagina assentar. Assim o "atualizar
+    // automatico ao entrar na pagina" acontece quando os botoes aparecem,
+    // independentemente de quanto a pagina demorou para montar.
+    let debounce = null;
+    function aoMudarDom() {
+      if (debounce !== null) window.clearTimeout(debounce);
+      debounce = window.setTimeout(agendarRedesenho, 120);
+    }
+    const observer = new MutationObserver(aoMudarDom);
+    observer.observe(document.body, { childList: true, subtree: true });
+    // Rede-desenho de seguranca logo apos a montagem.
+    const timer = window.setTimeout(agendarRedesenho, 150);
+    // Para de observar depois que a pagina ja assentou (evita custo continuo).
+    const parar = window.setTimeout(() => observer.disconnect(), 1500);
+
+    window.addEventListener("resize", agendarRedesenho);
+    return () => {
+      window.clearTimeout(timer);
+      window.clearTimeout(parar);
+      if (debounce !== null) window.clearTimeout(debounce);
+      if (pararScroll !== null) window.clearTimeout(pararScroll);
+      if (scrollFrame !== null) window.cancelAnimationFrame(scrollFrame);
+      observer.disconnect();
+      if (frame !== null) window.cancelAnimationFrame(frame);
+      window.removeEventListener("resize", agendarRedesenho);
+      window.removeEventListener("scroll", aoRolar, { capture: true });
+    };
+  }, [aberto, carregado, cliques, location.pathname]);
 
   if (!aberto) return null;
 

@@ -18,6 +18,7 @@ from config import (
     CAMINHO_OURO_MAPA_CALOR,
     CAMINHO_OURO_RANKING_ENDPOINTS,
     CAMINHO_OURO_RANKING_CLIQUES,
+    CAMINHO_OURO_RANKING_CLIQUES_PAGINA,
 )
 
 
@@ -50,17 +51,31 @@ def main():
         .orderBy(desc("total"))
     )
 
+    # --- Ranking de cliques POR PÁGINA (onde o usuário clica em cada tela) ---
+    # Mesma métrica que a API expõe em /metricas/cliques-por-pagina, recalculada
+    # em lote. Agrupa por página normalizada + rótulo padronizado, ordenando por
+    # página e, dentro dela, do elemento mais clicado para o menos.
+    ranking_cliques_pagina = (
+        prata.filter(col("tipo_evento") == "CLIQUE")
+        .groupBy("pagina_norm", "rotulo_padronizado")
+        .agg(count("*").alias("total"))
+        .orderBy(col("pagina_norm").asc(), desc("total"))
+    )
+
     print("[OURO] Prévia — mapa de calor:")
     mapa_calor.show(10, truncate=False)
     print("[OURO] Prévia — ranking de endpoints:")
     ranking_endpoints.show(10, truncate=False)
     print("[OURO] Prévia — ranking de cliques:")
     ranking_cliques.show(10, truncate=False)
+    print("[OURO] Prévia — ranking de cliques por página:")
+    ranking_cliques_pagina.show(20, truncate=False)
 
     # Salva cada visão. coalesce(1) gera um único arquivo por tabela (volume pequeno).
     mapa_calor.coalesce(1).write.mode("overwrite").parquet(CAMINHO_OURO_MAPA_CALOR)
     ranking_endpoints.coalesce(1).write.mode("overwrite").parquet(CAMINHO_OURO_RANKING_ENDPOINTS)
     ranking_cliques.coalesce(1).write.mode("overwrite").parquet(CAMINHO_OURO_RANKING_CLIQUES)
+    ranking_cliques_pagina.coalesce(1).write.mode("overwrite").parquet(CAMINHO_OURO_RANKING_CLIQUES_PAGINA)
 
     print("[OURO] Tabelas agregadas salvas em data/ouro/")
     spark.stop()

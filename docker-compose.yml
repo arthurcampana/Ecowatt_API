@@ -49,5 +49,34 @@ services:
     depends_on:
       - backend
 
+  # Pipeline PySpark (bronze -> prata -> ouro) em LOTE. Roda sob demanda, nao
+  # junto com o app: faz parte do "profile" spark. Para rodar:
+  #
+  #   docker compose run --rm spark
+  #
+  # Le a tabela evento_uso do Postgres, trata os dados e grava os Parquets
+  # agregados no volume ecowatt_spark_data (em /app/data dentro do container).
+  # Precisa que o banco ja tenha eventos (rode o app e use /demo/popular ou
+  # os atalhos Ctrl+Shift+D / Ctrl+Shift+F).
+  spark:
+    build:
+      context: ./spark
+    profiles: ["spark"]
+    environment:
+      # Dentro da rede do compose o host do banco e "postgres", nao localhost.
+      PG_HOST: postgres
+      PG_PORT: "5432"
+      PG_DB: ecowatt
+      PG_USER: postgres
+      PG_PASSWORD: senai
+      # Saida dos Parquets dentro do container (mapeada no volume abaixo).
+      SPARK_DATA_DIR: /app/data
+    volumes:
+      - ecowatt_spark_data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   ecowatt_pgdata:
+  ecowatt_spark_data:

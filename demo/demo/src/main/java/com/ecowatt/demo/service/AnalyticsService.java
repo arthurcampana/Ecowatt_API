@@ -1,5 +1,6 @@
 package com.ecowatt.demo.service;
 
+import com.ecowatt.demo.dto.CliquePorPaginaDTO;
 import com.ecowatt.demo.dto.CliqueRankingDTO;
 import com.ecowatt.demo.dto.EndpointUsoDTO;
 import com.ecowatt.demo.dto.EventoCliqueDTO;
@@ -70,6 +71,14 @@ public class AnalyticsService {
         return eventoUsoRepository.rankingCliques()
                 .stream()
                 .map(p -> new CliqueRankingDTO(p.getRotulo(), p.getTotal()))
+                .toList();
+    }
+
+    /** Ranking de cliques agrupado por página (onde o usuário clica em cada tela). */
+    public List<CliquePorPaginaDTO> rankingCliquesPorPagina() {
+        return eventoUsoRepository.rankingCliquesPorPagina()
+                .stream()
+                .map(p -> new CliquePorPaginaDTO(p.getPagina(), p.getRotulo(), p.getTotal()))
                 .toList();
     }
 

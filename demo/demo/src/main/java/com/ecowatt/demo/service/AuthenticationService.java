@@ -54,6 +54,7 @@ public class AuthenticationService {
                 usuario.getId(),
                 usuario.getNome(),
                 usuario.getEmail(),
+                usuario.getRole(),
                 "Bearer " + token
 
         );

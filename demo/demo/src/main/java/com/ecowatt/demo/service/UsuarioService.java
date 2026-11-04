@@ -31,6 +31,7 @@ public class UsuarioService {
         usuario.setEmail(dto.email());
         usuario.setSenha(passwordEncoder.encode(dto.senha()));
         usuario.setDataRegistro(LocalDate.now());
+        usuario.setRole("USER");
 
         usuario = usuarioRepository.save(usuario);
 
