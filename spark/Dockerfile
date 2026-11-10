@@ -34,5 +34,6 @@ ENV PYSPARK_SUBMIT_ARGS="--jars /app/postgresql.jar pyspark-shell"
 # Codigo do pipeline (config, bronze, prata, ouro).
 COPY . .
 
-# Roda as tres camadas em ordem; se qualquer uma falhar, o container falha.
-CMD ["sh", "-c", "python bronze.py && python prata.py && python ouro.py"]
+# Roda as camadas em ordem e, por fim, o estagio de previsao; se qualquer uma
+# falhar, o container falha.
+CMD ["sh", "-c", "python bronze.py && python prata.py && python ouro.py && python previsao.py"]

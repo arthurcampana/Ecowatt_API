@@ -23,6 +23,12 @@ JDBC_PROPERTIES = {
 
 TABELA_ORIGEM = "evento_uso"
 
+# Tabelas usadas pelo estágio de previsão de consumo (previsao.py).
+# TABELA_CONSUMO: fonte dos registros mensais de consumo (kWh) por usuário.
+# TABELA_PREVISAO: destino da projeção dos próximos meses.
+TABELA_CONSUMO = "consumo"
+TABELA_PREVISAO = "previsao_consumo"
+
 # --- Caminhos das camadas do medalhão (Parquet em disco) ---
 # Resolvido relativo a este arquivo (spark/), então funciona rodando de
 # qualquer diretório. Pode sobrescrever com SPARK_DATA_DIR.

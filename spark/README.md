@@ -14,6 +14,9 @@ Postgres (evento_uso)
         │  ouro.py    — agrega as métricas do negócio
         ▼
    🥇 data/ouro/     (mapa de calor + rankings, prontos)
+        │  previsao.py — projeta o consumo dos próximos meses (MLlib)
+        ▼
+   🔮 previsao_consumo  (projeção por usuário, gravada no Postgres)
 ```
 
 ## Posicionamento na arquitetura
@@ -35,6 +38,7 @@ PySpark (processamento em lote).
 | `bronze.py` | 🥉 | Lê `evento_uso` do Postgres (JDBC) e grava cru em Parquet. |
 | `prata.py` | 🥈 | Remove ruído, deduplica clique duplo (window function), padroniza rótulos ("Sair"→"logout") e a página do clique, extrai dia/hora. |
 | `ouro.py` | 🥇 | Agrega: mapa de calor (dia × hora), ranking de endpoints, ranking de cliques e ranking de cliques por página. |
+| `previsao.py` | 🔮 | Lê `consumo` (JDBC), agrega em baldes mensais por usuário, treina uma regressão linear MLlib por usuário (fallback para a média histórica quando há < 3 baldes) e grava a projeção dos próximos 3 meses na tabela `previsao_consumo`. |
 
 ## Pré-requisitos
 
@@ -134,3 +138,24 @@ Em `spark/data/ouro/` ficam os Parquets agregados:
   (mesma métrica do endpoint `GET /metricas/cliques-por-pagina` da API)
 
 A pasta `data/` é ignorada pelo git (dados derivados).
+
+### Tabela `previsao_consumo` (saída do `previsao.py`)
+
+Diferente das camadas medalhão (que gravam Parquet em disco), o `previsao.py`
+grava direto no Postgres, na tabela `previsao_consumo`, para que o backend sirva
+a projeção pela API. As 4 colunas de negócio são:
+
+- `usuario_id` — usuário dono da projeção.
+- `ano_mes` — mês projetado no formato `'YYYY-MM'` (ex.: `'2025-03'`).
+- `consumo_previsto` — consumo estimado em kWh para aquele mês (double).
+- `gerado_em` — quando a previsão foi gerada (timestamp).
+
+A coluna `id` existe na tabela (BIGSERIAL) mas é gerada pelo banco — o Spark
+**não** a escreve.
+
+**Estratégia de escrita (append + limpa, nunca overwrite):** antes de gravar, o
+script remove as linhas anteriores com um `DELETE` via JDBC e então grava as
+novas com `mode="append"`. Não se usa `mode("overwrite")` porque o overwrite do
+Spark dropa e recria a tabela com um schema inferido, o que conflita com o
+`ddl-auto=validate` do backend (a tabela precisa manter o schema criado pelo
+Flyway, incluindo o `id` BIGSERIAL).

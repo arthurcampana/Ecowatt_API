@@ -6,6 +6,7 @@ import "../charts/registerCharts.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useUI } from "../context/UIContext.jsx";
 import { consumoService } from "../api/consumoService.js";
+import { previsaoService } from "../api/previsaoService.js";
 import { configuracaoService } from "../api/configuracaoService.js";
 import { equipamentoUsuarioService } from "../api/equipamentoUsuarioService.js";
 import { formatarData } from "../utils/formato.js";
@@ -35,6 +36,7 @@ export default function Relatorios() {
   const [consumos, setConsumos] = useState([]);
   const [config, setConfig] = useState({ meta: 0, valorTarifa: 0 });
   const [equipamentos, setEquipamentos] = useState([]);
+  const [previsao, setPrevisao] = useState([]);
 
   const [dataInicial, setDataInicial] = useState("");
   const [dataFinal, setDataFinal] = useState("");
@@ -100,6 +102,15 @@ export default function Relatorios() {
           texto: error?.message || "Erro ao carregar equipamentos",
           tipo: "erro",
         });
+      }
+
+      // Previsao e opcional: se nao houver dados ou o endpoint falhar (ex.: 404),
+      // degrada graciosamente deixando a lista vazia sem quebrar as outras cargas.
+      try {
+        const prev = await previsaoService.getPorUsuario(usuario.id);
+        setPrevisao(prev || []);
+      } catch {
+        setPrevisao([]);
       }
     }
 
@@ -228,21 +239,63 @@ export default function Relatorios() {
       mapa[chave] = (mapa[chave] || 0) + Number(c.consumoKwh);
     });
 
-    return {
-      labels: Object.keys(mapa),
-      datasets: [
-        {
-          label: "Consumo (kWh)",
-          data: Object.values(mapa),
-          backgroundColor: "#198754",
-          borderColor: "#198754",
-          borderWidth: 2,
-          borderRadius: 8,
-          fill: false,
-        },
-      ],
-    };
-  }, [consumosFiltrados, dataInicial, dataFinal]);
+    const labelsHistorico = Object.keys(mapa);
+    const dadosHistorico = Object.values(mapa);
+
+    const datasets = [
+      {
+        label: "Consumo (kWh)",
+        data: dadosHistorico,
+        backgroundColor: "#198754",
+        borderColor: "#198754",
+        borderWidth: 2,
+        borderRadius: 8,
+        fill: false,
+      },
+    ];
+
+    // Overlay da projecao: quando ha previsao, estende os rotulos com os meses
+    // previstos (anoMes 'YYYY-MM' -> pt-BR) e acrescenta um segundo dataset em
+    // linha tracejada. A serie historica recebe nulls na regiao de projecao e a
+    // projecao recebe nulls na regiao historica, para a linha so aparecer a
+    // frente. O dataset de projecao e sempre type:'line', mesmo no modo barras.
+    let labels = labelsHistorico;
+    if (previsao.length > 0) {
+      const labelsPrevisao = previsao.map((p) => {
+        const [ano, mes] = String(p.anoMes).split("-");
+        return new Date(Number(ano), Number(mes) - 1, 1).toLocaleDateString(
+          "pt-BR",
+          { month: "short", year: "numeric" }
+        );
+      });
+
+      labels = [...labelsHistorico, ...labelsPrevisao];
+
+      // Projecao distinta do verde (#198754): usa o acento ambar da paleta.
+      const corProjecao = "#fd7e14";
+      datasets[0].data = [
+        ...dadosHistorico,
+        ...labelsPrevisao.map(() => null),
+      ];
+      datasets.push({
+        type: "line",
+        label: "Projeção (kWh)",
+        data: [
+          ...labelsHistorico.map(() => null),
+          ...previsao.map((p) => Number(p.consumoPrevisto)),
+        ],
+        borderColor: corProjecao,
+        backgroundColor: corProjecao,
+        borderWidth: 2,
+        borderDash: [6, 6],
+        pointRadius: 3,
+        fill: false,
+        spanGaps: true,
+      });
+    }
+
+    return { labels, datasets };
+  }, [consumosFiltrados, dataInicial, dataFinal, previsao]);
 
   const opcoesGraficoPrincipal = {
     responsive: true,
@@ -761,6 +814,11 @@ export default function Relatorios() {
                   />
                 )}
               </div>
+              {previsao.length > 0 && (
+                <p className="helper-text">
+                  A linha tracejada mostra a projeção dos próximos meses.
+                </p>
+              )}
             </div>
           )}
 

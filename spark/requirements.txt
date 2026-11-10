@@ -1,1 +1,4 @@
 pyspark==3.5.1
+# MLlib (pyspark.ml) usa numpy internamente; a previsao.py treina LinearRegression,
+# entao numpy e obrigatorio. Sem ele, qualquer import de pyspark.ml falha.
+numpy==1.26.4
