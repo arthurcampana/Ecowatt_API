@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend (test + docker build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: demo/demo
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Run backend tests
+        run: ./mvnw -B test
+
+      - name: Build backend Docker image
+        run: docker build -t ecowatt-backend:ci .
