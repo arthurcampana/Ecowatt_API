@@ -1,0 +1,18 @@
+# Normaliza finais de linha no repositorio.
+# Por padrao, o git decide o final de linha de cada arquivo de texto.
+* text=auto
+
+# Scripts que RODAM no Linux (runner do CI, container Docker) precisam de LF,
+# mesmo quando editados no Windows. Sem isso, o shebang quebra ("bad interpreter").
+*.sh text eol=lf
+mvnw text eol=lf
+
+# Scripts do Windows mantem CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binarios: o git nao mexe no conteudo.
+*.jar binary
+*.png binary
+*.pdf binary
+*.docx binary
