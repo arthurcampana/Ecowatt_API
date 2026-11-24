@@ -30,11 +30,12 @@ if errorlevel 1 (
 echo       OK: Docker encontrado e rodando.
 echo.
 
-REM ---------- Sobe o stack completo (postgres + backend + frontend) ----------
+REM ---------- Sobe o stack completo (postgres + backend + frontend + spark) ----------
+REM O serviço spark faz a previsao de consumo automatica (recalcula a cada 30s).
 echo [2/2] Subindo EcoWatt via Docker Compose ^(build na primeira vez^)...
 echo       Isso pode levar alguns minutos no primeiro uso.
 echo.
-docker compose up -d --build postgres backend frontend
+docker compose up -d --build postgres backend frontend spark
 if errorlevel 1 (
     echo       [ERRO] Falha ao subir o stack via Docker Compose.
     goto FIM_ERRO
@@ -46,13 +47,15 @@ echo  Pronto! O EcoWatt esta no ar (containers Docker).
 echo    - PostgreSQL ^(porta 5432^)
 echo    - Backend    ^(porta 8080^)
 echo    - Frontend   ^(porta 5500^)
+echo    - Spark      ^(previsao de consumo, recalcula a cada 30s^)
 echo.
 echo  Acesse: http://localhost:5500
 echo.
 echo  Para gerar dados de exemplo: faca login e use Ctrl+Shift+D,
 echo  ou chame POST http://localhost:8080/demo/popular/{usuarioId}.
+echo  A previsao (IA) aparece no Dashboard em ate 30s apos registrar consumo.
 echo.
-echo  Pipeline de dados (PySpark): rode  rodar-pipeline-spark.bat
+echo  Analytics (mapa de calor/rankings): rode  rodar-pipeline-spark.bat
 echo  Parar tudo: rode  parar-ecowatt.bat  (ou digite P abaixo).
 echo ============================================
 echo.
@@ -74,7 +77,7 @@ goto MENU
 :PARAR
 echo.
 echo Encerrando os containers do EcoWatt...
-docker compose stop postgres backend frontend
+docker compose stop postgres backend frontend spark
 echo.
 echo EcoWatt encerrado. (Os dados do banco continuam salvos no volume.)
 echo.

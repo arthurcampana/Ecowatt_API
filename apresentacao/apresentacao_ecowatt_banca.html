@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoWatt — Pitch da Banca (Projeto Aplicado IV)</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css" id="theme">
+
+  <style>
+    :root {
+      --eco-green: #1b8a5a;
+      --eco-green-dark: #0f5f3d;
+      --eco-lime: #8bc34a;
+      --eco-amber: #f6a623;
+      --eco-blue: #2b7fb8;
+      --eco-ink: #16261f;
+      --eco-mute: #5a6b63;
+      --eco-paper: #f4f8f5;
+    }
+    .reveal { font-family: "Segoe UI","Helvetica Neue",Arial,sans-serif; font-size: 30px; color: var(--eco-ink); }
+
+    /* --- Layout base: cada slide preenche a altura e organiza em coluna --- */
+    .reveal .slides section {
+      text-align: left;
+      height: 100%;
+      display: flex !important;
+      flex-direction: column;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+    .reveal .slides section > * { flex-shrink: 0; }
+
+    .reveal h1,.reveal h2,.reveal h3 { color: var(--eco-green-dark); text-transform: none; font-weight: 700; letter-spacing:-0.01em; }
+    .reveal h1 { font-size: 2.0em; line-height: 1.08; }
+    .reveal h2 { font-size: 1.34em; margin-bottom: 0.3em; }
+    .reveal h3 { font-size: 1.0em; color: var(--eco-green); }
+    .reveal p,.reveal li { line-height: 1.34; }
+    .reveal ul,.reveal ol { margin-left: 1.1em; }
+    .reveal li { margin-bottom: 0.32em; }
+    .reveal strong { color: var(--eco-green-dark); }
+    .reveal a { color: var(--eco-green); }
+
+    /* Cabeçalho de slide com faixa de destaque à esquerda */
+    .slide-head { margin-bottom: 0.5em; }
+    .reveal h2.titulo-secao {
+      position: relative; padding-left: 0.5em; display: inline-block;
+      border-left: 7px solid var(--eco-lime);
+    }
+
+    .eyebrow {
+      display:inline-block; font-size:0.46em; font-weight:800; letter-spacing:0.16em;
+      text-transform:uppercase; color:#fff; background:var(--eco-green);
+      padding:0.32em 0.95em; border-radius:999px; margin-bottom:0.5em;
+    }
+    .eyebrow.blue { background: var(--eco-blue); }
+    .eyebrow.amber { background: var(--eco-amber); }
+
+    /* --- Capa & divisores: centralizados --- */
+    .capa { background: linear-gradient(135deg,var(--eco-green-dark) 0%,var(--eco-green) 55%,var(--eco-lime) 120%); color:#fff; }
+    .capa h1,.capa h2,.capa h3,.capa p { color:#fff; }
+    .capa { align-items:flex-start; }
+    .capa .logo-eco { font-size:1.15em; font-weight:800; margin-bottom:0.15em; }
+    .capa .sub { opacity:0.93; font-size:0.78em; line-height:1.5; }
+    .capa .autores { margin-top:0.6em; font-weight:700; font-size:0.95em; }
+    .capa .rule { width:3.2em; height:6px; background:var(--eco-lime); border-radius:3px; margin:0.5em 0 0.6em; }
+
+    .divisor { background: linear-gradient(135deg,var(--eco-ink) 0%,var(--eco-green-dark) 100%); color:#fff; align-items:center; text-align:center; }
+    .divisor h1,.divisor h2,.divisor p { color:#fff; text-align:center; }
+    .divisor .num-parte {
+      font-size:0.62em; font-weight:800; color:var(--eco-ink); background:var(--eco-lime);
+      letter-spacing:0.22em; padding:0.3em 1.1em; border-radius:999px; display:inline-block; margin-bottom:0.4em;
+    }
+    .divisor h1 { font-size:2.3em; margin:0.1em 0; }
+    .divisor .divisor-sub { font-size:0.8em; opacity:0.9; max-width:20em; margin:0.3em auto 0; }
+    .divisor .rule-c { width:4em; height:6px; background:var(--eco-lime); border-radius:3px; margin:0.7em auto 0; }
+
+    /* --- Grids de cards --- */
+    .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:0.7em; margin-top:0.2em; }
+    .grid.cols-3 { grid-template-columns:repeat(3,1fr); }
+    .card {
+      background:#fff; border:1px solid #dfe8e2; border-top:5px solid var(--eco-green);
+      border-radius:14px; padding:0.8em 0.9em; box-shadow:0 4px 14px rgba(15,95,61,0.08);
+      display:flex; flex-direction:column; justify-content:flex-start;
+    }
+    .card h3 { margin:0 0 0.3em 0; font-size:0.86em; }
+    .card p,.card ul { font-size:0.68em; margin:0; color:var(--eco-mute); }
+    .card ul { margin-left:0.9em; }
+    .card .num-badge {
+      font-size:0.72em; font-weight:800; color:var(--eco-green); opacity:0.5; margin-bottom:0.15em;
+    }
+    .card.amber { border-top-color:var(--eco-amber); }
+    .card.amber .num-badge { color:var(--eco-amber); }
+    .card.lime { border-top-color:var(--eco-lime); }
+    .card.lime .num-badge { color:#6fa233; }
+    .card.blue { border-top-color:var(--eco-blue); }
+    .card.blue .num-badge { color:var(--eco-blue); }
+    .card .big { font-size:1.8em; font-weight:800; color:var(--eco-green-dark); line-height:1; }
+
+    /* --- Big numbers --- */
+    .bignum-row { display:grid; grid-template-columns:repeat(2,1fr); gap:1.4em; align-items:center; margin-top:0.3em; }
+    .bignum { text-align:center; }
+    .bignum .valor {
+      font-size:6.2em; font-weight:800; line-height:0.9; color:var(--eco-green);
+      letter-spacing:-0.03em;
+    }
+    .bignum .rotulo { font-size:0.8em; font-weight:700; color:var(--eco-ink); margin-top:0.1em; }
+    .bignum .sub { font-size:0.62em; color:var(--eco-mute); margin-top:0.15em; }
+
+    .metricas { display:grid; grid-template-columns:repeat(4,1fr); gap:0.8em; margin-top:0.3em; }
+    .metrica { text-align:center; background:#fff; border-radius:16px; padding:1.0em 0.5em; border:1px solid #dfe8e2; box-shadow:0 4px 14px rgba(15,95,61,0.07); }
+    .metrica .valor { font-size:2.8em; font-weight:800; color:var(--eco-green); line-height:1; letter-spacing:-0.02em; }
+    .metrica .valor.sm { font-size:1.8em; }
+    .metrica .rotulo { font-size:0.52em; color:var(--eco-mute); text-transform:uppercase; letter-spacing:0.08em; margin-top:0.6em; }
+
+    /* --- Tabela --- */
+    .reveal table { font-size:0.66em; border-collapse:separate; border-spacing:0; width:100%; margin-top:0.3em; border-radius:12px; overflow:hidden; box-shadow:0 4px 14px rgba(15,95,61,0.08); }
+    .reveal table th { background:var(--eco-green-dark); color:#fff; padding:0.6em 0.8em; text-align:left; font-weight:700; }
+    .reveal table td { padding:0.5em 0.8em; border-bottom:1px solid #e2ebe5; }
+    .reveal table tr:nth-child(even) td { background:#eef5f0; }
+    .reveal table tbody tr:last-child td { border-bottom:none; }
+
+    .tag { display:inline-block; font-size:0.78em; font-weight:700; padding:0.15em 0.75em; border-radius:999px; color:#fff; }
+    .tag.ok { background:var(--eco-green); }
+    .tag.plan { background:var(--eco-amber); }
+    .tag.crit { background:#c0392b; }
+
+    .lead { font-size:0.84em; color:var(--eco-mute); max-width:94%; }
+    .nota { font-size:0.6em; color:var(--eco-mute); font-style:italic; margin-top:0.6em; }
+
+    /* --- Pipeline HTML (Analytics) --- */
+    .pipeline { display:flex; align-items:stretch; gap:0.3em; margin-top:0.4em; }
+    .pipeline .etapa {
+      flex:1; background:#fff; border:1px solid #dfe8e2; border-top:5px solid var(--eco-blue);
+      border-radius:12px; padding:0.8em 0.6em; text-align:center; box-shadow:0 4px 12px rgba(15,95,61,0.07);
+      display:flex; flex-direction:column; justify-content:flex-start;
+    }
+    .pipeline .etapa h3 { font-size:0.82em; margin:0 0 0.35em 0; color:var(--eco-blue); }
+    .pipeline .etapa p { font-size:0.6em; color:var(--eco-mute); margin:0; line-height:1.3; }
+    .pipeline .etapa .ico { font-size:1.4em; margin-bottom:0.15em; }
+    .pipeline .seta { align-self:center; color:var(--eco-lime); font-size:1.5em; font-weight:800; }
+
+    .stack-badge {
+      display:inline-block; font-size:0.64em; font-weight:600; background:#eef5f0;
+      color:var(--eco-green-dark); border:1px solid #cfe3d7; border-radius:8px;
+      padding:0.3em 0.7em; margin:0.2em 0.2em 0 0;
+    }
+
+    .reveal .slide-number { background:var(--eco-green-dark); }
+    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:1.2em; align-items:start; }
+    .two-col.visual { grid-template-columns:1.05fr 0.95fr; }
+    .two-col h3 { margin-top:0; }
+    .highlight-box {
+      background:#fff8ec; border:1px solid #f3d9a6; border-left:6px solid var(--eco-amber);
+      border-radius:12px; padding:0.8em 0.95em; margin-top:0.4em; font-size:0.74em; color:var(--eco-ink);
+    }
+    .highlight-box.green { background:#eef7f1; border-color:#bfe0cd; border-left-color:var(--eco-green); }
+    .demo-box {
+      background:#eef5f0; border:1px dashed var(--eco-green); border-radius:12px;
+      padding:0.75em 0.95em; margin-top:0.5em; font-size:0.72em; color:var(--eco-green-dark);
+    }
+    .placeholder { color:var(--eco-amber); font-weight:700; font-style:italic; }
+
+    /* Painel de destaque lateral (split-2col) */
+    .panel {
+      background:linear-gradient(150deg,var(--eco-green-dark),var(--eco-green));
+      color:#fff; border-radius:18px; padding:1.1em 1.2em; height:100%;
+      display:flex; flex-direction:column; justify-content:center; box-shadow:0 8px 24px rgba(15,95,61,0.2);
+    }
+    .panel h3 { color:#fff; font-size:0.9em; opacity:0.9; margin:0 0 0.2em; }
+    .panel .panel-big { font-size:1.55em; font-weight:800; line-height:1.12; }
+    .panel p { font-size:0.7em; opacity:0.92; margin-top:0.5em; }
+
+    /* Fluxo de etapas (demo) */
+    .flow { display:flex; flex-wrap:wrap; gap:0.5em; align-items:stretch; margin-top:0.3em; }
+    .flow .step {
+      background:#fff; border:1px solid #dfe8e2; border-radius:12px; padding:0.6em 0.5em;
+      flex:1; min-width:0; text-align:center; box-shadow:0 3px 10px rgba(15,95,61,0.07);
+    }
+    .flow .step .n { display:block; font-size:0.55em; font-weight:800; color:var(--eco-lime); letter-spacing:0.1em; }
+    .flow .step .t { display:block; font-size:0.66em; font-weight:700; color:var(--eco-ink); margin-top:0.2em; }
+    .flow .arr { align-self:center; color:var(--eco-lime); font-weight:800; font-size:1.3em; }
+
+    /* --- Timeline (roadmap / competências visuais) --- */
+    .timeline { position:relative; margin:0.4em 0 0 0; padding-left:1.4em; }
+    .timeline::before { content:""; position:absolute; left:0.42em; top:0.3em; bottom:0.3em; width:3px; background:var(--eco-lime); border-radius:2px; }
+    .timeline .tl-item { position:relative; margin-bottom:0.65em; }
+    .timeline .tl-item::before {
+      content:""; position:absolute; left:-1.17em; top:0.25em; width:0.78em; height:0.78em;
+      border-radius:50%; background:var(--eco-green); border:3px solid #fff; box-shadow:0 0 0 2px var(--eco-lime);
+    }
+    .timeline .tl-item.plan::before { background:var(--eco-amber); box-shadow:0 0 0 2px #f3d9a6; }
+    .timeline .tl-item h3 { font-size:0.82em; margin:0 0 0.05em; }
+    .timeline .tl-item p { font-size:0.64em; color:var(--eco-mute); margin:0; }
+
+    /* --- Comparison (feito vs planejado) --- */
+    .compare { display:grid; grid-template-columns:1fr 1fr; gap:1.0em; margin-top:0.3em; }
+    .compare .col { border-radius:16px; padding:0.95em 1.05em; box-shadow:0 4px 14px rgba(15,95,61,0.08); }
+    .compare .col.done { background:#eef7f1; border:1px solid #bfe0cd; }
+    .compare .col.todo { background:#fff8ec; border:1px solid #f3d9a6; }
+    .compare .col h3 { font-size:0.82em; display:flex; align-items:center; gap:0.4em; margin:0 0 0.4em; }
+    .compare .col.done h3 { color:var(--eco-green-dark); }
+    .compare .col.todo h3 { color:#b9811a; }
+    .compare .col ul { margin:0 0 0 1em; font-size:0.66em; color:var(--eco-ink); }
+    .compare .col li { margin-bottom:0.3em; }
+
+    .flow-fluxo { font-size:0.72em; font-weight:600; color:var(--eco-green-dark); }
+    .flow-fluxo .seta { color:var(--eco-lime); font-weight:800; }
+
+    /* --- Diagramas Mermaid --- */
+    .diagrama-wrap { text-align:center; flex:1; display:flex; flex-direction:column; justify-content:center; min-height:0; }
+    .reveal .mermaid { background:transparent; display:flex; justify-content:center; align-items:center; margin:0.2em 0; }
+    .reveal .mermaid svg { width:auto !important; max-width:100% !important; height:auto; max-height:62vh; overflow:visible; }
+    .reveal .mermaid text { overflow:visible; }
+    .reveal .mermaid .nodeLabel,
+    .reveal .mermaid .edgeLabel { font-weight:600; }
+    .reveal .mermaid .er.entityLabel { font-weight:700; }
+    .reveal .mermaid .er.relationshipLabel { font-size:0.85em; }
+    /* evita que rótulos de nós/entidades sejam cortados no render do Mermaid */
+    .reveal .mermaid .node foreignObject,
+    .reveal .mermaid .er foreignObject { overflow: visible; }
+    .reveal .mermaid .nodeLabel, .reveal .mermaid .nodeLabel p,
+    .reveal .mermaid span.nodeLabel,
+    .reveal .mermaid .er .label { white-space: nowrap; overflow: visible; }
+    .reveal .mermaid text { white-space: nowrap; }
+
+    /* --- Arquitetura em camadas (HTML) --- */
+    .arq { display:flex; flex-direction:column; align-items:stretch; gap:0.12em; margin-top:0.2em; width:100%; max-width:100%; box-sizing:border-box; }
+    .arq .camada {
+      width:100%; max-width:100%; box-sizing:border-box; border-radius:14px; padding:0.55em 0.85em;
+      display:flex; align-items:center; gap:0.8em; box-shadow:0 3px 10px rgba(15,95,61,0.06); overflow:hidden;
+    }
+    .arq .camada .rotulo { font-size:0.6em; font-weight:800; min-width:5em; text-transform:uppercase; letter-spacing:0.05em; }
+    .arq .camada .itens { display:flex; gap:0.45em; flex-wrap:wrap; flex:1; align-items:center; }
+    .arq .bloco {
+      background:#fff; border-radius:9px; padding:0.35em 0.8em; font-size:0.66em; font-weight:600;
+      border:1px solid rgba(0,0,0,0.08);
+    }
+    .arq .stk { font-size:0.52em; color:var(--eco-mute); align-self:center; margin-left:auto; font-weight:600; white-space:nowrap; flex-shrink:0; }
+    .arq .c-fe  { background:#eef5f0; border:1px solid #bfe0cd; }
+    .arq .c-fe .rotulo { color:var(--eco-green-dark); }
+    .arq .c-api { background:#fff8ec; border:1px solid #f3d9a6; }
+    .arq .c-api .rotulo { color:#b9811a; }
+    .arq .c-data{ background:#e9f1f8; border:1px solid #bcd6ea; }
+    .arq .c-data .rotulo { color:var(--eco-blue); }
+    .arq .c-ia { background:#f3ecf8; border:1px solid #d6c3e6; }
+    .arq .c-ia .rotulo { color:#7a4fae; }
+    .arq .camada .itens.seq { align-items:center; }
+    .arq .camada .itens.seq .mini-seta { color:var(--eco-mute); font-weight:800; font-size:0.72em; }
+    .arq .bloco.topo-u {
+      background:var(--eco-green); color:#fff; border:none; align-self:center;
+      padding:0.35em 1.6em; font-size:0.74em; border-radius:999px; box-shadow:0 4px 12px rgba(27,138,90,0.3);
+    }
+    .arq .conector {
+      display:flex; align-items:center; justify-content:center; gap:0.5em; color:var(--eco-mute); line-height:1; margin:0.02em 0;
+    }
+    .arq .conector .arrow { font-size:0.9em; line-height:0.8; color:var(--eco-green); }
+    .arq .conector small { font-size:0.5em; font-style:italic; }
+  </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+  <!-- CAPA -->
+  <section class="capa" data-background-color="#0f5f3d">
+    <div class="logo-eco">⚡ EcoWatt</div>
+    <div class="rule"></div>
+    <h1>Pitch da Solução Final</h1>
+    <p class="sub">
+      Plataforma web para monitorar, analisar, simular e <strong style="color:#fff;">prever</strong><br>
+      o consumo de energia elétrica em residências e pequenas empresas.
+    </p>
+    <p class="autores">Alessandro Bento  •  Arthur Campana</p>
+    <p class="sub" style="margin-top:0.8em;">
+      Projeto Aplicado IV — Apresentação para a Banca Avaliadora<br>
+      UniSENAI Santa Catarina · Campus Florianópolis · 2026
+    </p>
+  </section>
+
+  <!-- ROTEIRO -->
+  <section>
+    <div class="slide-head">
+      <span class="eyebrow">Roteiro</span>
+      <h2 class="titulo-secao">O que vamos demonstrar</h2>
+    </div>
+    <div class="grid cols-3" style="gap:0.8em;">
+      <div class="card"><div class="num-badge">01</div><h3>Problema</h3><p>A dor que o EcoWatt resolve.</p></div>
+      <div class="card"><div class="num-badge">02</div><h3>Produto</h3><p>A solução em funcionamento, ao vivo.</p></div>
+      <div class="card lime"><div class="num-badge">03</div><h3>Arquitetura</h3><p>Como foi construído e onde roda.</p></div>
+      <div class="card blue"><div class="num-badge">04</div><h3>Dados &amp; IA</h3><p>Analytics e previsão de consumo.</p></div>
+      <div class="card amber"><div class="num-badge">05</div><h3>Qualidade</h3><p>Testes, CI e implantação.</p></div>
+      <div class="card amber"><div class="num-badge">06</div><h3>Impacto</h3><p>Valor ao usuário e extensão.</p></div>
+    </div>
+    <p class="nota">Conectamos a parte técnica — código, testes, dados e IA — ao valor entregue ao usuário final.</p>
+  </section>
+
+  <!-- ============ BLOCO 1 — PROBLEMA E SOLUÇÃO ============ -->
+  <section class="divisor" data-background-color="#16261f">
+    <div class="num-parte">BLOCO 1</div>
+    <h1>Problema &amp; Solução</h1>
+    <div class="rule-c"></div>
+    <p class="divisor-sub">A dor do consumidor e a resposta do EcoWatt.</p>
+  </section>
+
+  <!-- PROBLEMA (split-2col com painel de destaque) -->
+  <section>
+    <div class="slide-head">
+      <span class="eyebrow">Contexto</span>
+      <h2 class="titulo-secao">O problema</h2>
+    </div>
+    <div class="two-col visual">
+      <div>
+        <p class="lead" style="margin-bottom:0.5em;">O consumidor só enxerga a <strong>fatura mensal</strong>: o total em kWh e o valor cobrado.</p>
+        <ul style="font-size:0.78em;">
+          <li>Não sabe <strong>quais aparelhos</strong> pesam mais na conta</li>
+          <li>Não consegue <strong>simular</strong> o impacto de um novo equipamento</li>
+          <li>Não tem como <strong>agir preventivamente</strong> contra desperdícios</li>
+        </ul>
+        <p class="nota">Alinhado à Agenda 2030 — energia acessível e consumo responsável.</p>
+      </div>
+      <div class="panel">
+        <h3>A lacuna</h3>
+        <div class="panel-big">Falta visibilidade sobre o consumo de energia.</div>
+        <p>Não há forma acessível de registrar, compreender, comparar e simular o gasto elétrico do dia a dia.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUÇÃO -->
+  <section>
+    <div class="slide-head">
+      <span class="eyebrow">Solução</span>
+      <h2 class="titulo-secao">O que o EcoWatt entrega</h2>
+    </div>
+    <div class="grid cols-3">
+      <div class="card"><h3>Consumo</h3><p>Registro mensal em kWh e histórico por período.</p></div>
+      <div class="card"><h3>Equipamentos</h3><p>Cadastro, classificação e cálculo estimado automático.</p></div>
+      <div class="card"><h3>Simulação</h3><p>Impacto energético e financeiro de um novo aparelho.</p></div>
+      <div class="card lime"><h3>Dashboard</h3><p>Indicadores, comparativos e custo estimado (Chart.js).</p></div>
+      <div class="card lime"><h3>Metas &amp; relatórios</h3><p>Alertas e exportação em PDF.</p></div>
+      <div class="card blue"><h3>Previsão com IA</h3><p>Estima o consumo dos próximos meses.</p></div>
+    </div>
+    <p class="nota">Foco em residências e pequenas empresas. Os valores são <strong>estimativas de apoio à decisão</strong>, não medições certificadas.</p>
+  </section>
+
+  <!-- DEMO AO VIVO -->
+  <section>
+    <div class="slide-head">
+      <span class="eyebrow">Demonstração</span>
+      <h2 class="titulo-secao">Solução em funcionamento</h2>
+    </div>
+    <p class="lead">Produto completo e integrado: React · Spring Boot · PostgreSQL · analytics · IA.</p>
+    <div class="flow">
+      <div class="step"><span class="n">01</span><span class="t">Login</span></div>
+      <div class="arr">→</div>
+      <div class="step"><span class="n">02</span><span class="t">Registrar consumo</span></div>
+      <div class="arr">→</div>
+      <div class="step"><span class="n">03</span><span class="t">Cadastrar equipamento</span></div>
+      <div class="arr">→</div>
+      <div class="step"><span class="n">04</span><span class="t">Dashboard</span></div>
+      <div class="arr">→</div>
+      <div class="step"><span class="n">05</span><span class="t">Previsão de IA</span></div>
+      <div class="arr">→</div>
+      <div class="step"><span class="n">06</span><span class="t">Relatório PDF</span></div>
+    </div>
+    <div class="demo-box">
+      🎬 <strong>Demonstração ao vivo.</strong> Produto implantado em: <span class="placeholder">[ INSERIR URL DO DEPLOY ]</span><br>
+      <span style="font-size:0.85em;">Alternativa (offline): subir via <code>docker compose up</code> — postgres + backend (8080) + frontend (5500).</span>
+    </div>
+  </section>
+
+  <!-- ============ BLOCO 2 — ARQUITETURA ============ -->
+  <section class="divisor" data-background-color="#16261f">
+    <div class="num-parte">BLOCO 2</div>
+    <h1>Arquitetura &amp; Implementação</h1>
+    <div class="rule-c"></div>
+    <p class="divisor-sub">Como foi construído e onde roda.</p>
+  </section>
+
+  <!-- STACK (split-2col: cards de stack + painel-resumo) -->
+  <section>
+    <div class="slide-head">
+      <span class="eyebrow">Arquitetura</span>
+      <h2 class="titulo-secao">Stack tecnológica real</h2>
+    </div>
+    <div class="two-col visual">
+      <div style="display:flex; flex-direction:column; gap:0.6em;">
+        <div class="card">
+          <h3>Backend</h3>
+          <p>
+            <span class="stack-badge">Java 21</span>
+            <span class="stack-badge">Spring Boot 3.5</span>
+            <span class="stack-badge">Spring Data JPA</span>
+            <span class="stack-badge">Spring Security</span>
+            <span class="stack-badge">JWT</span>
+            <span class="stack-badge">Flyway</span>
+            <span class="stack-badge">Swagger</span>
+            <span class="stack-badge">Maven</span>
+          </p>
+        </div>
+        <div class="card lime">
+          <h3>Frontend</h3>
+          <p>
+            <span class="stack-badge">React 18</span>
+            <span class="stack-badge">Vite</span>
+            <span class="stack-badge">React Router</span>
+            <span class="stack-badge">Chart.js</span>
+            <span class="stack-badge">jsPDF</span>
+            <span class="stack-badge">html2canvas</span>
+          </p>
+        </div>
+        <div class="card blue">
+          <h3>Dados &amp; IA</h3>
+          <p>
+            <span class="stack-badge">PostgreSQL 16</span>
+            <span class="stack-badge">PySpark</span>
+            <span class="stack-badge">Spark MLlib</span>
+            <span class="stack-badge">Docker</span>
+          </p>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Organização</h3>
+        <div class="panel-big">Monorepo em camadas, orquestrado por Docker Compose.</div>
+        <p>Backend <strong style="color:#fff;">controller → service → repository → model</strong>, com DTOs, RBAC (USER/ADMIN) e schema versionado por Flyway (V1–V5).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAMADAS / DIAGRAMA DE ARQUITETURA (HTML em camadas) -->
+  <section>
+    <div class="slide-head">
+      <span class="eyebrow">Arquitetura</span>
+      <h2 class="titulo-secao">Arquitetura da solução</h2>
+    </div>
+    <div class="arq">
+      <div class="bloco topo-u">👤 Usuário</div>
+      <div class="conector"><span class="arrow">▼</span><small>REST / JWT</small></div>
+
+      <div class="camada c-fe">
+        <span class="rotulo">Frontend</span>
+        <div class="itens">
+          <span class="bloco">Dashboard</span>
+          <span class="bloco">Relatórios</span>
+          <span class="bloco">Analytics</span>
+          <span class="bloco">Previsão</span>
+          <span class="stk">React 18 + Vite</span>
+        </div>
+      </div>
+      <div class="conector"><span class="arrow">▼</span><small>chamadas REST</small></div>
+
+      <div class="camada c-api">
+        <span class="rotulo">Backend</span>
+        <div class="itens seq">
+          <span class="bloco">Controllers</span><span class="mini-seta">→</span>
+          <span class="bloco">Services</span><span class="mini-seta">→</span>
+          <span class="bloco">Repositories</span>
+          <span class="stk">Spring Boot 3.5 / Java 21</span>
+        </div>
+      </div>
+      <div class="conector"><span class="arrow">▼</span><small>JPA / Hibernate</small></div>
+
+      <div class="camada c-data">
+        <span class="rotulo">Dados</span>
+        <div class="itens">
+          <span class="bloco">PostgreSQL 16</span>
+          <span class="bloco">Flyway V1–V5</span>
+          <span class="stk">schema versionado</span>
+        </div>
+      </div>
+      <div class="conector"><span class="arrow">▼ ▲</span><small>JDBC — lê dados e grava previsão</small></div>
+
+      <div class="camada c-ia">
+        <span class="rotulo">Analytics &amp; IA</span>
+        <div class="itens seq">
+          <span class="bloco">Pipeline medalhão</span><span class="mini-seta">→</span>
+          <span class="bloco">Modelo MLlib</span><span class="mini-seta">→</span>
+          <span class="bloco">grava <code>previsao_consumo</code></span>
+          <span class="stk">PySpark</span>
+        </div>
+      </div>
+    </div>
+    <p class="nota">O Spark lê os dados do banco, treina a IA e grava a previsão de volta — tudo orquestrado por Docker Compose.</p>
+  </section>
+
+  <!-- DER / MODELO DE DADOS (Mermaid) -->
+  <section>
+    <div class="slide-head">
+      <span class="eyebrow">Arquitetura</span>
+      <h2 class="titulo-secao">Modelo de dados</h2>
+    </div>
+    <div class="diagrama-wrap">
+      <pre class="mermaid">
+erDiagram
+    USUARIO ||--o{ CONSUMO : registra
+    USUARIO ||--o{ EQUIPAMENTO_USUARIO : possui
+    USUARIO ||--|| CONFIGURACAO : tem
+    USUARIO ||--o{ EVENTO_USO : gera
+    USUARIO ||--o{ PREVISAO_CONSUMO : recebe
+    EQUIPAMENTO ||--o{ EQUIPAMENTO_USUARIO : referencia
+    USUARIO {
+      Long id
+      String nome
+      String email
+      String role
+    }
+    EQUIPAMENTO {
+      Long id
+      String nome
+      Double potencia
+    }
+    EQUIPAMENTO_USUARIO {
+      Long id
+      Double horasUso
+      Double consumoEstimado
+    }
+    CONSUMO {
+      Long id
+      Integer mes
+      Double kwh
+    }
+    CONFIGURACAO {
+      Long id
+      Double tarifa
+      Double metaMensal
+    }
+    EVENTO_USO {
+      Long id
+      String endpoint
+      String pagina
+    }
+    PREVISAO_CONSUMO {
+      Long id
+      Integer mes
+      Double kwhPrevisto
+    }
+      </pre>
+    </div>
+    <p class="nota">7 entidades JPA, schema versionado por Flyway (V1–V5). <code>PrevisaoConsumo</code> é a saída do modelo de IA.</p>
+  </section>
+
+  <!-- CASOS DE USO (Mermaid) -->
+  <section>
+    <div class="slide-head">
+      <span class="eyebrow">Arquitetura</span>
+      <h2 class="titulo-secao">Casos de uso</h2>
+    </div>
+    <div class="diagrama-wrap">
+      <pre class="mermaid">
+flowchart LR
+    U(("👤 Usuário"))
+    A(("🛡️ Admin"))
+    U --- UC01["Cadastrar e login"]
+    U --- UC02["Registrar consumo"]
+    U --- UC03["Consultar histórico"]
+    U --- UC04["Cadastrar equipamento"]
+    U --- UC05["Simular equipamento"]
+    U --- UC06["Ver dashboard"]
+    U --- UC07["Definir meta e alerta"]
+    U --- UC08["Gerar e exportar PDF"]
+    U --- UC09["Ver previsão de IA"]
+    A --- UC10["Painel de analytics"]
+    classDef uc fill:#eef5f0,stroke:#1b8a5a,color:#16261f,stroke-width:2px;
+    class UC01,UC02,UC03,UC04,UC05,UC06,UC07,UC08,UC09,UC10 uc;
+      </pre>
+    </div>
+    <p class="nota">O painel de analytics (mapa de calor, ranking de uso) é restrito ao perfil ADMIN.</p>
+  </section>
+
+  <!-- ============ BLOCO 3 — DADOS E IA ============ -->
+  <section class="divisor" data-background-color="#16261f">
+    <div class="num-parte">BLOCO 3</div>
+    <h1>Inteligência de Dados &amp; IA</h1>
+    <div class="rule-c"></div>
+    <p class="divisor-sub">Do dado bruto à previsão de consumo.</p>
+  </section>
+
+  <!-- ANALYTICS (pipeline HTML) -->
+  <section>
+    <div class="slide-head">
+      <span class="eyebrow blue">Analytics</span>
+      <h2 class="titulo-secao">Pipeline de dados · arquitetura medalhão</h2>
+    </div>
+    <p class="lead">Processamento em PySpark que transforma eventos de uso em indicadores para decisão.</p>
+    <div class="pipeline">
+      <div class="etapa" style="border-top-color:var(--eco-green);">
+        <div class="ico">🗄️</div>
+        <h3 style="color:var(--eco-green-dark);">PostgreSQL</h3>
+        <p><code>evento_uso</code> — origem</p>
+      </div>
+      <div class="seta">→</div>
+      <div class="etapa" style="border-top-color:#b8860b;">
+        <div class="ico">🥉</div>
+        <h3 style="color:#b8860b;">Bronze</h3>
+        <p>lê via JDBC e grava Parquet cru</p>
+      </div>
+      <div class="seta">→</div>
+      <div class="etapa" style="border-top-color:#7f8c8d;">
+        <div class="ico">🥈</div>
+        <h3 style="color:#7f8c8d;">Prata</h3>
+        <p>limpa, deduplica e padroniza</p>
+      </div>
+      <div class="seta">→</div>
+      <div class="etapa" style="border-top-color:var(--eco-amber);">
+        <div class="ico">🥇</div>
+        <h3 style="color:var(--eco-amber);">Ouro</h3>
+        <p>agrega mapa de calor e ranking</p>
+      </div>
+      <div class="seta">→</div>
+      <div class="etapa" style="border-top-color:var(--eco-green);">
+        <div class="ico">📊</div>
+        <h3 style="color:var(--eco-green-dark);">Dashboard</h3>
+        <p>mapa dia × hora e cliques por página</p>
+      </div>
+    </div>
+    <p class="nota">Coleta via <code>EventoUsoInterceptor</code> no backend. Painel de analytics restrito ao perfil ADMIN.</p>
+  </section>
+
+  <!-- IA -->
+  <section>
+    <div class="slide-head">
+      <span class="eyebrow blue">Inteligência Artificial</span>
+      <h2 class="titulo-secao">Previsão de consumo</h2>
+    </div>
+    <div class="two-col visual">
+      <div>
+        <h3>O modelo</h3>
+        <ul style="font-size:0.72em;">
+          <li>Regressão linear com <strong>Spark MLlib</strong>, treinada <strong>por usuário</strong></li>
+          <li>Método conforme o histórico: <strong>média</strong> (até 5 meses), <strong>regressão com tendência</strong> (6+) e <strong>com sazonalidade</strong> seno/cosseno (12+)</li>
+          <li>Prevê os <strong>próximos 3 meses</strong>; o mês atual (incompleto) fica fora do treino</li>
+          <li>Validação por <em>backtest</em>: erro médio de <strong>~2,3%</strong> do consumo, contra ~10% da média simples</li>
+        </ul>
+      </div>
+      <div class="panel" style="background:linear-gradient(150deg,#1d4f6f,var(--eco-blue));">
+        <h3>Integração ponta a ponta</h3>
+        <div style="font-size:0.74em; line-height:1.7; margin-top:0.2em;">
+          <code style="background:rgba(255,255,255,0.18); padding:0.1em 0.4em; border-radius:5px;">previsao.py</code> →
+          tabela <code style="background:rgba(255,255,255,0.18); padding:0.1em 0.4em; border-radius:5px;">previsao_consumo</code> (Flyway V5) →
+          <code style="background:rgba(255,255,255,0.18); padding:0.1em 0.4em; border-radius:5px;">GET /previsao/usuario/{id}</code> →
+          consumido no frontend
+        </div>
+        <p>Recalculada automaticamente a cada 30s no Docker Compose. Apresentada como <strong style="color:#fff;">estimativa de apoio</strong>, não medição certificada.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BLOCO 4 — QUALIDADE E IMPLANTAÇÃO ============ -->
+  <section class="divisor" data-background-color="#16261f">
+    <div class="num-parte">BLOCO 4</div>
+    <h1>Qualidade &amp; Implantação</h1>
+    <div class="rule-c"></div>
+    <p class="divisor-sub">Confiabilidade sustentada por evidências.</p>
+  </section>
+
+  <!-- QUALIDADE (big-number 63 + split) -->
+  <section>
+    <div class="slide-head">
+      <span class="eyebrow amber">Qualidade</span>
+      <h2 class="titulo-secao">Testes automatizados</h2>
+    </div>
+    <div class="two-col visual" style="align-items:center;">
+      <div class="bignum">
+        <div class="valor">83</div>
+        <div class="rotulo">testes automatizados</div>
+        <div class="sub"><strong style="color:var(--eco-green);">0 falhas</strong> · <strong style="color:var(--eco-green);">0 erros</strong> · JUnit 5 + Mockito · cobertura JaCoCo · + 11 testes do modelo de previsão</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:0.7em;">
+        <div class="card"><h3>Unitários</h3><p>Services e regras de negócio: cálculos, JWT e autenticação.</p></div>
+        <div class="card lime"><h3>Integração</h3><p>Repositórios, services, controle de acesso e respostas HTTP, com banco H2 em memória.</p></div>
+        <div class="highlight-box green">H2 nos testes · PostgreSQL 16 em produção · validação de entradas inválidas.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CI/CD (comparison feito vs planejado) -->
+  <section>
+    <div class="slide-head">
+      <span class="eyebrow amber">Entrega</span>
+      <h2 class="titulo-secao">Versionamento e CI/CD</h2>
+    </div>
+    <div class="compare">
+      <div class="col done">
+        <h3>✓ Feito</h3>
+        <ul>
+          <li><strong>Controle de versão:</strong> Git + GitHub, branches por feature</li>
+          <li><strong>Gestão de configuração:</strong> Flyway (schema) + variáveis de ambiente</li>
+          <li><strong>Integração contínua:</strong> GitHub Actions — testes Maven + build Docker como <em>gate</em></li>
+        </ul>
+      </div>
+      <div class="col todo">
+        <h3>◴ Planejado</h3>
+        <ul>
+          <li><strong>Entrega contínua (CD):</strong> deploy automático em nuvem a cada merge aprovado</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box">
+      <strong>CI em ação:</strong> a cada push, o pipeline roda os <strong>83 testes</strong> do backend e só segue se tudo passar — confiabilidade de produto web, automatizada.
+    </div>
+  </section>
+
+  <!-- IMPLANTAÇÃO -->
+  <section>
+    <div class="slide-head">
+      <span class="eyebrow amber">Implantação</span>
+      <h2 class="titulo-secao">Pronto para produção</h2>
+    </div>
+    <div class="grid">
+      <div class="card"><h3>Docker Compose</h3><p>postgres + backend + frontend; pipeline Spark em profile separado.</p></div>
+      <div class="card lime"><h3>Dockerfiles + Nginx</h3><p>Imagem por serviço; frontend servido por Nginx.</p></div>
+      <div class="card"><h3>Config por ambiente</h3><p>Variáveis de ambiente, segredos fora do repositório.</p></div>
+      <div class="card lime"><h3>Teste de fumaça</h3><p>Fluxo essencial verificado antes de liberar.</p></div>
+    </div>
+    <div class="demo-box">🌐 Ambiente de produção: <span class="placeholder">[ INSERIR URL quando o deploy em nuvem estiver no ar ]</span></div>
+  </section>
+
+  <!-- ============ BLOCO 5 — IMPACTO ============ -->
+  <section class="divisor" data-background-color="#16261f">
+    <div class="num-parte">BLOCO 5</div>
+    <h1>Impacto &amp; Extensão</h1>
+    <div class="rule-c"></div>
+    <p class="divisor-sub">O valor entregue ao usuário final.</p>
+  </section>
+
+  <!-- IMPACTO (split: valor + painel validação) -->
+  <section>
+    <div class="slide-head">
+      <span class="eyebrow amber">Impacto</span>
+      <h2 class="titulo-secao">Valor ao usuário e à comunidade</h2>
+    </div>
+    <div class="two-col visual">
+      <div class="grid" style="grid-template-columns:1fr 1fr; gap:0.6em; margin:0;">
+        <div class="card"><h3>💰 Economia</h3><p>Identificar desperdícios e reduzir a conta.</p></div>
+        <div class="card lime"><h3>🔮 Previsibilidade</h3><p>Simular antes de comprar e prever meses futuros.</p></div>
+        <div class="card blue"><h3>🧭 Consciência</h3><p>Metas, alertas e comparativos de consumo.</p></div>
+        <div class="card amber"><h3>🌱 Sustentabilidade</h3><p>Uso responsável de energia (Agenda 2030).</p></div>
+      </div>
+      <div class="panel" style="background:linear-gradient(150deg,var(--eco-green-dark),var(--eco-lime));">
+        <h3>Validação &amp; extensão</h3>
+        <div class="panel-big">Roteiro de aceite com usuários-piloto.</div>
+        <p>Plano de validação com <strong style="color:#fff;">3 a 5 usuários</strong>, dados fictícios e tarefas guiadas para coletar achados de uso.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHECKLIST DAS UCs (timeline/tabela destacada) -->
+  <section>
+    <div class="slide-head">
+      <span class="eyebrow">Fechamento</span>
+      <h2 class="titulo-secao">Competências da fase demonstradas</h2>
+    </div>
+    <table>
+      <thead><tr><th>Competência da fase</th><th>Evidência</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Qualidade e testes</td><td>83 testes JUnit + JaCoCo</td><td><span class="tag ok">✓ Feito</span></td></tr>
+        <tr><td>Versionamento e CI/CD</td><td>Git/GitHub + GitHub Actions</td><td><span class="tag ok">✓ Feito</span></td></tr>
+        <tr><td>Inteligência de dados</td><td>Pipeline PySpark + dashboard analytics</td><td><span class="tag ok">✓ Feito</span></td></tr>
+        <tr><td>Inteligência artificial</td><td>Previsão de consumo (MLlib) integrada</td><td><span class="tag ok">✓ Feito</span></td></tr>
+        <tr><td>Segurança e controle de acesso</td><td>Cada usuário só acessa os próprios dados; ADMIN acessa todos</td><td><span class="tag ok">✓ Feito</span></td></tr>
+        <tr><td>Implantação</td><td>Docker Compose + CI</td><td><span class="tag ok">✓ Feito</span></td></tr>
+        <tr><td>Produto acessível ao usuário</td><td>Deploy em nuvem público</td><td><span class="tag plan">Em andamento</span></td></tr>
+      </tbody>
+    </table>
+    <p class="nota">Tudo isso sustenta a demonstração ao vivo: solução em funcionamento, código, testes, analytics, IA e implantação.</p>
+  </section>
+
+  <!-- FINAL -->
+  <section class="capa" data-background-color="#0f5f3d" style="align-items:center; text-align:center;">
+    <div class="logo-eco" style="font-size:1.5em;">⚡ EcoWatt</div>
+    <div class="rule" style="margin:0.5em auto 0.6em;"></div>
+    <h1 style="font-size:1.7em; text-align:center;">Da fatura opaca à<br>decisão consciente.</h1>
+    <p class="sub" style="margin-top:0.5em;">github.com/arthurcampana/Ecowatt_API</p>
+    <p class="sub">Alessandro Bento  •  Arthur Campana</p>
+    <p class="sub">Projeto Aplicado IV · UniSENAI Santa Catarina · Florianópolis · 2026</p>
+    <p class="sub" style="margin-top:0.7em; font-weight:700; font-size:0.95em;">Obrigado! Perguntas?</p>
+  </section>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'base',
+    flowchart: { useMaxWidth: true, htmlLabels: true, padding: 18, nodeSpacing: 60, rankSpacing: 65 },
+    er: { useMaxWidth: true, entityPadding: 20, fontSize: 18, minEntityWidth: 170, minEntityHeight: 22 },
+    themeVariables: {
+      fontFamily: 'Segoe UI, Helvetica Neue, Arial, sans-serif',
+      primaryColor: '#eef5f0',
+      primaryBorderColor: '#1b8a5a',
+      primaryTextColor: '#16261f',
+      lineColor: '#5a6b63',
+      fontSize: '19px'
+    }
+  });
+  window.addEventListener('load', async () => {
+    Reveal.initialize({ hash:true, slideNumber:'c/t', transition:'slide', width:1280, height:720, margin:0.055, controls:true, progress:true });
+    // garante que as fontes estejam carregadas antes de medir/renderizar os diagramas,
+    // evitando que o Mermaid dimensione as caixas com fonte de fallback (texto cortado)
+    if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch (e) {} }
+    await mermaid.run({ querySelector: '.mermaid' });
+  });
+</script>
+</body>
+</html>

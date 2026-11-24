@@ -17,3 +17,6 @@ __pycache__/
 spark-warehouse/
 metastore_db/
 derby.log
+
+# Documentacao HTML local da previsao (nao versionar)
+previsao-explicacao.html

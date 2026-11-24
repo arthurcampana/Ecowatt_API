@@ -6,6 +6,8 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { consumoService } from "../api/consumoService.js";
 import { equipamentoUsuarioService } from "../api/equipamentoUsuarioService.js";
 import { configuracaoService } from "../api/configuracaoService.js";
+import { previsaoService } from "../api/previsaoService.js";
+import { previsoesFuturas, nomeAnoMes } from "../utils/previsao.js";
 import { CORES } from "../utils/chartPalette.js";
 import { useChartTheme } from "../charts/useChartTheme.js";
 import LegendaEquipamentos from "../components/LegendaEquipamentos.jsx";
@@ -54,6 +56,7 @@ export default function Dashboard() {
   const [consumoMes, setConsumoMes] = useState(() => new Array(12).fill(0));
   const [equipamentos, setEquipamentos] = useState([]);
   const [config, setConfig] = useState(null); // { meta, valorTarifa }
+  const [previsao, setPrevisao] = useState([]); // [{ anoMes, consumoPrevisto }]
   const [carregando, setCarregando] = useState(true);
   const [mensagem, setMensagem] = useState(null);
 
@@ -115,6 +118,19 @@ export default function Dashboard() {
         }
       }
 
+      // Previsao (IA) e opcional: sem previsao ou com falha, o painel mostra
+      // um aviso e o resto do Dashboard carrega normalmente.
+      try {
+        const prev = await previsaoService.getPorUsuario(usuario.id);
+        if (ativo) {
+          setPrevisao(previsoesFuturas(prev));
+        }
+      } catch {
+        if (ativo) {
+          setPrevisao([]);
+        }
+      }
+
       if (ativo) {
         setCarregando(false);
       }
@@ -157,6 +173,13 @@ export default function Dashboard() {
   const custoMes = totalMesAtual * tarifa;
   const progressoMeta = meta > 0 ? (totalMesAtual / meta) * 100 : 0;
   const acimaMeta = meta > 0 && totalMesAtual > meta;
+
+  // Previsao do proximo mes ainda sem registro (primeiro item da projecao).
+  const proximaPrevisao = previsao[0] ?? null;
+  const kwhPrevisto = proximaPrevisao
+    ? Number(proximaPrevisao.consumoPrevisto)
+    : 0;
+  const previsaoAcimaMeta = meta > 0 && kwhPrevisto > meta;
 
   const semDados =
     !carregando &&
@@ -389,6 +412,58 @@ export default function Dashboard() {
               </button>
             )}
           </div>
+        </div>
+
+        <div className="dash-panel dash-previsao">
+          <div className="dash-panel-head">
+            <div>
+              <h3>Previsão (IA)</h3>
+              <p>
+                {proximaPrevisao
+                  ? `Para ${nomeAnoMes(proximaPrevisao.anoMes)}`
+                  : "Próximos meses"}
+              </p>
+            </div>
+            {proximaPrevisao && meta > 0 && (
+              <span className={`dash-tag ${previsaoAcimaMeta ? "perigo" : ""}`}>
+                {previsaoAcimaMeta ? "Acima da meta" : "Dentro da meta"}
+              </span>
+            )}
+          </div>
+
+          {proximaPrevisao ? (
+            <>
+              <div className="dash-custo-valor">
+                {kwhPrevisto.toFixed(0)} kWh
+                <span>
+                  {tarifa > 0
+                    ? `≈ R$ ${(kwhPrevisto * tarifa).toFixed(2)} estimados`
+                    : "Defina a tarifa para ver o custo previsto"}
+                </span>
+              </div>
+              {previsao.length > 1 && (
+                <ul className="dash-previsao-lista">
+                  {previsao.slice(1).map((p) => (
+                    <li key={p.anoMes}>
+                      <span>
+                        {nomeAnoMes(p.anoMes, { month: "short", year: "numeric" })}
+                      </span>
+                      <strong>{Number(p.consumoPrevisto).toFixed(0)} kWh</strong>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <p className="dash-previsao-nota">
+                Estimativa calculada a partir do seu histórico mensal. Não
+                substitui a leitura do medidor.
+              </p>
+            </>
+          ) : (
+            <p className="dash-aviso">
+              Ainda não há previsão. Ela é gerada pelo pipeline de dados depois
+              que você tiver pelo menos um mês completo de consumo registrado.
+            </p>
+          )}
         </div>
       </section>
 

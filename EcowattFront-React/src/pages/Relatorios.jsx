@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { useUI } from "../context/UIContext.jsx";
 import { consumoService } from "../api/consumoService.js";
 import { previsaoService } from "../api/previsaoService.js";
+import { previsoesFuturas } from "../utils/previsao.js";
 import { configuracaoService } from "../api/configuracaoService.js";
 import { equipamentoUsuarioService } from "../api/equipamentoUsuarioService.js";
 import { formatarData } from "../utils/formato.js";
@@ -108,7 +109,7 @@ export default function Relatorios() {
       // degrada graciosamente deixando a lista vazia sem quebrar as outras cargas.
       try {
         const prev = await previsaoService.getPorUsuario(usuario.id);
-        setPrevisao(prev || []);
+        setPrevisao(previsoesFuturas(prev));
       } catch {
         setPrevisao([]);
       }

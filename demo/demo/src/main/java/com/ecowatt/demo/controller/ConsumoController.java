@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,6 +23,7 @@ public class ConsumoController {
     }
 
     // CREATE
+    @PreAuthorize("@acesso.podeAcessarUsuario(#dto.usuarioId())")
     @PostMapping("/add")
     public ResponseEntity<ConsumoResponseDTO> salvar(
            @Valid @RequestBody ConsumoRequestDTO dto
@@ -42,6 +44,7 @@ public class ConsumoController {
     }
 
     // READ ALL
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/listar")
     public ResponseEntity<?> listar() {
 
@@ -57,6 +60,7 @@ public class ConsumoController {
     }
 
     // READ ONE
+    @PreAuthorize("@acesso.donoDoConsumo(#id)")
     @GetMapping("/{id}")
     public ResponseEntity<?> buscar(@PathVariable Long id) {
 
@@ -75,6 +79,7 @@ public class ConsumoController {
     }
 
     // READ BY USER
+    @PreAuthorize("@acesso.podeAcessarUsuario(#usuarioId)")
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<?> listarPorUsuario(
             @PathVariable Long usuarioId
@@ -94,6 +99,7 @@ public class ConsumoController {
     }
 
     // DELETE
+    @PreAuthorize("@acesso.donoDoConsumo(#id)")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletar(@PathVariable Long id) {
 
@@ -115,6 +121,7 @@ public class ConsumoController {
         }
     }
 
+    @PreAuthorize("@acesso.donoDoConsumo(#id)")
     @PutMapping("/{id}")
     public ResponseEntity<ConsumoResponseDTO> alterar(
             @PathVariable Long id,

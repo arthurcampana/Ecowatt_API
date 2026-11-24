@@ -1,14 +1,11 @@
 package com.ecowatt.demo.controller;
 
 import com.ecowatt.demo.dto.*;
-import com.ecowatt.demo.model.Configuracao;
-import com.ecowatt.demo.model.Consumo;
-import com.ecowatt.demo.model.Usuario;
 import com.ecowatt.demo.service.ConfiguracaoService;
-import com.ecowatt.demo.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +22,7 @@ public class ConfiguracaoController {
         this.service = configuracaoService; }
 
 
+    @PreAuthorize("@acesso.podeAcessarUsuario(#dto.usuarioId())")
     @PostMapping("/add")
     public ResponseEntity<ConfiguracaoResponseDTO> salvar(
             @Valid @RequestBody ConfiguracaoRequestDTO dto
@@ -44,6 +42,7 @@ public class ConfiguracaoController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/listar")
     public ResponseEntity<?> listar() {
         try {
@@ -51,25 +50,29 @@ public class ConfiguracaoController {
             return ResponseEntity.ok(lista);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao listar consumos");
+                    .body("Erro ao listar configurações");
         }
     }
 
+    @PreAuthorize("@acesso.donoDaConfiguracao(#id)")
     @GetMapping("/{id}")
     public ResponseEntity<?> buscar(@PathVariable Long id) {
         try {
             return service.buscarConfig(id)
                     .<ResponseEntity<?>>map(ResponseEntity::ok)
                     .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                            .body("Consumo não encontrado"));
+                            .body("Configuração não encontrada"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao buscar consumo");
+                    .body("Erro ao buscar configuração");
         }
     }
 
+    @PreAuthorize("@acesso.donoDaConfiguracao(#id)")
     @PutMapping("/alterar/{id}")
-    public ResponseEntity<?> alterarConfig(@PathVariable Long id, @RequestBody ConfiguracaoUpdateDTO configAtualizado){
+    public ResponseEntity<?> alterarConfig(
+            @PathVariable Long id,
+            @Valid @RequestBody ConfiguracaoUpdateDTO configAtualizado){
         try {
             Optional<ConfiguracaoResponseDTO> config = service.alterarConfig(id, configAtualizado);
 
@@ -77,14 +80,15 @@ public class ConfiguracaoController {
                 return ResponseEntity.ok(config.get());
 
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Usuario não encontrado");
+                    .body("Configuração não encontrada");
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao atualizar usuario: " + e.getMessage());
+                    .body("Erro ao atualizar configuração");
         }
     }
 
+    @PreAuthorize("@acesso.donoDaConfiguracao(#id)")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletar(@PathVariable Long id) {
         try {
@@ -94,13 +98,14 @@ public class ConfiguracaoController {
                 return ResponseEntity.ok("Removido com sucesso");
 
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Erro: Sonic é guloso demais!");
+                    .body("Configuração não encontrada");
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao deletar consumo");
+                    .body("Erro ao excluir configuração");
         }
     }
+    @PreAuthorize("@acesso.podeAcessarUsuario(#id)")
     @GetMapping("/usuario/{id}")
     public ResponseEntity<?> buscarPorUsuario(
             @PathVariable Long id
@@ -109,22 +114,15 @@ public class ConfiguracaoController {
         try{
 
             return service.buscarPorUsuario(id)
-                    .map(ResponseEntity::ok)
-                    .orElse(
-                            ResponseEntity.notFound().build()
-                    );
+                    .<ResponseEntity<?>>map(ResponseEntity::ok)
+                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body("Configuração não encontrada"));
 
         }catch(Exception e){
 
-
-            e.printStackTrace();
-
             return ResponseEntity
-                    .status(500)
-                    .body(e.getMessage());
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao buscar configuração");
         }
     }
 }
-
-
-

@@ -5,6 +5,7 @@ import com.ecowatt.demo.service.UsuarioService;
 import com.ecowatt.demo.service.AuthenticationService;
 import jakarta.validation.Valid;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -41,6 +42,7 @@ public class UsuarioController {
         }
     }
 
+    @PreAuthorize("@acesso.podeAcessarUsuario(#id)")
     @GetMapping("/buscar/{id}")
     public ResponseEntity<?> buscar(@PathVariable Long id){
         Optional<UsuarioResponseDTO> usuario = usuarioService.buscarUsuario(id);
@@ -50,15 +52,17 @@ public class UsuarioController {
                         .body("Usuario não encontrado"));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/buscar")
     public ResponseEntity<List<UsuarioResponseDTO>> listar(){
         return ResponseEntity.ok(usuarioService.listarUsuarios());
     }
 
+    @PreAuthorize("@acesso.podeAcessarUsuario(#id)")
     @PutMapping("/alterar/{id}")
     public ResponseEntity<?> alterar(
             @PathVariable Long id,
-            @RequestBody UsuarioUpdateDTO dto){
+            @Valid @RequestBody UsuarioUpdateDTO dto){
 
         Optional<UsuarioResponseDTO> usuario = usuarioService.alterarUsuario(id, dto);
 
@@ -67,6 +71,7 @@ public class UsuarioController {
                         .body("Usuario não encontrado"));
     }
 
+    @PreAuthorize("@acesso.podeAcessarUsuario(#id)")
     @DeleteMapping("/excluir/{id}")
     public ResponseEntity<?> excluir(@PathVariable Long id){
         if(usuarioService.excluirUsuario(id)){

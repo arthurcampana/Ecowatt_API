@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,6 +25,7 @@ public class EquipamentoUsuarioController {
     }
 
     // CREATE
+    @PreAuthorize("@acesso.podeAcessarUsuario(#dto.usuarioId())")
     @PostMapping("/add")
     public ResponseEntity<?> salvar(
             @Valid @RequestBody
@@ -48,6 +50,7 @@ public class EquipamentoUsuarioController {
     }
 
     // LISTAR POR USUÁRIO
+    @PreAuthorize("@acesso.podeAcessarUsuario(#id)")
     @GetMapping("/listar/{id}")
     public ResponseEntity<?> listar(
             @PathVariable Long id
@@ -68,6 +71,7 @@ public class EquipamentoUsuarioController {
     }
 
     // BUSCAR POR ID
+    @PreAuthorize("@acesso.donoDoEquipamentoUsuario(#id)")
     @GetMapping("/{id}")
     public ResponseEntity<?> buscar(
             @PathVariable Long id
@@ -91,6 +95,7 @@ public class EquipamentoUsuarioController {
     }
 
     // UPDATE
+    @PreAuthorize("@acesso.donoDoEquipamentoUsuario(#id)")
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizar(
 
@@ -122,6 +127,7 @@ public class EquipamentoUsuarioController {
     }
 
     // DELETE
+    @PreAuthorize("@acesso.donoDoEquipamentoUsuario(#id)")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletar(
             @PathVariable Long id

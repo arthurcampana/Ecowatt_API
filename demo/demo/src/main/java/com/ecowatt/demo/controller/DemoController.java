@@ -58,7 +58,6 @@ public class DemoController {
         criarConfiguracao(usuario);
 
         gerarHistoricoConsumo(usuario);
-        gerarHistoricoConsumo(usuario);
 
         gerarEventosDeUso(usuario);
 

@@ -33,9 +33,10 @@ O EcoWatt foi desenvolvido para auxiliar usuários no acompanhamento do consumo 
 - Chart.js / react-chartjs-2
 - jsPDF + html2canvas (exportação de relatórios)
 
-## Análise de dados 
+## Análise de dados e IA
 
 - PySpark (pipeline em lote, arquitetura medalhão bronze/prata/ouro)
+- PySpark MLlib (regressão linear) para a previsão de consumo
 
 ## Infraestrutura
 
@@ -49,6 +50,7 @@ O EcoWatt foi desenvolvido para auxiliar usuários no acompanhamento do consumo 
 - Cadastro, login e autenticação JWT
 - Perfil e configurações
 - **Controle de acesso por papel (RBAC)**: cada usuário tem um papel `USER` (padrão) ou `ADMIN`. Recursos de análise de uso — a página `/analytics` e o mapa de calor de cliques — são restritos a administradores; o restante do sistema é comum a todos os usuários logados.
+- **Controle de acesso por dono do dado**: cada usuário só acessa os próprios consumos, equipamentos, configuração e previsão; tentar ler ou alterar dados de outro usuário retorna `403`. O `ADMIN` acessa os dados de todos.
 
 ## Equipamentos
 O usuário cadastra equipamentos informando nome de identificação, equipamento e horas de uso por dia. O sistema calcula o **consumo esperado diário**. É possível editar, excluir e listar.
@@ -57,10 +59,13 @@ O usuário cadastra equipamentos informando nome de identificação, equipamento
 Registro de consumo em kWh com data. Permite cadastro, alteração, exclusão, histórico e filtros por mês/ano.
 
 ## Metas
-Meta mensal de consumo, com comparação automática (dentro / acima da meta).
+Meta mensal de consumo, com comparação automática (dentro / acima da meta) e alerta visual no Dashboard quando o consumo se aproxima ou ultrapassa a meta.
+
+## Previsão de consumo (IA)
+Modelo de previsão por **regressão linear (PySpark MLlib)**, treinado por usuário sobre o histórico mensal. O método se ajusta ao tamanho do histórico (média até 5 meses, regressão a partir de 6, com sazonalidade a partir de 12) e é validado por backtest. Projeta os próximos 3 meses, exibidos no Dashboard e nos Relatórios. É recalculado automaticamente a cada 30s pelo serviço `spark` do Docker Compose.
 
 ## Dashboard
-Indicadores rápidos (consumo do mês, anual, média mensal) e gráficos de consumo mensal e distribuição por equipamento.
+Indicadores rápidos (consumo do mês, anual, média mensal), gráficos de consumo mensal e distribuição por equipamento, e o painel de previsão (IA).
 
 ## Relatórios
 Filtro por período, indicadores (total, médio, maior, menor, custo estimado, status da meta), gráficos (evolução, doughnut por equipamento, custo por equipamento), histórico e exportação em PDF.
@@ -94,7 +99,7 @@ Ecowatt_API/
 │   │   ├── model/             # Entidades JPA (inclui EventoUso)
 │   │   ├── repository/        # Spring Data repositories
 │   │   └── service/           # Regras de negócio (inclui AnalyticsService)
-│   ├── src/main/resources/db/migration/   # Flyway (V1..V4; V4 = papel/role + seed admin)
+│   ├── src/main/resources/db/migration/   # Flyway (V1..V5; V4 = papel/role + seed admin; V5 = previsao_consumo)
 │   ├── Dockerfile
 │   └── pom.xml
 │
@@ -109,12 +114,12 @@ Ecowatt_API/
 │   ├── Dockerfile + nginx.conf
 │   └── vite.config.js
 │
-├── spark/                     # Pipeline PySpark (bronze → prata → ouro)
-├── docker-compose.yml         # Sobe banco + backend + front
+├── spark/                     # PySpark: previsao.py (IA, em loop) + bronze/prata/ouro (analytics)
+├── docker-compose.yml         # Sobe banco + backend + front + spark (previsao automatica)
 ├── iniciar-ecowatt.bat        # Inicializador local (Windows)
-├── parar-ecowatt.bat          # Encerra backend e frontend
+├── parar-ecowatt.bat          # Encerra os containers
 ├── rodar-testes.bat           # Executa a suíte de testes do backend
-├── rodar-pipeline-spark.bat   # Executa o pipeline PySpark (bronze/prata/ouro)
+├── rodar-pipeline-spark.bat   # Executa o pipeline de analytics (bronze/prata/ouro)
 ├── DOCKER.md                  # Guia do Docker Compose
 └── README.md
 ```
@@ -129,6 +134,7 @@ Ecowatt_API/
 - **Consumo**: id, usuario, consumoKwh, dataRegistro
 - **Configuracao**: id, usuario, valorTarifa, meta, dataFechamento, unidadeMedida
 - **EventoUso**: id, usuario, tipoEvento (API/CLIQUE), endpoint, metodo, statusHttp, rotulo, pagina, dataHora
+- **PrevisaoConsumo**: id, usuario, anoMes, consumoPrevisto, geradoEm (saída do modelo de previsão)
 
 ---
 
@@ -171,6 +177,12 @@ authority do Spring Security (`ROLE_USER` / `ROLE_ADMIN`). Os endpoints de leitu
 de métricas exigem `ROLE_ADMIN`; o front esconde a página Analytics e o mapa de
 calor para quem não é admin (e bloqueia a rota `/analytics` por URL).
 
+**Autorização por dono do dado:** além do papel, cada endpoint que recebe um ID
+verifica se o recurso pertence ao usuário do token (ver `config/ControleAcesso`).
+Um usuário comum que tente ler, alterar ou apagar dados de outro — ou criar
+registros em nome de outro — recebe `403`. As listagens globais (`/usuario/buscar`,
+`/consumo/listar`, `/configuracao/listar`) são exclusivas do `ADMIN`.
+
 **Usuário administrador padrão:** a migração `V4` cria automaticamente, no primeiro
 start (banco novo), um admin de demonstração — e-mail `admin@ecowatt.com`, senha
 `admin123` (hash BCrypt). Troque essas credenciais fora de um contexto acadêmico.
@@ -187,9 +199,10 @@ que o pipeline PySpark lê o mesmo banco que o app alimenta.
 ## Opção 1 — Script (Windows, mais simples)
 
 Com o Docker Desktop aberto, dê dois cliques em **`iniciar-ecowatt.bat`**. Ele sobe
-o stack completo via Docker Compose (postgres + backend + frontend) e deixa um
-painel de controle (digite `L` para ver logs, `P` para parar). Para parar também
-dá para usar **`parar-ecowatt.bat`**.
+o stack completo via Docker Compose (postgres + backend + frontend + spark, este
+último responsável pela previsão automática) e deixa um painel de controle (digite
+`L` para ver logs, `P` para parar). Para parar também dá para usar
+**`parar-ecowatt.bat`**.
 
 Acesse **http://localhost:5500**.
 
@@ -239,34 +252,38 @@ Ou dê dois cliques em **`rodar-testes.bat`**.
 
 ---
 
-# Pipeline de dados (PySpark)
+# PySpark: previsão (IA) e analytics
 
-A pasta `spark/` contém um pipeline em lote que lê os eventos de uso do Postgres
-e os refina em camadas (bronze → prata → ouro), demonstrando tratamento de dados
-distribuído. É um serviço do Docker Compose num **profile** separado (`spark`),
-então roda sob demanda, não junto com o app.
+A pasta `spark/` tem dois usos, ambos em PySpark:
 
-Com o stack no ar e os dados populados, rode:
+## Previsão de consumo — automática
+O serviço `spark` do Docker Compose sobe junto com o app e roda `previsao.py` em
+loop, recalculando a previsão a cada 30s (variável `INTERVALO_PREVISAO`). Depois
+de registrar consumo ou popular dados, **recarregue a página** e a previsão
+aparece no Dashboard em até meio minuto — sem rodar nenhum comando.
+
+## Analytics (mapa de calor e rankings) — sob demanda
+As camadas bronze → prata → ouro leem os eventos de uso do Postgres e os refinam,
+demonstrando tratamento de dados distribuído. Dependem da tabela `evento_uso`, então
+rodam **sob demanda**, num profile separado:
 
 ```bash
-docker compose run --rm spark
+docker compose run --rm analytics
 ```
 
 No Windows dá para dar dois cliques em **`rodar-pipeline-spark.bat`** (mesmo
-efeito, via Docker). Ele executa as três camadas e gera os Parquets no volume
-`ecowatt_spark_data` (mapa de calor, ranking de endpoints, ranking de cliques e
-**ranking de cliques por página**). Detalhes em `spark/README.md`.
+efeito). Ele gera os Parquets no volume `ecowatt_spark_data` (mapa de calor,
+ranking de endpoints, ranking de cliques e **ranking de cliques por página**).
+Detalhes em `spark/README.md`.
 
 ---
 
 # Melhorias Futuras
 
-- Comparação entre meses e comparativo anual
 - Exportação para Excel
-- Previsão/projeção de consumo com base no histórico
-- Alertas quando a meta estiver perto de ser ultrapassada
 - Gestão de usuários pelo admin (listar, promover/rebaixar papel)
 - Recuperação de senha
+- Deploy em nuvem com entrega contínua (CD)
 - Integração com dispositivos IoT
 
 ---

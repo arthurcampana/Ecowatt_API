@@ -38,7 +38,7 @@ PySpark (processamento em lote).
 | `bronze.py` | 🥉 | Lê `evento_uso` do Postgres (JDBC) e grava cru em Parquet. |
 | `prata.py` | 🥈 | Remove ruído, deduplica clique duplo (window function), padroniza rótulos ("Sair"→"logout") e a página do clique, extrai dia/hora. |
 | `ouro.py` | 🥇 | Agrega: mapa de calor (dia × hora), ranking de endpoints, ranking de cliques e ranking de cliques por página. |
-| `previsao.py` | 🔮 | Lê `consumo` (JDBC), agrega em baldes mensais por usuário, treina uma regressão linear MLlib por usuário (fallback para a média histórica quando há < 3 baldes) e grava a projeção dos próximos 3 meses na tabela `previsao_consumo`. |
+| `previsao.py` | 🔮 | Lê `consumo` (JDBC), agrega por mês e usuário, escolhe o método pelo tamanho do histórico (média com menos de 6 meses, regressão linear MLlib com 6 ou mais, regressão com sazonalidade com 12 ou mais), valida com backtest (erro médio em kWh no log) e grava a projeção dos próximos 3 meses na tabela `previsao_consumo`. |
 
 ## Pré-requisitos
 
@@ -152,6 +152,37 @@ a projeção pela API. As 4 colunas de negócio são:
 
 A coluna `id` existe na tabela (BIGSERIAL) mas é gerada pelo banco — o Spark
 **não** a escreve.
+
+**Como a previsão é calculada:**
+
+| Meses completos no histórico | Método |
+|---|---|
+| nenhum (só o mês corrente) | sem previsão |
+| 1 a 5 | média histórica |
+| 6 a 11 | regressão linear com tendência |
+| 12 ou mais | regressão linear com tendência e sazonalidade anual (seno/cosseno do mês) |
+
+- O **mês corrente fica fora do treino**: o usuário pode registrar mais de uma
+  leitura por mês, e um mês parcial puxaria a tendência para baixo.
+- A **tendência usa a distância real em meses**, então meses sem registro não
+  distorcem a reta.
+- **Validação (backtest):** para os últimos 3 meses do histórico, o modelo é
+  treinado só com os meses anteriores e prevê o mês seguinte. A média do erro
+  absoluto é o **erro médio (MAE, em kWh)**. O mesmo cálculo é feito com a média
+  histórica, como referência, e a regressão só é usada se errar no máximo o
+  mesmo que a média. O log mostra, por usuário, o método e os dois erros:
+
+  ```
+  [PREVISAO] usuario 1: 11 meses, metodo=regressao, erro medio=6.9 kWh (2.3% do consumo medio) | referencia media historica=28.9 kWh
+  ```
+- A projeção começa no mês corrente, se ele ainda não tem registro, ou no mês
+  seguinte ao último registro.
+
+**Testes** (Spark local, sem banco), a partir da raiz do repositório:
+
+```bash
+python -m pytest spark/tests
+```
 
 **Estratégia de escrita (append + limpa, nunca overwrite):** antes de gravar, o
 script remove as linhas anteriores com um `DELETE` via JDBC e então grava as

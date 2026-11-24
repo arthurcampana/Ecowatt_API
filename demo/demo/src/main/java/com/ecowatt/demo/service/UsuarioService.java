@@ -56,8 +56,9 @@ public class UsuarioService {
     public Optional<UsuarioResponseDTO> alterarUsuario(Long id, UsuarioUpdateDTO dto){
         return usuarioRepository.findById(id).map(usuario -> {
 
-            if(dto.nome() != null){
-                usuario.setNome(dto.nome());
+            // Nome em branco e ignorado, para nao apagar o nome do usuario.
+            if(dto.nome() != null && !dto.nome().isBlank()){
+                usuario.setNome(dto.nome().trim());
             }
 
             if(dto.senha() != null){

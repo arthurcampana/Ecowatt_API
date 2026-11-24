@@ -56,19 +56,51 @@ Isso gera consumos, equipamentos e eventos de uso/clique — o mapa de calor e o
   demanda e encerra. Lê a tabela `evento_uso` do serviço `postgres` e grava os
   Parquets agregados no volume `ecowatt_spark_data`. Veja `spark/README.md`.
 
-## Rodar o pipeline de dados (PySpark)
-Com o banco no ar e já populado (`/demo/popular`), rode:
+## Previsão de consumo (IA) — automática
+O serviço **spark** sobe junto com o `docker compose up` e recalcula a previsão
+a cada 30s (lê a tabela `consumo`, grava em `previsao_consumo`). Depois de
+popular dados (`/demo/popular` ou Ctrl+Shift+D no app), **recarregue a página**
+e a previsão aparece no Dashboard em até meio minuto — sem rodar nenhum comando.
+
+O intervalo é controlado pela variável `INTERVALO_PREVISAO` (segundos) no
+serviço `spark` do compose.
+
+## Rodar o pipeline de analytics (PySpark)
+As camadas bronze → prata → ouro (mapa de calor, rankings) dependem da tabela
+`evento_uso` e rodam **sob demanda**, num profile à parte:
 
 ```bash
-docker compose run --rm spark
+docker compose run --rm analytics
 ```
 
 Gera, entre outras, a tabela `ranking_cliques_pagina` (mesma métrica do endpoint
 `GET /metricas/cliques-por-pagina`). No Windows dá para usar `rodar-pipeline-spark.bat`.
 
 ## Observações
-- O front é publicado na porta **5500** de propósito: é a porta que o CORS do
-  backend já libera (`SecurityConfig`). Se mudar essa porta, ajuste o CORS também.
+- O front é publicado na porta **5500**, que é uma das origens liberadas por
+  padrão no CORS do backend. Se mudar a porta ou o endereço, ajuste a variável
+  `CORS_ALLOWED_ORIGINS` (veja "Publicar em outro endereço" abaixo).
+
+## Publicar em outro endereço (deploy)
+Duas variáveis controlam os endereços. Sem elas, tudo continua apontando para
+`localhost`:
+
+| Variável | Onde | Para quê |
+|---|---|---|
+| `VITE_API_URL` | build do frontend | URL pública da API que o navegador chama. É embutida no build, então exige `--build`. |
+| `CORS_ALLOWED_ORIGINS` | backend | Endereço(s) do frontend que podem chamar a API, separados por vírgula. |
+| `SHOW_SQL` | backend | `false` desliga o log de todo SQL executado (recomendado em produção). |
+
+Exemplo, com o frontend em `https://ecowatt.exemplo.com` e a API em
+`https://api.ecowatt.exemplo.com` (PowerShell):
+
+```powershell
+$env:VITE_API_URL = "https://api.ecowatt.exemplo.com"
+$env:CORS_ALLOWED_ORIGINS = "https://ecowatt.exemplo.com"
+docker compose up --build
+```
+
+Num provedor de nuvem, cadastre as mesmas variáveis no painel do serviço.
 - O **PySpark** (pasta `spark/`) faz parte do compose como o serviço `spark`,
   mas num **profile** à parte — só roda quando você chama `docker compose run
   --rm spark` (ou o `.bat`), não no `up` padrão. Dentro do compose ele lê o

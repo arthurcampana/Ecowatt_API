@@ -32,6 +32,9 @@ services:
       SPRING_DATASOURCE_PASSWORD: senai
       # Segredo do JWT (troque em produção)
       JWT_SECRET: MinhaChaveSuperSecretaParaJWTComMaisDe32Caracteres123456
+      # Frontends que podem chamar a API (separados por vírgula). Para outro
+      # endereço, exporte CORS_ALLOWED_ORIGINS antes do "docker compose up".
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5500,http://127.0.0.1:5500,http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://127.0.0.1:3000}
     ports:
       - "8080:8080"
     depends_on:
@@ -42,26 +45,24 @@ services:
     build:
       context: ./EcowattFront-React
       args:
-        # URL que o browser usa para falar com o backend (porta publicada)
-        VITE_API_URL: http://localhost:8080
+        # URL que o browser usa para falar com o backend (porta publicada).
+        # Embutida no build: para outro endereço, exporte VITE_API_URL e rode
+        # "docker compose up --build".
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8080}
     ports:
       - "5500:80"
     depends_on:
       - backend
 
-  # Pipeline PySpark (bronze -> prata -> ouro) em LOTE. Roda sob demanda, nao
-  # junto com o app: faz parte do "profile" spark. Para rodar:
-  #
-  #   docker compose run --rm spark
-  #
-  # Le a tabela evento_uso do Postgres, trata os dados e grava os Parquets
-  # agregados no volume ecowatt_spark_data (em /app/data dentro do container).
-  # Precisa que o banco ja tenha eventos (rode o app e use /demo/popular ou
-  # os atalhos Ctrl+Shift+D / Ctrl+Shift+F).
+  # Serviço de PREVISÃO (PySpark MLlib): sobe junto com o app e recalcula a
+  # previsão de consumo a cada INTERVALO_PREVISAO segundos (padrão 30s), lendo a
+  # tabela `consumo` e gravando em `previsao_consumo`. Assim, depois de popular
+  # dados (Ctrl+Shift+D), a previsão aparece sozinha ao recarregar — sem abrir
+  # terminal. Ver spark/loop_previsao.sh.
   spark:
     build:
       context: ./spark
-    profiles: ["spark"]
+    command: ["sh", "loop_previsao.sh"]
     environment:
       # Dentro da rede do compose o host do banco e "postgres", nao localhost.
       PG_HOST: postgres
@@ -70,6 +71,30 @@ services:
       PG_USER: postgres
       PG_PASSWORD: senai
       # Saida dos Parquets dentro do container (mapeada no volume abaixo).
+      SPARK_DATA_DIR: /app/data
+      # Intervalo (segundos) entre recálculos da previsão.
+      INTERVALO_PREVISAO: "30"
+    restart: unless-stopped
+    volumes:
+      - ecowatt_spark_data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Pipeline de ANALYTICS (bronze -> prata -> ouro) em LOTE, sob demanda. Depende
+  # da tabela evento_uso, entao fica no profile "analytics" e NAO sobe no up.
+  #   docker compose run --rm analytics
+  analytics:
+    build:
+      context: ./spark
+    profiles: ["analytics"]
+    command: ["sh", "-c", "python bronze.py && python prata.py && python ouro.py"]
+    environment:
+      PG_HOST: postgres
+      PG_PORT: "5432"
+      PG_DB: ecowatt
+      PG_USER: postgres
+      PG_PASSWORD: senai
       SPARK_DATA_DIR: /app/data
     volumes:
       - ecowatt_spark_data:/app/data

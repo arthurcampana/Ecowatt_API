@@ -45,7 +45,7 @@ echo.
 
 REM ---------- 2. Roda o pipeline em lote (bronze -> prata -> ouro) ----------
 echo [2/2] Rodando o pipeline PySpark (bronze -^> prata -^> ouro)...
-docker compose run --rm spark
+docker compose run --rm analytics
 if errorlevel 1 (
     echo       [ERRO] Falha ao rodar o pipeline. O banco esta populado?
     goto FIM_ERRO

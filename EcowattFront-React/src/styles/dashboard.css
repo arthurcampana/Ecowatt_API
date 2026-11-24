@@ -846,8 +846,47 @@ html[data-theme="dark"] .empty-state .empty-btn {
 /* ----- Linha meta + custo ----- */
 .dash-row2 {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1.5fr 1fr 1fr;
   gap: 1.5rem;
+}
+
+/* Telas medias: meta ocupa a linha inteira; custo e previsao lado a lado. */
+@media (max-width: 1200px) {
+  .dash-row2 {
+    grid-template-columns: 1fr 1fr;
+  }
+  .dash-row2 .dash-meta {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ----- Painel de previsao (IA) ----- */
+.dash-previsao-lista {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0.6rem 0 0;
+  border-top: 1px solid var(--c-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.dash-previsao-lista li {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--c-text-suave);
+}
+
+.dash-previsao-lista li strong {
+  color: var(--c-text);
+  font-weight: 700;
+}
+
+.dash-previsao-nota {
+  margin: 0.6rem 0 0;
+  font-size: 0.75rem;
+  color: var(--c-text-suave);
 }
 
 .dash-tag.perigo {
