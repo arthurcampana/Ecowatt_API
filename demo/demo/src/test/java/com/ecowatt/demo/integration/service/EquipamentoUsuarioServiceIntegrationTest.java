@@ -37,7 +37,7 @@ class EquipamentoUsuarioServiceIntegrationTest {
     @DisplayName("INTEGRACAO: associar equipamento, recalcular horas, listar e excluir")
     void cicloCompleto_deveManterConsumoCalculado() {
         UsuarioResponseDTO usuario = usuarioService.cadastrarUsuario(new UsuarioRequestDTO(
-                "Usuario Equip", "equip.integracao@exemplo.test", "senha123"));
+                "Usuario Equip", "equip.integracao@exemplo.test", "senha123", true));
         EquipamentoResponseDTO equipamento = equipamentoService.criar(
                 new EquipamentoRequestDTO("Computador", "PC1", 1.5));
         EquipamentoUsuarioResponseDTO criado = vinculoService.cadastrarEquipamentoUsuario(

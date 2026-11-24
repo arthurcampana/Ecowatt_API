@@ -27,6 +27,13 @@ public class Usuario {
     @Column(name = "role", nullable = false)
     private String role;
 
+    // Consentimento LGPD: quando o usuario aceitou os termos e qual versao.
+    @Column(name = "termos_aceitos_em", nullable = false)
+    private LocalDateTime termosAceitosEm;
+
+    @Column(name = "termos_versao")
+    private String termosVersao;
+
     public Usuario() {}
 
     public Usuario(Long id, String nome, String senha, String email, LocalDate dataRegistro) {
@@ -40,6 +47,10 @@ public class Usuario {
         this.email = email;
         this.dataRegistro = dataRegistro;
         this.role = role;
+        // Consentimento registrado por padrao no momento da criacao; o cadastro
+        // real sobrescreve com a versao vigente dos termos (ver UsuarioService).
+        this.termosAceitosEm = LocalDateTime.now();
+        this.termosVersao = "1.0";
     }
 
     public Long getId() {
@@ -88,5 +99,21 @@ public class Usuario {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public LocalDateTime getTermosAceitosEm() {
+        return termosAceitosEm;
+    }
+
+    public void setTermosAceitosEm(LocalDateTime termosAceitosEm) {
+        this.termosAceitosEm = termosAceitosEm;
+    }
+
+    public String getTermosVersao() {
+        return termosVersao;
+    }
+
+    public void setTermosVersao(String termosVersao) {
+        this.termosVersao = termosVersao;
     }
 }

@@ -20,3 +20,7 @@ Thumbs.db
 
 # Artefatos de workflows do agente (relatorios de design/review/verificacao)
 .agents/
+
+# Arquivos de lock temporarios do Microsoft Word
+~$*.docx
+~$*.doc

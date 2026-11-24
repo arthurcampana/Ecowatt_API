@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { usuarioService } from "../api/usuarioService.js";
 import AuthLayout from "../components/AuthLayout.jsx";
+import ModalTermos from "../components/ModalTermos.jsx";
 
 export default function Cadastro() {
   const navigate = useNavigate();
@@ -10,6 +11,8 @@ export default function Cadastro() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
+  const [aceiteTermos, setAceiteTermos] = useState(false);
+  const [termosAbertos, setTermosAbertos] = useState(false);
   const [mensagem, setMensagem] = useState(null); // { texto, tipo }
   const [carregando, setCarregando] = useState(false);
 
@@ -35,12 +38,21 @@ export default function Cadastro() {
       return;
     }
 
+    if (!aceiteTermos) {
+      setMensagem({
+        texto: "É necessário aceitar os Termos de Uso e a Política de Privacidade.",
+        tipo: "erro",
+      });
+      return;
+    }
+
     try {
       setCarregando(true);
       await usuarioService.cadastrar({
         nome: nome.trim(),
         email: email.trim(),
         senha,
+        aceiteTermos,
       });
       setMensagem({
         texto: "Usuário cadastrado com sucesso!",
@@ -118,7 +130,31 @@ export default function Cadastro() {
           />
         </div>
 
-        <button type="submit" className="auth-btn" disabled={carregando}>
+        <div className="auth-aceite">
+          <input
+            id="aceiteTermos"
+            type="checkbox"
+            checked={aceiteTermos}
+            onChange={(e) => setAceiteTermos(e.target.checked)}
+          />
+          <label htmlFor="aceiteTermos">
+            Li e aceito os{" "}
+            <button
+              type="button"
+              className="link-inline"
+              onClick={() => setTermosAbertos(true)}
+            >
+              Termos de Uso e a Política de Privacidade
+            </button>
+            .
+          </label>
+        </div>
+
+        <button
+          type="submit"
+          className="auth-btn"
+          disabled={carregando || !aceiteTermos}
+        >
           {carregando ? "Cadastrando..." : "Cadastrar"}
         </button>
       </form>
@@ -126,6 +162,11 @@ export default function Cadastro() {
       <p className="auth-rodape">
         Já tem conta? <Link to="/login">Entrar</Link>
       </p>
+
+      <ModalTermos
+        aberto={termosAbertos}
+        aoFechar={() => setTermosAbertos(false)}
+      />
     </AuthLayout>
   );
 }

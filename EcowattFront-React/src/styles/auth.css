@@ -296,3 +296,124 @@ html[data-theme="dark"] .auth {
     min-height: 100vh;
   }
 }
+
+/* ---- Aceite dos termos (LGPD) no cadastro ---- */
+.auth-aceite {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0.25rem 0 1rem;
+  font-size: 0.85rem;
+  color: var(--auth-sub);
+}
+.auth-aceite input[type="checkbox"] {
+  margin-top: 0.15rem;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: #16a34a;
+}
+.auth-aceite label {
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+/* ---- Link em texto (abre o modal de termos) ---- */
+.link-inline {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: #16a34a;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.link-inline:hover {
+  color: #15803d;
+}
+
+/* ---- Modal dos Termos (sobre a propria tela) ----
+   Usa cores fixas (nao as variaveis --auth-*) para garantir contraste legivel
+   independentemente do tema. */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1000;
+}
+.modal-caixa {
+  background: #ffffff;
+  color: #334155;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 540px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+.modal-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.4rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+.modal-cabecalho h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #0f172a;
+}
+.modal-fechar {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #64748b;
+  padding: 0.25rem;
+}
+.modal-fechar:hover {
+  color: #0f172a;
+}
+.modal-corpo {
+  padding: 1.2rem 1.4rem;
+  overflow-y: auto;
+}
+.modal-rodape {
+  padding: 1rem 1.4rem;
+  border-top: 1px solid #e2e8f0;
+}
+.modal-rodape .auth-btn {
+  margin: 0;
+}
+
+/* ---- Texto dos Termos (dentro do modal) ---- */
+.termos-texto {
+  text-align: left;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: #334155;
+}
+.termos-texto p {
+  color: #334155;
+}
+.termos-texto .termos-versao {
+  font-size: 0.8rem;
+  margin: 0 0 0.8rem;
+  color: #64748b;
+}
+.termos-texto h3 {
+  color: #15803d;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 1.1rem 0 0.35rem;
+}
+.termos-texto h3:first-of-type {
+  margin-top: 0;
+}

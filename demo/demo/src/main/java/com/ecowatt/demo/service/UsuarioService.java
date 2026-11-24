@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,6 +24,10 @@ public class UsuarioService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    // Versao vigente dos Termos de Uso / Politica de Privacidade. Ao mudar os
+    // termos, suba esta versao para diferenciar quem aceitou qual texto.
+    public static final String VERSAO_TERMOS = "1.0";
+
     // CREATE
     public UsuarioResponseDTO cadastrarUsuario(UsuarioRequestDTO dto){
         Usuario usuario = new Usuario();
@@ -32,6 +37,10 @@ public class UsuarioService {
         usuario.setSenha(passwordEncoder.encode(dto.senha()));
         usuario.setDataRegistro(LocalDate.now());
         usuario.setRole("USER");
+        // Consentimento LGPD: o @AssertTrue no DTO ja garante que aceiteTermos e
+        // verdadeiro; aqui registramos quando e qual versao foi aceita.
+        usuario.setTermosAceitosEm(LocalDateTime.now());
+        usuario.setTermosVersao(VERSAO_TERMOS);
 
         usuario = usuarioRepository.save(usuario);
 

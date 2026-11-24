@@ -33,7 +33,7 @@ class ConsumoServiceIntegrationTest {
     @DisplayName("INTEGRACAO: salvar e listar consumos persistidos por usuario")
     void salvarEListar_quandoUsuarioExiste_deveRetornarSomenteSeusConsumos() {
         UsuarioResponseDTO usuario = usuarioService.cadastrarUsuario(
-                new UsuarioRequestDTO("Usuario Consumo", "consumo.usuario@exemplo.test", "senha123"));
+                new UsuarioRequestDTO("Usuario Consumo", "consumo.usuario@exemplo.test", "senha123", true));
         LocalDateTime data = LocalDateTime.of(2026, 3, 15, 10, 30);
 
         ConsumoResponseDTO criado = consumoService.salvar(

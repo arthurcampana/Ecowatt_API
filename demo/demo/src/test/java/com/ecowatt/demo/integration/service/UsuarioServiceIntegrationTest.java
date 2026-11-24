@@ -34,7 +34,7 @@ class UsuarioServiceIntegrationTest {
     @DisplayName("INTEGRACAO: cadastrar e autenticar usuario usando banco H2")
     void cadastrarELogin_quandoDadosValidos_devePersistirEAutenticar() {
         UsuarioRequestDTO cadastro = new UsuarioRequestDTO(
-                "Usuario Integracao", "integracao.usuario@exemplo.test", "senha123");
+                "Usuario Integracao", "integracao.usuario@exemplo.test", "senha123", true);
 
         UsuarioResponseDTO criado = usuarioService.cadastrarUsuario(cadastro);
         LoginResponseDTO login = authenticationService.autenticar(

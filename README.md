@@ -48,6 +48,7 @@ O EcoWatt foi desenvolvido para auxiliar usuários no acompanhamento do consumo 
 
 ## Usuários
 - Cadastro, login e autenticação JWT
+- **Consentimento LGPD no cadastro**: a conta só é criada com o aceite dos Termos de Uso e da Política de Privacidade (checkbox obrigatório). O momento e a versão do aceite ficam registrados no banco, para comprovação (passo de adequação à LGPD).
 - Perfil e configurações
 - **Controle de acesso por papel (RBAC)**: cada usuário tem um papel `USER` (padrão) ou `ADMIN`. Recursos de análise de uso — a página `/analytics` e o mapa de calor de cliques — são restritos a administradores; o restante do sistema é comum a todos os usuários logados.
 - **Controle de acesso por dono do dado**: cada usuário só acessa os próprios consumos, equipamentos, configuração e previsão; tentar ler ou alterar dados de outro usuário retorna `403`. O `ADMIN` acessa os dados de todos.
@@ -99,7 +100,7 @@ Ecowatt_API/
 │   │   ├── model/             # Entidades JPA (inclui EventoUso)
 │   │   ├── repository/        # Spring Data repositories
 │   │   └── service/           # Regras de negócio (inclui AnalyticsService)
-│   ├── src/main/resources/db/migration/   # Flyway (V1..V5; V4 = papel/role + seed admin; V5 = previsao_consumo)
+│   ├── src/main/resources/db/migration/   # Flyway (V1..V6; V4 = papel/role + seed admin; V5 = previsao_consumo; V6 = consentimento LGPD)
 │   ├── Dockerfile
 │   └── pom.xml
 │
@@ -128,7 +129,7 @@ Ecowatt_API/
 
 # Modelo de Dados
 
-- **Usuário**: id, nome, email, senha, role (`USER`/`ADMIN`), dataRegistro
+- **Usuário**: id, nome, email, senha, role (`USER`/`ADMIN`), dataRegistro, termosAceitosEm, termosVersao (consentimento LGPD)
 - **Equipamento**: id, nome, modelo, consumoPorHora
 - **EquipamentoUsuario**: id, usuario, equipamento, nomeIdentificacao, horasPorDia, consumoEsperado
 - **Consumo**: id, usuario, consumoKwh, dataRegistro
@@ -188,6 +189,13 @@ start (banco novo), um admin de demonstração — e-mail `admin@ecowatt.com`, s
 `admin123` (hash BCrypt). Troque essas credenciais fora de um contexto acadêmico.
 
 O segredo do JWT é configurável por variável de ambiente (`JWT_SECRET`).
+
+**Privacidade e consentimento (LGPD):** o cadastro exige o aceite dos Termos de
+Uso e da Política de Privacidade; sem o aceite, a conta não é criada. O sistema
+registra quando e qual versão dos termos o usuário aceitou (`termos_aceitos_em`,
+`termos_versao`), para poder comprovar o consentimento — conforme a Lei nº
+13.709/2018. É um passo de adequação à LGPD, não uma declaração de conformidade
+plena.
 
 ---
 

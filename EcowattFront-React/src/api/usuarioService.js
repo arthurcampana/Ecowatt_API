@@ -4,8 +4,9 @@ import { api } from "./apiClient.js";
 // paginas nao precisem conhecer URLs nem montar headers.
 export const usuarioService = {
   // Cadastro e endpoint publico (nao envia Authorization).
-  cadastrar: ({ nome, email, senha }) =>
-    api.post("/usuario/add", { nome, email, senha }, { auth: false }),
+  // aceiteTermos (LGPD) e obrigatorio: o backend recusa o cadastro sem ele.
+  cadastrar: ({ nome, email, senha, aceiteTermos }) =>
+    api.post("/usuario/add", { nome, email, senha, aceiteTermos }, { auth: false }),
 
   buscar: (id) => api.get(`/usuario/buscar/${id}`),
 

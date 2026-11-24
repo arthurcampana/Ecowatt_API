@@ -35,7 +35,7 @@ class AuthenticationServiceIntegrationTest {
     @DisplayName("INTEGRACAO: AuthenticationManager, UserDetails e JWT devem autenticar usuario real")
     void autenticar_quandoCredenciaisValidas_deveGerarJwtValido() {
         usuarioService.cadastrarUsuario(new UsuarioRequestDTO(
-                "Usuario Auth", "auth.integracao@exemplo.test", "senha123"));
+                "Usuario Auth", "auth.integracao@exemplo.test", "senha123", true));
 
         LoginResponseDTO resposta = authenticationService.autenticar(
                 new LoginDTO("auth.integracao@exemplo.test", "senha123"));
@@ -49,7 +49,7 @@ class AuthenticationServiceIntegrationTest {
     @DisplayName("INTEGRACAO: senha incorreta deve ser rejeitada")
     void autenticar_quandoSenhaIncorreta_deveFalhar() {
         usuarioService.cadastrarUsuario(new UsuarioRequestDTO(
-                "Usuario Auth 2", "auth.erro@exemplo.test", "senha123"));
+                "Usuario Auth 2", "auth.erro@exemplo.test", "senha123", true));
 
         assertThatThrownBy(() -> authenticationService.autenticar(
                 new LoginDTO("auth.erro@exemplo.test", "incorreta")))

@@ -44,7 +44,7 @@ class UsuarioServiceTest {
     @Test
     @DisplayName("cadastrarUsuario deve codificar a senha e nao expor a senha no retorno")
     void cadastrarUsuario_quandoDadosValidos_deveCodificarSenha() {
-        UsuarioRequestDTO dto = new UsuarioRequestDTO("Usuario A", "usuario.a@exemplo.test", "senha123");
+        UsuarioRequestDTO dto = new UsuarioRequestDTO("Usuario A", "usuario.a@exemplo.test", "senha123", true);
         when(passwordEncoder.encode("senha123")).thenReturn("hash-senha");
         when(usuarioRepository.save(any(Usuario.class))).thenAnswer(invocation -> {
             Usuario u = invocation.getArgument(0);

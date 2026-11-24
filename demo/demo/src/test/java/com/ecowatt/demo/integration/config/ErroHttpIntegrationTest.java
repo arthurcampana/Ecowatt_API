@@ -91,6 +91,17 @@ class ErroHttpIntegrationTest {
     }
 
     @Test
+    void cadastroSemAceiteDosTermosRetorna400() {
+        // Rota publica; o aceite LGPD e obrigatorio (aceiteTermos deve ser true).
+        ResponseEntity<String> resposta = enviar(HttpMethod.POST, "/usuario/add",
+                "{\"nome\":\"Teste LGPD\",\"email\":\"lgpd-sem-aceite@ecowatt.test\","
+                        + "\"senha\":\"senha123\",\"aceiteTermos\":false}", false);
+
+        assertThat(resposta.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(resposta.getBody()).contains("aceitar os Termos");
+    }
+
+    @Test
     void semTokenContinuaRetornando401() {
         ResponseEntity<String> resposta = enviar(HttpMethod.GET, "/consumo/listar", null, false);
 

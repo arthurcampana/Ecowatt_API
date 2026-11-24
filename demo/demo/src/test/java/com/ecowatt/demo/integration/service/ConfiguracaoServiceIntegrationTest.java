@@ -33,7 +33,7 @@ class ConfiguracaoServiceIntegrationTest {
     @DisplayName("INTEGRACAO: salvar, buscar, alterar e excluir configuracao")
     void cicloCompleto_devePersistirConfiguracao() {
         UsuarioResponseDTO usuario = usuarioService.cadastrarUsuario(new UsuarioRequestDTO(
-                "Usuario Config", "config.integracao@exemplo.test", "senha123"));
+                "Usuario Config", "config.integracao@exemplo.test", "senha123", true));
         ConfiguracaoResponseDTO criada = configuracaoService.salvar(new ConfiguracaoRequestDTO(
                 usuario.id(), new BigDecimal("0.85"), 300.0, "kWh"));
 
