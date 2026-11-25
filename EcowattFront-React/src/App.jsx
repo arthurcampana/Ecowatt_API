@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import Landing from "./pages/Landing.jsx";
 import Login from "./pages/Login.jsx";
 import Cadastro from "./pages/Cadastro.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
@@ -15,6 +16,7 @@ export default function App() {
   return (
     <Routes>
       {/* Rotas publicas */}
+      <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/cadastro" element={<Cadastro />} />
 
@@ -26,7 +28,7 @@ export default function App() {
           </RotaProtegida>
         }
       >
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/consumo" element={<Consumo />} />
         <Route path="/equipamentos" element={<Equipamentos />} />
         <Route path="/relatorios" element={<Relatorios />} />

@@ -25,7 +25,7 @@ export default function Login() {
       setCarregando(true);
       await login(email.trim(), senha);
       setMensagem({ texto: "Login realizado com sucesso!", tipo: "sucesso" });
-      setTimeout(() => navigate("/"), 800);
+      setTimeout(() => navigate("/dashboard"), 800);
     } catch (error) {
       const texto =
         error?.status === 401

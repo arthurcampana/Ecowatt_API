@@ -12,9 +12,9 @@ export default function RotaProtegida({ children, somenteAdmin = false }) {
   }
 
   // Rotas exclusivas de ADMIN (ex.: Analytics): usuario logado sem perfil
-  // de admin e redirecionado para o inicio.
+  // de admin e redirecionado para o painel.
   if (somenteAdmin && !isAdmin) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;

@@ -1,0 +1,325 @@
+/* Landing page publica do EcoWatt (rota /). Paleta verde propria, com cores
+   fixas para nao depender das variaveis do app, e tema escuro via o atributo
+   data-theme que o ThemeContext ja aplica no documento. */
+
+.landing {
+  --lp-verde: #16a34a;
+  --lp-verde-escuro: #0f5f3d;
+  --lp-lime: #8bc34a;
+  --lp-ink: #16261f;
+  --lp-mute: #5a6b63;
+  --lp-bg: #ffffff;
+  --lp-bg-suave: #f1f8f3;
+  --lp-card: #ffffff;
+  --lp-borda: #e2ebe5;
+
+  min-height: 100vh;
+  background: var(--lp-bg);
+  color: var(--lp-ink);
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tema escuro (o app marca <html data-theme="dark">) */
+:root[data-theme="dark"] .landing,
+.landing[data-theme="dark"] {
+  --lp-ink: #e6f0ea;
+  --lp-mute: #9fb3a8;
+  --lp-bg: #0e1a14;
+  --lp-bg-suave: #13241b;
+  --lp-card: #16261f;
+  --lp-borda: #27403360;
+}
+
+/* ---- Cabeçalho ---- */
+.landing-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 2rem;
+  max-width: 1120px;
+  width: 100%;
+  margin: 0 auto;
+}
+.landing-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: var(--lp-verde-escuro);
+}
+:root[data-theme="dark"] .landing-logo {
+  color: var(--lp-lime);
+}
+.landing-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.landing-tema {
+  background: none;
+  border: 1px solid var(--lp-borda);
+  color: var(--lp-mute);
+  border-radius: 8px;
+  padding: 0.4rem;
+  cursor: pointer;
+  display: inline-flex;
+}
+.landing-link {
+  color: var(--lp-ink);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.landing-link:hover {
+  color: var(--lp-verde);
+}
+.landing-btn {
+  background: var(--lp-verde);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+.landing-btn:hover {
+  background: var(--lp-verde-escuro);
+}
+.landing-btn.grande {
+  padding: 0.85rem 1.8rem;
+  font-size: 1.05rem;
+}
+.landing-link.grande {
+  font-size: 1.05rem;
+}
+
+/* ---- Hero ---- */
+.landing-hero {
+  max-width: 1120px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 3rem 2rem 4rem;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 3rem;
+  align-items: center;
+}
+.landing-eyebrow {
+  display: inline-block;
+  background: var(--lp-bg-suave);
+  color: var(--lp-verde-escuro);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  margin-bottom: 1rem;
+}
+:root[data-theme="dark"] .landing-eyebrow {
+  color: var(--lp-lime);
+}
+.landing-hero-texto h1 {
+  font-size: 2.6rem;
+  line-height: 1.12;
+  margin: 0 0 1rem;
+  font-weight: 800;
+}
+.landing-hero-texto h1 span {
+  color: var(--lp-verde);
+}
+.landing-hero-texto p {
+  font-size: 1.08rem;
+  line-height: 1.6;
+  color: var(--lp-mute);
+  margin: 0 0 1.8rem;
+  max-width: 34rem;
+}
+.landing-hero-acoes {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+/* Cartão flutuante ilustrativo */
+.landing-hero-arte {
+  display: flex;
+  justify-content: center;
+}
+.landing-card-flutuante {
+  background: var(--lp-card);
+  border: 1px solid var(--lp-borda);
+  border-radius: 18px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 340px;
+  box-shadow: 0 24px 60px rgba(15, 95, 61, 0.15);
+}
+.lcf-linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.9rem;
+  color: var(--lp-ink);
+}
+.lcf-linha strong {
+  font-size: 1.6rem;
+  color: var(--lp-verde-escuro);
+}
+:root[data-theme="dark"] .lcf-linha strong {
+  color: var(--lp-lime);
+}
+.lcf-linha.muted {
+  color: var(--lp-mute);
+  font-size: 0.8rem;
+  margin-top: 0.4rem;
+}
+.lcf-ok {
+  color: var(--lp-verde);
+  font-weight: 600;
+}
+.lcf-barra {
+  height: 10px;
+  background: var(--lp-bg-suave);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 0.8rem 0;
+}
+.lcf-barra-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--lp-lime), var(--lp-verde));
+  border-radius: 999px;
+}
+.lcf-previsao {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.2rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--lp-borda);
+  font-size: 0.85rem;
+  color: var(--lp-mute);
+}
+
+/* ---- Recursos ---- */
+.landing-recursos {
+  background: var(--lp-bg-suave);
+  padding: 3.5rem 2rem;
+}
+.landing-recursos h2 {
+  text-align: center;
+  font-size: 1.9rem;
+  margin: 0 0 2.2rem;
+  color: var(--lp-ink);
+}
+.landing-grid {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.3rem;
+}
+.landing-recurso {
+  background: var(--lp-card);
+  border: 1px solid var(--lp-borda);
+  border-radius: 14px;
+  padding: 1.5rem;
+}
+.landing-recurso-ico {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: var(--lp-bg-suave);
+  color: var(--lp-verde);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.9rem;
+}
+.landing-recurso h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1.1rem;
+  color: var(--lp-ink);
+}
+.landing-recurso p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--lp-mute);
+}
+
+/* ---- Chamada final ---- */
+.landing-cta {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+.landing-cta h2 {
+  font-size: 1.8rem;
+  margin: 0 0 0.6rem;
+}
+.landing-cta p {
+  color: var(--lp-mute);
+  margin: 0 0 1.6rem;
+  font-size: 1.05rem;
+}
+
+/* ---- Rodapé ---- */
+.landing-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--lp-borda);
+  padding: 1.4rem 2rem;
+  max-width: 1120px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--lp-mute);
+}
+.landing-footer span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  color: var(--lp-verde-escuro);
+}
+:root[data-theme="dark"] .landing-footer span:first-child {
+  color: var(--lp-lime);
+}
+
+/* ---- Responsivo ---- */
+@media (max-width: 860px) {
+  .landing-hero {
+    grid-template-columns: 1fr;
+    padding-top: 2rem;
+    gap: 2rem;
+  }
+  .landing-hero-texto h1 {
+    font-size: 2.1rem;
+  }
+  .landing-grid {
+    grid-template-columns: 1fr;
+  }
+  .landing-hero-arte {
+    order: -1;
+  }
+}
+
+@media (max-width: 520px) {
+  .landing-header {
+    padding: 1rem;
+  }
+  .landing-nav {
+    gap: 0.6rem;
+  }
+  .landing-link:not(.grande) {
+    display: none;
+  }
+}

@@ -22,7 +22,7 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-inner">
-        <NavLink to="/" className="navbar-brand">
+        <NavLink to="/dashboard" className="navbar-brand">
           EcoWatt
         </NavLink>
 

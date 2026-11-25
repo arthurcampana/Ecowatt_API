@@ -5,7 +5,7 @@ import { useTheme } from "../context/ThemeContext.jsx";
 import Icon from "./Icon.jsx";
 
 const links = [
-  { to: "/", label: "Início", icon: "home", end: true, evento: "menu_inicio" },
+  { to: "/dashboard", label: "Início", icon: "home", end: true, evento: "menu_inicio" },
   { to: "/consumo", label: "Consumo", icon: "bolt", evento: "menu_consumo" },
   { to: "/equipamentos", label: "Equipamentos", icon: "plug", evento: "menu_equipamentos" },
   { to: "/relatorios", label: "Relatórios", icon: "chart", evento: "menu_relatorios" },
@@ -68,7 +68,7 @@ export default function Sidebar() {
   return (
     <aside className={colapsada ? "sidebar is-colapsada" : "sidebar"}>
       <div className="sidebar-topo">
-        <NavLink to="/" className="sidebar-brand">
+        <NavLink to="/dashboard" className="sidebar-brand">
           <span className="sidebar-brand-ico">
             <Icon name="leaf" size={22} />
           </span>
